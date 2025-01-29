@@ -1,7 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
-
 db = SQLAlchemy()
 
 
@@ -27,20 +26,24 @@ class HistoricalData(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'))
-    crypto_symbol = db.Column(db.String(10), nullable=False)
-    price = db.Column(db.Float, nullable=False)
+    coin = db.Column(db.String(10), nullable=False)  # Cryptocurrency symbol (e.g., BTC)
+    price = db.Column(db.Float, nullable=False)  # Current price
+    high_24h = db.Column(db.Float, nullable=True)  # Highest price in the last 24 hours
+    low_24h = db.Column(db.Float, nullable=True)  # Lowest price in the last 24 hours
+    volume_24h = db.Column(db.Float, nullable=False)  # Trading volume in the last 24 hours
+    market_cap = db.Column(db.Float, nullable=True)
     timestamp = db.Column(db.DateTime, default=datetime.now)
-    indicators = db.Column(db.Text)  # JSON data for RSI, MACD, etc. (e.g., { "RSI": 45, "MACD": -0.02 })
+    indicators = db.Column(db.Text)  # JSON data for technical indicators (e.g., { "RSI": 45, "MACD": -0.02 })
 
 
 class AIPredictions(db.Model):
 
     __tablename__ = 'ai_predictions'
 
-    id = db.Column(db.Interger, primary_key=True)
-    user_id = db.Column(db.Interger, db.ForeignKey('users.id', ondelete='CASCADE'))
-    crypto_symbol = db.Column(db.String(10), nullabale=False)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'))
+    coin = db.Column(db.String(10), nullable=False)
     prediction = db.Column(db.String(10), nullable=False)  # 'Buy' or 'Sell'
-    confidence_score = db.Column(db.Float, nullabale=False)
-    reasoning = db.Column(db.Text)
+    confidence_score = db.Column(db.Float, nullable=False)  # Confidence score (e.g., 0.75 for 75%)
+    reasoning = db.Column(db.Text)  # Reasoning behind the prediction
     timestamp = db.Column(db.DateTime, default=datetime.now)
