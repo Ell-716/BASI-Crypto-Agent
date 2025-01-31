@@ -1,0 +1,7 @@
+../.idea/
+__pycache__/
+backend/.env
+.venv
+# Ignore databases and instance folder
+instance/
+*.db
