@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify
-from backend.app import db
-from backend.app.models import User
+from backend.app.models import db, User
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import logging
 
