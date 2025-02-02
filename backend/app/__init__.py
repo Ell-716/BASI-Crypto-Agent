@@ -1,8 +1,13 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
 from backend.config import config
+from backend.app.routes.auth import auth_bp
+from backend.app.routes.users import users_bp
+
 
 db = SQLAlchemy()
+jwt = JWTManager()
 
 
 def create_app(config_name='development'):
@@ -10,8 +15,13 @@ def create_app(config_name='development'):
     app.config.from_object(config[config_name])
 
     db.init_app(app)
+    jwt.init_app(app)
 
     with app.app_context():  # Run once to create the db tables
         db.create_all()
+
+    # Register Blueprints
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(users_bp)
 
     return app
