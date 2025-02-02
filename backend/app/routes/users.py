@@ -11,7 +11,7 @@ users_bp = Blueprint('users', __name__, url_prefix='/users')
 @users_bp.route('/<int:user_id>', methods=['GET'])
 @jwt_required()
 def get_user(user_id):
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     if current_user_id != user_id:
         return jsonify({"error": "Unauthorized"}), 403
 
@@ -30,7 +30,7 @@ def get_user(user_id):
 @users_bp.route('/<int:user_id>', methods=['PUT'])
 @jwt_required()
 def update_preferences(user_id):
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     if current_user_id != user_id:
         return jsonify({"error": "Unauthorized"}), 403
 
@@ -57,7 +57,7 @@ def update_preferences(user_id):
 @users_bp.route('/<int:user_id>', methods=['DELETE'])
 @jwt_required()
 def delete_user(user_id):
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     if current_user_id != user_id:
         return jsonify({"error": "Unauthorized"}), 403
 
