@@ -2,7 +2,6 @@ from flask import Flask
 from flask_jwt_extended import JWTManager
 from backend.config import config
 from backend.app.models import db
-from backend.app.routes.auth import auth_bp
 from backend.app.routes.users import users_bp
 
 
@@ -20,7 +19,6 @@ def create_app(config_name='development'):
         db.create_all()
 
     # Register Blueprints
-    app.register_blueprint(auth_bp)
     app.register_blueprint(users_bp)
 
     return app
