@@ -40,6 +40,7 @@ class Coin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     coin_name = db.Column(db.String(50), nullable=False)
     coin_symbol = db.Column(db.String(10), unique=True, nullable=False)
+    coin_image = db.Column(db.String, nullable=True)
 
     # Relationship with HistoricalData & AIPredictions
     historical_data = db.relationship('HistoricalData', backref='coin', lazy=True)
