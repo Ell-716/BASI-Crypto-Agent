@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 import requests
 from backend.app.models import db, Coin, HistoricalData
 from datetime import datetime, timezone
@@ -72,3 +72,75 @@ def get_historical_data():
         db.session.commit()
 
     return jsonify({"message": "Historical data updated successfully."}), 200
+
+
+@coins_bp.route('/coins', methods=['GET'])
+def get_all_coins():
+    coins = Coin.query.all()
+    return jsonify([
+        {
+            'id': coin.id,
+            'name': coin.coin_name,
+            'symbol': coin.coin_symbol,
+            'image': coin.coin_image
+        } for coin in coins
+    ])
+
+
+@coins_bp.route('/coins/<int:coin_id>', methods=['GET'])
+def get_coin(coin_id):
+    coin = Coin.query.get(coin_id)
+    if not coin:
+        return jsonify({"message": "Coin not found"}), 404
+    return jsonify({
+        'id': coin.id,
+        'name': coin.coin_name,
+        'symbol': coin.coin_symbol,
+        'image': coin.coin_image
+    })
+
+
+@coins_bp.route('/coins/<int:coin_id>/history', methods=['GET'])
+def get_history(coin_id):
+    history = HistoricalData.query.filter_by(coin_id=coin_id).order_by(HistoricalData.timestamp.desc()).all()
+    return jsonify([
+        {
+            'price': h.price,
+            'high': h.high,
+            'low': h.low,
+            'volume': h.volume,
+            'market_cap': h.market_cap,
+            'timestamp': h.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+        } for h in history
+    ])
+
+
+@coins_bp.route('coins/<int:coin_id>', methods=['PUT'])
+def update_coin(coin_id):
+    coin = Coin.query.get(coin_id)
+    if not coin:
+        return jsonify({"message": "Coin not found"}), 404
+
+    data = request.get_json()
+    if not isinstance(data, dict):
+        return jsonify({"message": "Invalid or missing JSON data"}), 400
+
+    coin.coin_name = data.get('name', coin.coin_name)
+    coin.coin_symbol = data.get('symbol', coin.coin_symbol)
+    coin.coin_image = data.get('image', coin.coin_image)
+
+    db.session.commit()
+    return jsonify({"message": "Coin updated"})
+
+
+@coins_bp.route('/coins/<int:coin_id>', methods=['DELETE'])
+def delete_coin(coin_id):
+    coin = Coin.query.get(coin_id)
+    if not coin:
+        return jsonify({"message": "Coin not found"}), 404
+
+    HistoricalData.query.filter_by(coin_id=coin_id).delete()
+
+    db.session.delete(coin)
+    db.session.commit()
+    return jsonify({"message": "Coin and its historical data deleted successfully"})
