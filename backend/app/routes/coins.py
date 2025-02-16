@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 import requests
 from backend.app.models import db, Coin, HistoricalData
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 coins_bp = Blueprint('coins', __name__, url_prefix='/api')
 
@@ -102,17 +102,50 @@ def get_coin(coin_id):
 
 @coins_bp.route('/coins/<int:coin_id>/history', methods=['GET'])
 def get_history(coin_id):
-    history = HistoricalData.query.filter_by(coin_id=coin_id).order_by(HistoricalData.timestamp.desc()).all()
-    return jsonify([
-        {
-            'price': h.price,
-            'high': h.high,
-            'low': h.low,
-            'volume': h.volume,
-            'market_cap': h.market_cap,
-            'timestamp': h.timestamp.strftime("%Y-%m-%d %H:%M:%S")
-        } for h in history
-    ])
+
+    # Get filter parameters
+    interval = request.args.get('interval', '1d')
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', 10, type=int)
+
+    # Define time filter
+    time_deltas = {
+        '1h': timedelta(hours=1),
+        '1d': timedelta(days=1),
+        '1w': timedelta(weeks=1),
+        '1m': timedelta(days=30)
+    }
+
+    if interval not in time_deltas:
+        return jsonify({"error": "Invalid interval."}), 400
+
+    start_time = datetime.now(timezone.utc) - time_deltas[interval]
+
+    history_query = HistoricalData.query.filter(
+        HistoricalData.coin_id == coin_id,
+        HistoricalData.timestamp >= start_time).order_by(HistoricalData.timestamp.desc())
+
+    paginated_history = history_query.paginate(page=page, per_page=limit, error_out=False)
+
+    return jsonify({
+        "coin_id": coin_id,
+        "interval": interval,
+        "page": page,
+        "limit": limit,
+        "total_pages": paginated_history.pages,
+        "total_entries": paginated_history.total,
+        "history": [
+            {
+                'price': h.price,
+                'high': h.high,
+                'low': h.low,
+                'volume': h.volume,
+                'market_cap': h.market_cap,
+                'timestamp': h.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+            }
+            for h in paginated_history.items
+        ]
+    })
 
 
 @coins_bp.route('coins/<int:coin_id>', methods=['PUT'])
@@ -144,3 +177,6 @@ def delete_coin(coin_id):
     db.session.delete(coin)
     db.session.commit()
     return jsonify({"message": "Coin and its historical data deleted successfully"})
+
+
+
