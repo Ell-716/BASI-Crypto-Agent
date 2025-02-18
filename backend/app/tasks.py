@@ -1,4 +1,4 @@
-from backend.app import db
+from backend.app import create_app, db
 from backend.app.models import HistoricalData, TechnicalIndicators, Coin
 from backend.app.api import fetch_coin_data
 from datetime import datetime, timezone
@@ -10,49 +10,92 @@ from celery import Celery
 # Celery Configuration
 celery = Celery('tasks', broker='redis://localhost:6379/0')
 
+# Create Flask app instance for context management
+app = create_app()
+
 
 @celery.task
 def update_historical_data():
-    coins = Coin.query.all()
-    for coin in coins:
-        data, error = fetch_coin_data(coin.coin_symbol)
-        if data:
-            for entry in data['prices']:
-                timestamp = datetime.fromtimestamp(entry[0] / 1000, timezone.utc)
-                price = entry[1]
-                historical_entry = HistoricalData.query.filter_by(coin_id=coin.id, timestamp=timestamp).first()
-                if not historical_entry:
-                    new_data = HistoricalData(
-                        coin_id=coin.id,
-                        price=price,
-                        timestamp=timestamp
-                    )
-                    db.session.add(new_data)
-            db.session.commit()
-    update_technical_indicators()
+    with app.app_context():
+
+        data, error = fetch_coin_data()
+        if error:
+            return
+
+        for coin in data:
+            coin_symbol = coin["symbol"].upper()
+            coin_name = coin["name"]
+            coin_image = coin.get("image", None)
+            price = coin["current_price"]
+            volume = coin["total_volume"]
+            high = coin["high_24h"]
+            low = coin["low_24h"]
+            market_cap = coin["market_cap"]
+
+            # Ensure the coin exists in the database
+            coin_obj = Coin.query.filter_by(coin_symbol=coin_symbol).first()
+            if not coin_obj:
+                coin_obj = Coin(coin_name=coin_name, coin_symbol=coin_symbol, coin_image=coin_image)
+                db.session.add(coin_obj)
+                db.session.commit()
+
+            # Insert historical price
+            timestamp = datetime.now(timezone.utc)
+            historical_entry = HistoricalData(
+                coin_id=coin_obj.id,
+                price=price,
+                high=high,
+                low=low,
+                volume=volume,
+                market_cap=market_cap,
+                timestamp=timestamp
+            )
+            db.session.add(historical_entry)
+        db.session.commit()
+
+    update_technical_indicators.delay()  # Run the next task asynchronously
 
 
 @celery.task
 def update_technical_indicators():
-    """Recalculate and update technical indicators for all coins."""
-    coins = Coin.query.all()
-    for coin in coins:
-        data = HistoricalData.query.filter(
-            HistoricalData.coin_id == coin.id).order_by(HistoricalData.timestamp.desc()).limit(50).all()
-        if data:
+    with app.app_context():
+        coins = Coin.query.all()
+        for coin in coins:
+            data = HistoricalData.query.filter(
+                HistoricalData.coin_id == coin.id
+            ).order_by(HistoricalData.timestamp.desc()).limit(50).all()
             df = pd.DataFrame([(d.timestamp, d.price) for d in data], columns=['timestamp', 'price'])
             df.set_index('timestamp', inplace=True)
 
-            # Compute indicators
+            # Compute indicators safely
             df['SMA_50'] = ta.sma(df['price'], length=50)
             df['SMA_200'] = ta.sma(df['price'], length=200)
             df['EMA_50'] = ta.ema(df['price'], length=50)
             df['EMA_200'] = ta.ema(df['price'], length=200)
             df['RSI'] = ta.rsi(df['price'], length=14)
-            df['MACD'], df['MACD_Signal'], _ = ta.macd(df['price'])
-            df['Stoch_RSI'] = ta.stochrsi(df['price'])
-            df['BB_upper'], df['BB_middle'], df['BB_lower'] = ta.bbands(df['price']).T.values
-            df.dropna(inplace=True)
+
+            # MACD Calculation
+            macd_values = ta.macd(df['price'])
+            if macd_values is not None and macd_values.shape[1] >= 2:
+                df['MACD'], df['MACD_Signal'] = macd_values.iloc[:, 0], macd_values.iloc[:, 1]
+            else:
+                df['MACD'], df['MACD_Signal'] = None, None
+
+            # Stochastic RSI Calculation
+            stoch_rsi_values = ta.stochrsi(df['price'])
+            if isinstance(stoch_rsi_values, pd.DataFrame) and stoch_rsi_values.shape[1] >= 3:
+                df['Stoch_RSI_K'], df['Stoch_RSI_D'], df['Stoch_RSI_J'] = stoch_rsi_values.iloc[:, 0], stoch_rsi_values.iloc[:, 1], stoch_rsi_values.iloc[:, 2]
+            else:
+                df['Stoch_RSI_K'], df['Stoch_RSI_D'], df['Stoch_RSI_J'] = None, None, None
+
+            # Bollinger Bands Calculation
+            bb_values = ta.bbands(df['price'])
+            if isinstance(bb_values, pd.DataFrame) and bb_values.shape[1] >= 3:
+                df['BB_upper'], df['BB_middle'], df['BB_lower'] = bb_values.iloc[:, 0], bb_values.iloc[:, 1], bb_values.iloc[:, 2]
+            else:
+                df['BB_upper'], df['BB_middle'], df['BB_lower'] = None, None, None
+
+            df.dropna(inplace=True)  # Remove rows with NaN values
 
             # Store in database (overwrite latest indicators)
             latest_entry = df.iloc[-1]
@@ -65,7 +108,9 @@ def update_technical_indicators():
                 existing_entry.RSI = latest_entry['RSI']
                 existing_entry.MACD = latest_entry['MACD']
                 existing_entry.MACD_Signal = latest_entry['MACD_Signal']
-                existing_entry.Stoch_RSI = latest_entry['Stoch_RSI']
+                existing_entry.Stoch_RSI_K = latest_entry['Stoch_RSI_K']
+                existing_entry.Stoch_RSI_D = latest_entry['Stoch_RSI_D']
+                existing_entry.Stoch_RSI_J = latest_entry['Stoch_RSI_J']
                 existing_entry.BB_upper = latest_entry['BB_upper']
                 existing_entry.BB_middle = latest_entry['BB_middle']
                 existing_entry.BB_lower = latest_entry['BB_lower']
@@ -79,10 +124,13 @@ def update_technical_indicators():
                     RSI=latest_entry['RSI'],
                     MACD=latest_entry['MACD'],
                     MACD_Signal=latest_entry['MACD_Signal'],
-                    Stoch_RSI=latest_entry['Stoch_RSI'],
+                    Stoch_RSI_K=latest_entry['Stoch_RSI_K'],
+                    Stoch_RSI_D=latest_entry['Stoch_RSI_D'],
+                    Stoch_RSI_J=latest_entry['Stoch_RSI_J'],
                     BB_upper=latest_entry['BB_upper'],
                     BB_middle=latest_entry['BB_middle'],
                     BB_lower=latest_entry['BB_lower']
                 )
                 db.session.add(new_entry)
+
             db.session.commit()
