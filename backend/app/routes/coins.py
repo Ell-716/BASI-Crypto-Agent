@@ -1,23 +1,9 @@
 from flask import Blueprint, jsonify, request
-import requests
+from backend.app.api import fetch_coin_data
 from backend.app.models import db, Coin, HistoricalData
 from datetime import datetime, timezone, timedelta
 
 coins_bp = Blueprint('coins', __name__, url_prefix='/api')
-
-COINGECKO_API_URL = "https://api.coingecko.com/api/v3/coins/markets"
-
-
-def fetch_coin_data():
-    try:
-        response = requests.get(COINGECKO_API_URL, params={
-            'vs_currency': 'usd',
-            'order': 'market_cap_desc',
-            'per_page': 10
-        })
-        return response.json(), None
-    except Exception as e:
-        return [], str(e)
 
 
 @coins_bp.route('/add_coins', methods=['GET'])
@@ -177,6 +163,3 @@ def delete_coin(coin_id):
     db.session.delete(coin)
     db.session.commit()
     return jsonify({"message": "Coin and its historical data deleted successfully"})
-
-
-
