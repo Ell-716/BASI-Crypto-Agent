@@ -6,13 +6,12 @@ db = SQLAlchemy()
 # Join Table for Favorite Coins
 user_favorite_coins = db.Table(
     'user_favorite_coins',
-    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
-    db.Column('coin_id', db.Integer, db.ForeignKey('coins.id'), primary_key=True)
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), primary_key=True),
+    db.Column('coin_id', db.Integer, db.ForeignKey('coins.id', ondelete="CASCADE"), primary_key=True)
 )
 
 
 class User(db.Model):
-
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -42,9 +41,10 @@ class Coin(db.Model):
     coin_symbol = db.Column(db.String(10), unique=True, nullable=False)
     coin_image = db.Column(db.String, nullable=True)
 
-    # Relationship with HistoricalData & AIPredictions
-    historical_data = db.relationship('HistoricalData', backref='coin', lazy=True)
-    predictions = db.relationship('AIPredictions', backref='coin', lazy=True)
+    # Relationship with HistoricalData & TechnicalIndicators
+    historical_data = db.relationship('HistoricalData', backref='coin', lazy=True, cascade="all, delete-orphan")
+    technical_indicators = db.relationship('TechnicalIndicators', backref='coin',
+                                           lazy=True, cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"Coin {self.coin_name} ({self.coin_symbol})"
@@ -54,28 +54,36 @@ class HistoricalData(db.Model):
     __tablename__ = 'historical_data'
 
     id = db.Column(db.Integer, primary_key=True)
-    coin_id = db.Column(db.Integer, db.ForeignKey('coins.id'), nullable=False)
+    coin_id = db.Column(db.Integer, db.ForeignKey('coins.id', ondelete="CASCADE"), nullable=False)
     price = db.Column(db.Float, nullable=False)
     high = db.Column(db.Float, nullable=True)
     low = db.Column(db.Float, nullable=True)
     volume = db.Column(db.Float, nullable=False)
     market_cap = db.Column(db.Float, nullable=True)
     timestamp = db.Column(db.DateTime, default=datetime.now)
-    indicators = db.Column(db.Text)  # JSON format for indicators (e.g., "{'RSI': 45, 'MACD': -0.02}")
 
     def __repr__(self):
         return f"HistoricalData CoinID={self.coin_id} Timestamp={self.timestamp}"
 
 
-class AIPredictions(db.Model):
-    __tablename__ = 'ai_predictions'
+class TechnicalIndicators(db.Model):
+    __tablename__ = 'technical_indicators'
 
     id = db.Column(db.Integer, primary_key=True)
-    coin_id = db.Column(db.Integer, db.ForeignKey('coins.id'), nullable=False)
-    prediction = db.Column(db.String(10), nullable=False)  # 'Buy' or 'Sell'
-    confidence_score = db.Column(db.Float, nullable=False)  # Confidence score (e.g., 0.75 for 75%)
-    reasoning = db.Column(db.Text)  # Reasoning behind the prediction
+    coin_id = db.Column(db.Integer, db.ForeignKey('coins.id', ondelete="CASCADE"), nullable=False)
+    SMA_50 = db.Column(db.Float, nullable=False)
+    SMA_200 = db.Column(db.Float, nullable=False)
+    EMA_50 = db.Column(db.Float, nullable=False)
+    EMA_200 = db.Column(db.Float, nullable=False)
+    RSI = db.Column(db.Float, nullable=False)
+    Stoch_RSI = db.Column(db.Float, nullable=True)
+    MACD = db.Column(db.Float, nullable=False)
+    MACD_Signal = db.Column(db.Float, nullable=False)
+    Volume_Change = db.Column(db.Float, nullable=False)
+    BB_upper = db.Column(db.Float, nullable=True)
+    BB_middle = db.Column(db.Float, nullable=True)
+    BB_lower = db.Column(db.Float, nullable=True)
     timestamp = db.Column(db.DateTime, default=datetime.now)
 
     def __repr__(self):
-        return f"AIPredictions CoinID={self.coin_id} Prediction={self.prediction} Confidence={self.confidence_score}"
+        return f"TechnicalIndicators CoinID={self.coin_id} Timestamp={self.timestamp}"
