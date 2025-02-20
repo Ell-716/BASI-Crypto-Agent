@@ -9,10 +9,6 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'default_secret')
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'default_jwt_secret')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    CELERY_BROKER_URL = 'redis://localhost:6379/0'
-    CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-    CELERY_BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
-    broker_connection_retry_on_startup = True
 
     @staticmethod
     def init_app(app):

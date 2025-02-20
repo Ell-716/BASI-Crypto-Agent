@@ -78,7 +78,6 @@ class TechnicalIndicators(db.Model):
     RSI = db.Column(db.Float, nullable=False)
     Stoch_RSI_K = db.Column(db.Float, nullable=True)  # %K
     Stoch_RSI_D = db.Column(db.Float, nullable=True)  # %D
-    Stoch_RSI_J = db.Column(db.Float, nullable=True)  # %J
     MACD = db.Column(db.Float, nullable=False)
     MACD_Signal = db.Column(db.Float, nullable=False)
     Volume_Change = db.Column(db.Float, nullable=False)
