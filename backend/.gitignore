@@ -13,7 +13,9 @@ venv.bak/
 backend/.env
 
 # Ignore databases and instance folder
-instance/
+../instance/
 *.db
+
+cron_log.txt
 
 

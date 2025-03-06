@@ -1,7 +1,7 @@
 from backend.app import create_app, db
 from backend.app.models import HistoricalData, TechnicalIndicators, Coin
 from backend.app.api import fetch_coin_data
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import pandas as pd
 import pandas_ta as ta
 
@@ -12,8 +12,13 @@ app = create_app()
 
 def update_historical_data():
     with app.app_context():
-        data, error = fetch_coin_data()
+        # Enforce Rolling Window (Delete Oldest Data)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=60)
+        db.session.query(HistoricalData).filter(HistoricalData.timestamp < cutoff_date).delete()
+        db.session.commit()
 
+        # Fetch and Store Latest Data
+        data, error = fetch_coin_data()
         if error:
             return
 
@@ -34,7 +39,7 @@ def update_historical_data():
                 db.session.add(coin_obj)
                 db.session.commit()
 
-            # Insert historical price
+            # Insert new historical price
             timestamp = datetime.now(timezone.utc)
             historical_entry = HistoricalData(
                 coin_id=coin_obj.id,
@@ -48,6 +53,7 @@ def update_historical_data():
             db.session.add(historical_entry)
         db.session.commit()
 
+    # Update Indicators after updating historical data
     update_technical_indicators()
 
 
