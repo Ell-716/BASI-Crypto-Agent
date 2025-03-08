@@ -11,7 +11,7 @@ app = create_app()
 
 def update_historical_data():
     with app.app_context():
-        # Enforce Rolling Window (Delete Oldest Data)
+        # Enforce rolling window mechanism
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=60)
         db.session.query(HistoricalData).filter(HistoricalData.timestamp < cutoff_date).delete()
         db.session.commit()

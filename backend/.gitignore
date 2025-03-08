@@ -17,5 +17,8 @@ backend/.env
 *.db
 
 cron_log.txt
+instance/
+!backend/instance/
+
 
 

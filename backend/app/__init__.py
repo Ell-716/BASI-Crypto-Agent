@@ -16,8 +16,8 @@ def create_app(config_name='development'):
     db.init_app(app)
     jwt.init_app(app)
 
-    with app.app_context():  # Run once to create the db tables
-        db.create_all()
+    #with app.app_context():  # Run once to create the db tables
+        #db.create_all()
 
     # Register Blueprints
     app.register_blueprint(users_bp)
