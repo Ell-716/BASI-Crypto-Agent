@@ -5,7 +5,6 @@ from datetime import datetime, timezone, timedelta
 import pandas as pd
 import pandas_ta as ta
 
-
 # Create Flask app instance for context management
 app = create_app()
 
@@ -78,43 +77,33 @@ def update_technical_indicators():
             df['EMA_50'] = ta.ema(df['price'], length=50)
             df['EMA_200'] = ta.ema(df['price'], length=200)
             df['RSI'] = ta.rsi(df['price'], length=14)
-
             df['Volume_Change'] = df['volume'].diff()
 
-            # MACD Calculation
             macd_values = ta.macd(df['price'])
-            if macd_values is not None and macd_values.shape[1] >= 2:
+            if macd_values is not None and isinstance(macd_values, pd.DataFrame) and not macd_values.empty:
                 df['MACD'], df['MACD_Signal'] = macd_values.iloc[:, 0], macd_values.iloc[:, 1]
             else:
                 df['MACD'], df['MACD_Signal'] = None, None
 
+            # Stochastic RSI Calculation
             stoch_rsi_values = ta.stochrsi(df['price'])
-
-            # Check if the result is None before proceeding
-            if stoch_rsi_values is None or isinstance(stoch_rsi_values, pd.DataFrame) and stoch_rsi_values.empty:
-                df['Stoch_RSI_K'], df['Stoch_RSI_D'] = None, None
+            if stoch_rsi_values is not None and isinstance(stoch_rsi_values, pd.DataFrame) and not stoch_rsi_values.empty:
+                df['Stoch_RSI_K'], df['Stoch_RSI_D'] = stoch_rsi_values.iloc[:, 0], stoch_rsi_values.iloc[:, 1]
             else:
-                # Ensure at least two columns exist (`%K` and `%D`)
-                stoch_rsi_values = stoch_rsi_values.dropna()
-                if isinstance(stoch_rsi_values, pd.DataFrame) and stoch_rsi_values.shape[1] >= 2:
-                    df['Stoch_RSI_K'], df['Stoch_RSI_D'] = stoch_rsi_values.iloc[:, 0], stoch_rsi_values.iloc[:, 1]
-                else:
-                    df['Stoch_RSI_K'], df['Stoch_RSI_D'] = None, None
+                df['Stoch_RSI_K'], df['Stoch_RSI_D'] = None, None
 
-            # Bollinger Bands Calculation
             bb_values = ta.bbands(df['price'])
-            if isinstance(bb_values, pd.DataFrame) and bb_values.shape[1] >= 3:
+            if bb_values is not None and isinstance(bb_values, pd.DataFrame) and not bb_values.empty:
                 df['BB_upper'], df['BB_middle'], df['BB_lower'] = bb_values.iloc[:, 0], bb_values.iloc[:, 1], bb_values.iloc[:, 2]
             else:
                 df['BB_upper'], df['BB_middle'], df['BB_lower'] = None, None, None
 
             df.dropna(inplace=True)  # Remove rows with NaN values
-
             if df.empty:
                 continue
 
-            # Store in database (overwrite latest indicators)
             latest_entry = df.iloc[-1]
+
             existing_entry = TechnicalIndicators.query.filter_by(coin_id=coin.id).first()
             if existing_entry:
                 existing_entry.SMA_50 = latest_entry['SMA_50']
@@ -130,7 +119,7 @@ def update_technical_indicators():
                 existing_entry.BB_middle = latest_entry['BB_middle']
                 existing_entry.BB_lower = latest_entry['BB_lower']
                 existing_entry.Volume_Change = latest_entry['Volume_Change']
-
+                existing_entry.timestamp = datetime.now(timezone.utc)
             else:
                 new_entry = TechnicalIndicators(
                     coin_id=coin.id,
@@ -146,7 +135,8 @@ def update_technical_indicators():
                     BB_upper=latest_entry['BB_upper'],
                     BB_middle=latest_entry['BB_middle'],
                     BB_lower=latest_entry['BB_lower'],
-                    Volume_Change=latest_entry['Volume_Change']
+                    Volume_Change=latest_entry['Volume_Change'],
+                    timestamp=datetime.now(timezone.utc)
                 )
                 db.session.add(new_entry)
 
