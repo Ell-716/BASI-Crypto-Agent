@@ -1,8 +1,17 @@
 from backend.app import create_app
 from backend.app.models import HistoricalData, TechnicalIndicators, Coin
 from datetime import datetime, timezone, timedelta
-import json
+from backend.app.prediction.prompt_formatter import generate_prompt, FULL_PROMPT_TEMPLATE, CONCISE_PROMPT_TEMPLATE
+from groq import Groq
+from dotenv import load_dotenv
+import os
+import logging
 
+
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
+load_dotenv()
+API_KEY = os.getenv('GROQ_API_KEY')
 
 # Initialize Flask app context
 app = create_app()
@@ -10,7 +19,7 @@ app = create_app()
 
 def fetch_historical_data(coin_symbol, timeframe):
     """Retrieve summarized historical price data and indicators for a given coin and timeframe."""
-    with app.app_context():
+    with ((app.app_context())):
         coin = Coin.query.filter_by(coin_symbol=coin_symbol.upper()).first()
         if not coin:
             return None
@@ -90,8 +99,11 @@ def fetch_historical_data(coin_symbol, timeframe):
             "resistance_levels": [summary["highest_price"] * 1.02, summary["highest_price"] * 1.05]
         }
 
+        # Investment recommendation
+        investment_recommendation = "**HOLD**" if momentum_indicators["RSI"] > 40 else "**BUY on retracement**" if momentum_indicators["RSI"] < 30 else "**SELL**"
+
         # Final JSON structure
-        return json.dumps({
+        return {
             "coin": coin_symbol.upper(),
             "timeframe": timeframe,
             "latest_data": latest_data,
@@ -99,5 +111,30 @@ def fetch_historical_data(coin_symbol, timeframe):
             "trend_indicators": trend_indicators,
             "momentum_indicators": momentum_indicators,
             "volatility": volatility,
-            "derived_observations": derived_observations
-        }, indent=4)
+            "derived_observations": derived_observations,
+            "short_term_analysis": "Short-term price movement is likely based on RSI and support levels.",
+            "long_term_analysis": "Long-term trend remains bullish unless price breaks below key support.",
+            "investment_recommendation": investment_recommendation
+        }
+
+
+def analyze_with_llm(coin_symbol, timeframe, report_type="concise"):
+    """Analyze market data using LLM and return either a concise or full report."""
+    data = fetch_historical_data(coin_symbol, timeframe)
+    if not data:
+        return {"error": "No sufficient data available."}
+
+    # Generate the appropriate prompt
+    prompt = generate_prompt(data, report_type)
+
+    client = Groq(api_key=API_KEY)
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {"role": "system", "content": FULL_PROMPT_TEMPLATE if report_type == "full" else CONCISE_PROMPT_TEMPLATE},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=1500 if report_type == "full" else 500
+    )
+
+    return {"coin": coin_symbol.upper(), "analysis": response.choices[0].message.content}

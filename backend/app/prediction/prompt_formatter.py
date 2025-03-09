@@ -1,63 +1,93 @@
-# Define the prompt template
-PROMPT_TEMPLATE = """
-You are an expert financial analyst specializing in cryptocurrency markets. 
-Your task is to analyze historical price data, technical indicators, and market sentiment 
-to provide a structured investment report.
+# Concise Report Template
+CONCISE_PROMPT_TEMPLATE = """
+### **Role: Cryptocurrency Market Analyst**
+You are a professional cryptocurrency analyst and trader with expertise in financial markets.
+Provide a structured cryptocurrency market report based on the given data.
+Do not introduce yourself. Begin the response directly with the report content. Be concise.
 
-### Crypto Analysis Report
-- **Coin:** {coin}  
-- **Timeframe:** {timeframe}  
+### **{coin}/USDT  
+- **Current Price:** ${latest_data[close]:,.2f}  
+- **Market Sentiment:** {derived_observations[trend]}  
 
-### Latest Market Data
-- **Timestamp:** {latest_data[timestamp]}  
-- **Open Price:** ${latest_data[open]:,.2f}  
-- **Close Price:** ${latest_data[close]:,.2f}  
-- **High Price:** ${latest_data[high]:,.2f}  
-- **Low Price:** ${latest_data[low]:,.2f}  
-- **Volume:** ${latest_data[volume]:,.0f}  
+### **📌 Recommendation**
+➡ {investment_recommendation}  
 
-### Trend Indicators
-- **SMA 50:** ${trend_indicators[SMA_50]:,.2f}  
-- **SMA 200:** ${trend_indicators[SMA_200]:,.2f}  
-- **EMA 50:** ${trend_indicators[EMA_50]:,.2f}  
-- **EMA 200:** ${trend_indicators[EMA_200]:,.2f}  
-
-### Momentum Indicators
-- **MACD:** {momentum_indicators[MACD]:,.2f}  
-- **MACD Signal:** {momentum_indicators[MACD_signal]:,.2f}  
-- **RSI:** {momentum_indicators[RSI]:,.2f}  
-- **Stoch RSI K:** {momentum_indicators[Stoch_RSI_K]:,.2f}  
-- **Stoch RSI D:** {momentum_indicators[Stoch_RSI_D]:,.2f}  
-
-### Volatility & Support/Resistance
-- **Bollinger Bands:**  
-  - Upper: ${volatility[BB_upper]:,.2f}  
-  - Middle: ${volatility[BB_middle]:,.2f}  
-  - Lower: ${volatility[BB_lower]:,.2f}  
+### **📊 Key Highlights**
 - **Trend:** {derived_observations[trend]}  
-- **Volatility Level:** {derived_observations[volatility]}  
 - **Support Levels:** {derived_observations[support_levels]}  
 - **Resistance Levels:** {derived_observations[resistance_levels]}  
+- **Volatility:** {derived_observations[volatility]}  
 
-### Market Analysis
-Based on the above data, determine:
-1. **Current Market Trend** – Bullish, Bearish, or Neutral.
-2. **Momentum & RSI Analysis** – Is the market overbought or oversold?
-3. **Short-Term & Long-Term Expectations** – Predict price movement.
-4. **Support & Resistance** – Identify key levels.
-5. **Investment Verdict** – Should investors **BUY, SELL, or HOLD**?
+**⚠ Disclaimer:** This analysis is for informational purposes only and should not be considered financial advice.  
+Always conduct your own research before making investment decisions.
+"""
 
-### **Final Verdict**
-Provide a clear recommendation:
-- 🔴 **SELL / WAIT** if the trend is bearish.
-- 🟡 **HOLD** if the market is uncertain.
-- 🟢 **BUY** if the trend is bullish and indicators confirm a good entry.
+# Define the structured prompt template
+FULL_PROMPT_TEMPLATE = """
+### **Role: Cryptocurrency Market Analyst**
+You are a professional cryptocurrency analyst and trader with expertise in financial markets.
+Your task is to analyze the given market data, technical indicators, and trends. 
+Provide an in-depth, structured analysis, ensuring step-by-step insights into market conditions.
+Do not introduce yourself. Begin the response directly with the report content.
 
-**⚠ Disclaimer:** This analysis is for informational purposes only and should not be considered financial advice. 
+### **{coin}/USDT  
+- **Current Price:** ${latest_data[close]:,.2f}  
+- **Market Sentiment:** {derived_observations[trend]}
+
+### **📌 Recommendation**
+{investment_recommendation}
+Give explanation.
+
+---
+
+### **📈 Trend & Moving Averages**
+- **50-Day SMA:** ${trend_indicators[SMA_50]:,.2f}
+- **200-Day SMA:** ${trend_indicators[SMA_200]:,.2f}
+- **50-Day EMA:** ${trend_indicators[EMA_50]:,.2f}
+- **200-Day EMA:** ${trend_indicators[EMA_200]:,.2f}
+
+If the price is above both the **50-SMA** and **200-SMA**, it indicates a **strong bullish trend**.
+Conversely, if it is below, it signals **bearish momentum**.
+
+---
+
+### **🛑 Support & Resistance Levels**
+- **Support Levels:** {derived_observations[support_levels]}
+- **Resistance Levels:** {derived_observations[resistance_levels]}
+
+If the price approaches **support**, it may **bounce back up**. If it nears **resistance**, it could **face rejection**.
+
+---
+
+### **📊 Momentum Indicators**
+- **MACD Line:** {momentum_indicators[MACD]:,.2f}
+- **MACD Signal Line:** {momentum_indicators[MACD_signal]:,.2f}
+- **RSI (Relative Strength Index):** {momentum_indicators[RSI]:,.2f}
+- **Stoch RSI (K/D):** {momentum_indicators[Stoch_RSI_K]:,.2f} / {momentum_indicators[Stoch_RSI_D]:,.2f}
+
+If RSI is **above 70**, the market is **overbought**, and a **pullback is likely**.
+If **below 30**, the market is **oversold**, indicating a potential **upward reversal**.
+
+---
+
+### **🌐 Volatility & Market Condition**
+- **Bollinger Bands Upper:** ${volatility[BB_upper]:,.2f}
+- **Bollinger Bands Middle:** ${volatility[BB_middle]:,.2f}
+- **Bollinger Bands Lower:** ${volatility[BB_lower]:,.2f}
+- **Volatility Level:** {derived_observations[volatility]}
+
+A **tight Bollinger Band range** suggests **low volatility**, while a **widening range** 
+indicates **increased price movement**.
+
+---
+
+**⚠ Disclaimer:** This analysis is for informational purposes only and should not be considered financial advice.
 Always conduct your own research before making investment decisions.
 """
 
 
-def generate_prompt(data):
-    """Generate a formatted prompt from the fetched data."""
-    return PROMPT_TEMPLATE.format(**data)
+def generate_prompt(data, report_type="concise"):
+    """Generate an investment report based on the selected format."""
+    if report_type == "full":
+        return FULL_PROMPT_TEMPLATE.format(**data)
+    return CONCISE_PROMPT_TEMPLATE.format(**data)  # Default to concise
