@@ -6,6 +6,7 @@ from groq import Groq
 from dotenv import load_dotenv
 import os
 import logging
+import pandas as pd
 
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
@@ -19,7 +20,7 @@ app = create_app()
 
 def fetch_historical_data(coin_symbol, timeframe):
     """Retrieve summarized historical price data and indicators for a given coin and timeframe."""
-    with ((app.app_context())):
+    with app.app_context():
         coin = Coin.query.filter_by(coin_symbol=coin_symbol.upper()).first()
         if not coin:
             return None
@@ -62,45 +63,65 @@ def fetch_historical_data(coin_symbol, timeframe):
 
         # Compute summary statistics
         summary = {
-            "average_price": sum(entry.price for entry in historical_data) / len(historical_data),
-            "highest_price": max(entry.high for entry in historical_data),
-            "lowest_price": min(entry.low for entry in historical_data),
-            "total_volume": sum(entry.volume for entry in historical_data)
+            "average_price": round(sum(entry.price for entry in historical_data) / len(historical_data), 2),
+            "highest_price": round(max(entry.high for entry in historical_data), 2),
+            "lowest_price": round(min(entry.low for entry in historical_data), 2),
+            "total_volume": round(sum(entry.volume for entry in historical_data), 2)
         }
 
         # Trend & momentum indicators
         trend_indicators = {
-            "SMA_50": indicators.SMA_50,
-            "SMA_200": indicators.SMA_200,
-            "EMA_50": indicators.EMA_50,
-            "EMA_200": indicators.EMA_200
+            "SMA_50": round(indicators.SMA_50, 2),
+            "SMA_200": round(indicators.SMA_200, 2),
+            "EMA_50": round(indicators.EMA_50, 2),
+            "EMA_200": round(indicators.EMA_200, 2)
         }
 
         momentum_indicators = {
-            "MACD": indicators.MACD,
-            "MACD_signal": indicators.MACD_Signal,
-            "RSI": indicators.RSI,
-            "Stoch_RSI_K": indicators.Stoch_RSI_K,
-            "Stoch_RSI_D": indicators.Stoch_RSI_D
+            "MACD": round(indicators.MACD, 2),
+            "MACD_signal": round(indicators.MACD_Signal, 2),
+            "RSI": round(indicators.RSI, 2),
+            "Stoch_RSI_K": round(indicators.Stoch_RSI_K, 2),
+            "Stoch_RSI_D": round(indicators.Stoch_RSI_D, 2)
         }
 
         volatility = {
-            "BB_upper": indicators.BB_upper,
-            "BB_middle": indicators.BB_middle,
-            "BB_lower": indicators.BB_lower
+            "BB_upper": round(indicators.BB_upper, 2),
+            "BB_middle": round(indicators.BB_middle, 2),
+            "BB_lower": round(indicators.BB_lower, 2)
         }
 
-        # Derived observations
-        derived_observations = {
-            "trend": "Bullish" if indicators.SMA_50 > indicators.SMA_200 else "Bearish",
-            "volatility": "High" if abs(
-                indicators.BB_upper - indicators.BB_lower) / indicators.BB_middle > 0.05 else "Low",
-            "support_levels": [summary["lowest_price"] * 0.98, summary["lowest_price"] * 0.95],
-            "resistance_levels": [summary["highest_price"] * 1.02, summary["highest_price"] * 1.05]
-        }
+        # Detect Low Volatility
+        price_std = pd.Series([entry.price for entry in historical_data]).std()
+        if price_std < 0.0001:  # Price barely moves
+            print(f"⚠️ {coin.coin_symbol} has very low price volatility. MACD & BB may be unreliable.")
+            momentum_indicators["MACD"], momentum_indicators["MACD_signal"] = None, None
+            volatility["BB_upper"], volatility["BB_middle"], volatility["BB_lower"] = None, None, None
+
+        # Compute Volatility Status Safely
+        if volatility["BB_middle"] is None:
+            volatility_status = "Low"
+        else:
+            volatility_status = "High" if abs(volatility["BB_upper"] - volatility["BB_lower"]) / volatility[
+                "BB_middle"] > 0.05 else "Low"
+
+        volatility_warning = ("⚠️ The market is experiencing low volatility. Some indicators "
+                              "(MACD, Bollinger Bands) may be unreliable.") if volatility_status == "Low" else ""
+
+        # Proper Support & Resistance Calculation
+        lowest_price = summary["lowest_price"]
+        highest_price = summary["highest_price"]
+
+        support_levels = [round(lowest_price * 0.98, 2), round(lowest_price * 0.95, 2)]
+        resistance_levels = [round(highest_price * 1.02, 2), round(highest_price * 1.05, 2)]
 
         # Investment recommendation
-        investment_recommendation = "**HOLD**" if momentum_indicators["RSI"] > 40 else "**BUY on retracement**" if momentum_indicators["RSI"] < 30 else "**SELL**"
+        if momentum_indicators["RSI"] > 70:
+            investment_recommendation = "**SELL**"
+        elif momentum_indicators["RSI"] < 30:
+            investment_recommendation = "**BUY on retracement**"
+        else:
+            investment_recommendation = "**HOLD**"
 
         # Final JSON structure
         return {
@@ -111,9 +132,13 @@ def fetch_historical_data(coin_symbol, timeframe):
             "trend_indicators": trend_indicators,
             "momentum_indicators": momentum_indicators,
             "volatility": volatility,
-            "derived_observations": derived_observations,
-            "short_term_analysis": "Short-term price movement is likely based on RSI and support levels.",
-            "long_term_analysis": "Long-term trend remains bullish unless price breaks below key support.",
+            "derived_observations": {
+                "trend": "Bullish" if indicators.SMA_50 > indicators.SMA_200 else "Bearish",
+                "volatility": volatility_status,
+                "volatility_warning": volatility_warning,
+                "support_levels": support_levels,
+                "resistance_levels": resistance_levels
+            },
             "investment_recommendation": investment_recommendation
         }
 
