@@ -1,14 +1,54 @@
 import numpy as np
 import requests
 import pandas as pd
-from backend.app.api import fetch_coin_data
-from datetime import datetime, timezone
+from datetime import datetime
+from backend.app.prediction.charts import plot_price_chart
 
 BINANCE_ORDER_BOOK_URL = "https://api.binance.com/api/v3/depth"
+COINGECKO_MARKET_CHART_URL = "https://api.coingecko.com/api/v3/coins/{}/market_chart"
+
+
+def fetch_market_data(coin_symbol, days=210):
+
+    url = COINGECKO_MARKET_CHART_URL.format(coin_symbol.lower())
+    params = {"vs_currency": "usd", "days": days, "interval": "daily"}
+
+    try:
+        response = requests.get(url, params=params, timeout=10)
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+        return None
+    if response.status_code == 200:
+        data = response.json()
+
+        timestamps = [entry[0] for entry in data["prices"]]
+        closes = [entry[1] for entry in data["prices"]]
+        highs = [entry[1] for entry in data["prices"]]
+        lows = [entry[1] for entry in data["prices"]]
+        volumes = [entry[1] for entry in data["total_volumes"]]
+
+        df = pd.DataFrame({
+            "Date": [datetime.fromtimestamp(ts / 1000) for ts in timestamps],
+            "Open": closes,
+            "Close": closes,
+            "High": highs,
+            "Low": lows,
+            "Volume": volumes
+        })
+
+        df["Open"] = df["Close"].shift(1).fillna(df["Close"])
+        df["High"] = df["Close"] * np.random.uniform(1.001, 1.02, len(df))
+        df["Low"] = df["Close"] * np.random.uniform(0.98, 0.999, len(df))
+
+        df.set_index("Date", inplace=True)
+        return df
+    else:
+        print(f"Error {response.status_code}: {response.text}")
+        return None
 
 
 def fetch_order_book(coin_symbol):
-    """Fetch order book data to determine buying/selling pressure."""
+
     symbol = f"{coin_symbol.upper()}USDT"
     params = {"symbol": symbol, "limit": 100}
 
@@ -28,6 +68,7 @@ def fetch_order_book(coin_symbol):
 
 
 def calculate_indicators(df):
+
     df["SMA_9"] = df["Close"].rolling(window=9, min_periods=1).mean()
     df["SMA_50"] = df["Close"].rolling(window=50, min_periods=1).mean()
     df["SMA_200"] = df["Close"].rolling(window=200, min_periods=1).mean()
@@ -63,48 +104,19 @@ def calculate_indicators(df):
     return df
 
 
-def fetch_market_data(coin_symbol):
-    """Fetch real-time market data."""
-    all_coins, error = fetch_coin_data()
-    if error or not all_coins:
-        return None
+def generate_and_plot_charts(coin_symbol):
 
-    coin_id = None
-    for coin in all_coins:
-        if coin["symbol"].lower() == coin_symbol.lower():
-            coin_id = coin["id"]
-            break
+    market_data = fetch_market_data(coin_symbol)
+    if market_data is not None:
+        df = calculate_indicators(market_data)
 
-    if not coin_id:
-        return None
+        buying_pressure, selling_pressure = fetch_order_book(coin_symbol)
+        print(f"Buying Pressure: {buying_pressure}, Selling Pressure: {selling_pressure}")
 
-    data, error = fetch_coin_data(coin_id)
-    if error or not data:
-        return None
+        plot_price_chart(df, coin_symbol, timeframe="1M")
+    else:
+        print(f"Failed to fetch market data for {coin_symbol}")
 
-    coin_data = data[0]  # Extract first (and only) entry
-    timestamp = datetime.now(timezone.utc)
 
-    df = pd.DataFrame([{
-        "Date": timestamp,
-        "Open": coin_data["current_price"],  # No historical open, using last price
-        "Close": coin_data["current_price"],
-        "High": coin_data["high_24h"],
-        "Low": coin_data["low_24h"],
-        "Volume": coin_data["total_volume"],
-    }])
-
-    df.set_index("Date", inplace=True)
-    df = calculate_indicators(df)
-
-    buying_pressure, selling_pressure = fetch_order_book(coin_symbol)
-
-    return {
-        "df": df,  # Full DataFrame with indicators
-        "coin_symbol": coin_symbol.upper(),
-        "market_sentiment": "Bullish" if df["SMA_9"].iloc[-1] > df["SMA_50"].iloc[-1] else "Bearish",
-        "support_levels": [df["Low"].min() * 0.98, df["Low"].min() * 0.95],
-        "resistance_levels": [df["High"].max() * 1.02, df["High"].max() * 1.05],
-        "buying_pressure": buying_pressure,
-        "selling_pressure": selling_pressure
-    }
+if __name__ == "__main__":
+    generate_and_plot_charts("bitcoin")
