@@ -102,8 +102,9 @@ def fetch_historical_data(coin_symbol, timeframe):
         if volatility["BB_middle"] is None:
             volatility_status = "Low"
         else:
+            threshold = 0.01 if volatility["BB_middle"] > 5000 else 0.03
             volatility_status = "High" if abs(volatility["BB_upper"] - volatility["BB_lower"]) / volatility[
-                "BB_middle"] > 0.05 else "Low"
+                "BB_middle"] > threshold else "Low"
 
         volatility_warning = ("⚠️ The market is experiencing low volatility. Some indicators "
                               "(MACD, Bollinger Bands) may be unreliable.") if volatility_status == "Low" else ""
