@@ -131,3 +131,78 @@ def plot_macd_rsi(df):
 
     plt.tight_layout()
     plt.show()
+
+
+def plot_bollinger_bands(df, coin_symbol, timeframe="1M", window=20, num_std=2):
+    df.index = pd.to_datetime(df.index)
+
+    # Filter Data to show only the last month
+    if timeframe == "1M":
+        filtered_df = df.loc[df.index >= df.index.max() - pd.Timedelta(days=30)].copy()
+    else:
+        filtered_df = df.copy()
+
+    if filtered_df.empty:
+        print("⚠️ Not enough data available for the selected timeframe.")
+        return
+
+    # Calculate Bollinger Bands
+    filtered_df["SMA"] = filtered_df["Close"].rolling(window=window, min_periods=1).mean()  # Middle Band
+    filtered_df["StdDev"] = filtered_df["Close"].rolling(window=window, min_periods=1).std()  # Standard Deviation
+    filtered_df["Upper Band"] = filtered_df["SMA"] + (num_std * filtered_df["StdDev"])  # Upper Band
+    filtered_df["Lower Band"] = filtered_df["SMA"] - (num_std * filtered_df["StdDev"])  # Lower Band
+
+    # Create figure with two subplots
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8), sharex=True, gridspec_kw={'height_ratios': [3, 1]})
+    fig.patch.set_facecolor('black')
+
+    # Candlestick Chart
+    candle_width = 0.6  # Width of the candle bodies
+    for i in range(len(filtered_df)):
+        date = filtered_df.index[i]
+        open_price = filtered_df["Open"].iloc[i]
+        close_price = filtered_df["Close"].iloc[i]
+        high_price = filtered_df["High"].iloc[i]
+        low_price = filtered_df["Low"].iloc[i]
+
+        # Determine candle color (green for bullish, red for bearish)
+        color = "lime" if close_price > open_price else "red"
+
+        # Plot the candle wick (high to low)
+        ax1.plot([date, date], [low_price, high_price], color=color, linewidth=0.5)
+
+        # Plot the candle body (open to close) using ax1.bar
+        body_height = abs(close_price - open_price)
+        body_bottom = min(open_price, close_price)
+        ax1.bar(date, body_height, bottom=body_bottom, color=color, width=candle_width, linewidth=0)
+
+    # Plot Bollinger Bands
+    ax1.plot(filtered_df.index, filtered_df["SMA"], label="SMA (Middle Band)", color="yellow", linewidth=1.5)
+    ax1.plot(filtered_df.index, filtered_df["Upper Band"], label="Upper Band", color="blue", linewidth=1.5, linestyle="--")
+    ax1.plot(filtered_df.index, filtered_df["Lower Band"], label="Lower Band", color="blue", linewidth=1.5, linestyle="--")
+
+    ax1.set_facecolor("black")
+    ax1.set_title(f"{coin_symbol}/USD Trading Chart with Bollinger Bands - {timeframe.upper()}", color="white", fontsize=14)
+    ax1.set_ylabel("Price (USD)", color="white", fontsize=12)
+    ax1.grid(color="gray", linestyle="dashed", linewidth=0.5)
+    ax1.tick_params(axis="both", colors="white")
+    ax1.legend(loc="upper left", facecolor="black", edgecolor="white", fontsize=10, labelcolor="white")
+
+    # Volume Chart
+    ax2.bar(filtered_df.index, filtered_df["Volume"], color=np.where(filtered_df["Close"] > filtered_df["Open"], "lime", "red"), alpha=0.6, label="Volume")
+
+    ax2.set_facecolor("black")
+    ax2.set_title("Volume", color="white", fontsize=14)
+    ax2.set_ylabel("Volume", color="white", fontsize=12)
+    ax2.grid(color="gray", linestyle="dashed", linewidth=0.5)
+    ax2.tick_params(axis="both", colors="white")
+    ax2.legend(loc="upper left", facecolor="black", edgecolor="white", fontsize=10, labelcolor="white")
+
+    # Format x-axis dates
+    ax2.xaxis.set_major_formatter(mdates.DateFormatter('%Y/%m/%d'))
+    plt.xticks(rotation=45, color="white")
+    plt.xlabel("Date", color="white", fontsize=12)
+
+    # Adjust layout and display
+    plt.tight_layout()
+    plt.show()
