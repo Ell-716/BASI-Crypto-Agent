@@ -84,3 +84,50 @@ def plot_price_chart(df, coin_symbol, timeframe='1M'):
 
     plt.tight_layout()
     plt.show()
+
+
+def plot_macd_rsi(df):
+
+    smoothing_window = 7
+    df["MACD_Line_Smooth"] = df["MACD_Line"].ewm(span=smoothing_window, adjust=False).mean()
+    df["Signal_Line_Smooth"] = df["Signal_Line"].ewm(span=smoothing_window, adjust=False).mean()
+    df["Stoch_K_Smooth"] = df["Stoch_K"].ewm(span=smoothing_window, adjust=False).mean()
+    df["Stoch_D_Smooth"] = df["Stoch_D"].ewm(span=smoothing_window, adjust=False).mean()
+
+    # Create figure with two subplots
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8), sharex=True, gridspec_kw={'height_ratios': [1, 1]})
+    fig.patch.set_facecolor('black')
+
+    # MACD Chart
+    ax1.plot(df.index, df["MACD_Line_Smooth"], label="MACD Line", color="deepskyblue", linewidth=1.5)
+    ax1.plot(df.index, df["Signal_Line_Smooth"], label="Signal Line", color="orange", linewidth=1.5)
+    ax1.bar(df.index, df["MACD_Histogram"], color=np.where(df["MACD_Histogram"] >= 0, 'lime', 'red'), alpha=0.6, label="MACD Histogram")
+
+    ax1.set_facecolor("black")
+    ax1.set_title("MACD (12, 26, 9)", color="white")
+    ax1.set_ylabel("MACD", color="white")
+    ax1.grid(color="gray", linestyle="dashed", linewidth=0.5)
+    ax1.tick_params(axis="both", colors="white")
+    ax1.legend(loc="upper left", facecolor="black", edgecolor="white", labelcolor="white")
+
+    # Stochastic RSI Chart
+    ax2.plot(df.index, df["Stoch_K_Smooth"], label="%K (Stoch RSI)", color="deepskyblue", linewidth=1.5)
+    ax2.plot(df.index, df["Stoch_D_Smooth"], label="%D (Signal)", color="orange", linewidth=1.5)
+    ax2.axhline(80, color="red", linestyle="dashed", linewidth=1)  # Overbought level
+    ax2.axhline(20, color="green", linestyle="dashed", linewidth=1)  # Oversold level
+
+    ax2.set_facecolor("black")
+    ax2.set_title("Stochastic RSI (14, 3, 3)", color="white")
+    ax2.set_ylabel("Stoch RSI", color="white")
+    ax2.set_ylim(0, 100)  # Ensure scaling from 0 to 100
+    ax2.grid(color="gray", linestyle="dashed", linewidth=0.5)
+    ax2.tick_params(axis="both", colors="white")
+    ax2.legend(loc="upper left", facecolor="black", edgecolor="white", labelcolor="white")
+
+    # Format x-axis dates
+    ax2.xaxis.set_major_formatter(mdates.DateFormatter('%Y/%m/%d'))
+    plt.xticks(rotation=45, color="white")
+    plt.xlabel("Date", color="white")
+
+    plt.tight_layout()
+    plt.show()

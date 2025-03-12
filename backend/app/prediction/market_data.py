@@ -2,7 +2,7 @@ import numpy as np
 import requests
 import pandas as pd
 from datetime import datetime
-from backend.app.prediction.charts import plot_price_chart
+from backend.app.prediction.charts import plot_price_chart, plot_macd_rsi
 
 BINANCE_ORDER_BOOK_URL = "https://api.binance.com/api/v3/depth"
 COINGECKO_MARKET_CHART_URL = "https://api.coingecko.com/api/v3/coins/{}/market_chart"
@@ -109,11 +109,8 @@ def generate_and_plot_charts(coin_symbol):
     market_data = fetch_market_data(coin_symbol)
     if market_data is not None:
         df = calculate_indicators(market_data)
-
-        buying_pressure, selling_pressure = fetch_order_book(coin_symbol)
-        print(f"Buying Pressure: {buying_pressure}, Selling Pressure: {selling_pressure}")
-
         plot_price_chart(df, coin_symbol, timeframe="1M")
+        plot_macd_rsi(df)
     else:
         print(f"Failed to fetch market data for {coin_symbol}")
 
