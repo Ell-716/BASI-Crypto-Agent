@@ -8,7 +8,7 @@ BINANCE_ORDER_BOOK_URL = "https://api.binance.com/api/v3/depth"
 COINGECKO_MARKET_CHART_URL = "https://api.coingecko.com/api/v3/coins/{}/market_chart"
 
 
-def fetch_market_data(coin_symbol, days=210):
+def fetch_market_data(coin_symbol, days=365):
 
     url = COINGECKO_MARKET_CHART_URL.format(coin_symbol.lower())
     params = {"vs_currency": "usd", "days": days, "interval": "daily"}
@@ -104,17 +104,19 @@ def calculate_indicators(df):
     return df
 
 
-def generate_and_plot_charts(coin_symbol):
+def generate_and_plot_charts(coin_symbol, timeframe=None):
 
     market_data = fetch_market_data(coin_symbol)
     if market_data is not None:
         df = calculate_indicators(market_data)
-        plot_price_chart(df, coin_symbol, timeframe="1M")
-        plot_macd_rsi(df)
-        plot_bollinger_bands(df, coin_symbol, timeframe="1M")
+
+        plot_price_chart(df, coin_symbol, timeframe)
+        plot_macd_rsi(df, timeframe)
+        plot_bollinger_bands(df, coin_symbol, timeframe)
     else:
-        print(f"Failed to fetch market data for {coin_symbol}")
+        print(f"❌ Failed to fetch market data for {coin_symbol}")
 
 
 if __name__ == "__main__":
-    generate_and_plot_charts("bitcoin")
+    generate_and_plot_charts("bitcoin", timeframe="1d")
+
