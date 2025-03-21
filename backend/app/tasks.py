@@ -104,40 +104,23 @@ def update_technical_indicators():
 
             latest_entry = df.iloc[-1]
 
-            existing_entry = TechnicalIndicators.query.filter_by(coin_id=coin.id).first()
-            if existing_entry:
-                existing_entry.SMA_50 = latest_entry['SMA_50']
-                existing_entry.SMA_200 = latest_entry['SMA_200']
-                existing_entry.EMA_50 = latest_entry['EMA_50']
-                existing_entry.EMA_200 = latest_entry['EMA_200']
-                existing_entry.RSI = latest_entry['RSI']
-                existing_entry.MACD = latest_entry['MACD']
-                existing_entry.MACD_Signal = latest_entry['MACD_Signal']
-                existing_entry.Stoch_RSI_K = latest_entry['Stoch_RSI_K']
-                existing_entry.Stoch_RSI_D = latest_entry['Stoch_RSI_D']
-                existing_entry.BB_upper = latest_entry['BB_upper']
-                existing_entry.BB_middle = latest_entry['BB_middle']
-                existing_entry.BB_lower = latest_entry['BB_lower']
-                existing_entry.Volume_Change = latest_entry['Volume_Change']
-                existing_entry.timestamp = datetime.now(timezone.utc)
-            else:
-                new_entry = TechnicalIndicators(
-                    coin_id=coin.id,
-                    SMA_50=latest_entry['SMA_50'],
-                    SMA_200=latest_entry['SMA_200'],
-                    EMA_50=latest_entry['EMA_50'],
-                    EMA_200=latest_entry['EMA_200'],
-                    RSI=latest_entry['RSI'],
-                    MACD=latest_entry['MACD'],
-                    MACD_Signal=latest_entry['MACD_Signal'],
-                    Stoch_RSI_K=latest_entry['Stoch_RSI_K'],
-                    Stoch_RSI_D=latest_entry['Stoch_RSI_D'],
-                    BB_upper=latest_entry['BB_upper'],
-                    BB_middle=latest_entry['BB_middle'],
-                    BB_lower=latest_entry['BB_lower'],
-                    Volume_Change=latest_entry['Volume_Change'],
-                    timestamp=datetime.now(timezone.utc)
-                )
-                db.session.add(new_entry)
+            new_entry = TechnicalIndicators(
+                coin_id=coin.id,
+                SMA_50=latest_entry['SMA_50'],
+                SMA_200=latest_entry['SMA_200'],
+                EMA_50=latest_entry['EMA_50'],
+                EMA_200=latest_entry['EMA_200'],
+                RSI=latest_entry['RSI'],
+                MACD=latest_entry['MACD'],
+                MACD_Signal=latest_entry['MACD_Signal'],
+                Stoch_RSI_K=latest_entry['Stoch_RSI_K'],
+                Stoch_RSI_D=latest_entry['Stoch_RSI_D'],
+                BB_upper=latest_entry['BB_upper'],
+                BB_middle=latest_entry['BB_middle'],
+                BB_lower=latest_entry['BB_lower'],
+                Volume_Change=latest_entry['Volume_Change'],
+                timestamp=latest_entry.name
+            )
+            db.session.add(new_entry)
 
             db.session.commit()
