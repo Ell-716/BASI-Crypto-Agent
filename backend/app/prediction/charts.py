@@ -14,19 +14,19 @@ def aggregate_candles(df, timeframe):
 
     # Resample OHLCV data only
     if timeframe == "1h":
-        ohlcv_df = df[["Open", "High", "Low", "Close", "Volume"]].tail(24)
+        ohlcv_df = df[["Open", "High", "Low", "Close", "Volume"]].tail(96)
     elif timeframe == "1d":
         ohlcv_df = df[["Open", "High", "Low", "Close", "Volume"]].resample("1D").agg({
             "Open": "first", "High": "max", "Low": "min", "Close": "last", "Volume": "sum"
-        }).dropna().tail(30)
+        }).dropna().tail(120)
     elif timeframe == "1w":
         ohlcv_df = df[["Open", "High", "Low", "Close", "Volume"]].resample("1W").agg({
             "Open": "first", "High": "max", "Low": "min", "Close": "last", "Volume": "sum"
-        }).dropna().tail(24)
+        }).dropna().tail(96)
     elif timeframe == "1m":
         ohlcv_df = df[["Open", "High", "Low", "Close", "Volume"]].resample("ME").agg({
             "Open": "first", "High": "max", "Low": "min", "Close": "last", "Volume": "sum"
-        }).dropna().tail(12)
+        }).dropna().tail(48)
     else:
         return df
 
@@ -65,7 +65,7 @@ def plot_price_chart(df, coin_symbol, timeframe=None):
     elif timeframe == "1d":
         candle_width = 0.8
     elif timeframe == "1w":
-        candle_width = 3
+        candle_width = 6
     elif timeframe == "1m":
         candle_width = 10
     else:
@@ -193,6 +193,10 @@ def plot_bollinger_bands(df, coin_symbol, timeframe=None, window=20, num_std=2):
     df["Upper Band"] = df["SMA"] + (num_std * df["StdDev"])  # Upper Band
     df["Lower Band"] = df["SMA"] - (num_std * df["StdDev"])  # Lower Band
 
+    # Define Support and Resistance Levels
+    resistance_levels = [df["Close"].max() * 1.01, df["Close"].max() * 1.02]
+    support_levels = [df["Close"].min() * 0.99, df["Close"].min() * 0.98]
+
     # Create figure with two subplots
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8), sharex=True, gridspec_kw={'height_ratios': [3, 1]})
     fig.patch.set_facecolor('black')
@@ -203,7 +207,7 @@ def plot_bollinger_bands(df, coin_symbol, timeframe=None, window=20, num_std=2):
     elif timeframe == "1d":
         candle_width = 0.8
     elif timeframe == "1w":
-        candle_width = 3
+        candle_width = 6
     elif timeframe == "1m":
         candle_width = 10
     else:
@@ -231,6 +235,14 @@ def plot_bollinger_bands(df, coin_symbol, timeframe=None, window=20, num_std=2):
     ax1.plot(df.index, df["SMA"], label="SMA (Middle Band)", color="yellow", linewidth=1.5)
     ax1.plot(df.index, df["Upper Band"], label="Upper Band", color="blue", linewidth=1.5, linestyle="--")
     ax1.plot(df.index, df["Lower Band"], label="Lower Band", color="blue", linewidth=1.5, linestyle="--")
+
+    # Draw Support & Resistance Lines
+    for r_level in resistance_levels:
+        ax1.axhline(y=r_level, color="red", linestyle="dashed", linewidth=1.5,
+                    label="Resistance" if r_level == resistance_levels[0] else "")
+    for s_level in support_levels:
+        ax1.axhline(y=s_level, color="green", linestyle="dashed", linewidth=1.5,
+                    label="Support" if s_level == support_levels[0] else "")
 
     ax1.set_facecolor("black")
     ax1.set_title(f"{coin_symbol}/USD Trading Chart with Bollinger Bands - {timeframe.upper()}", color="white", fontsize=14)

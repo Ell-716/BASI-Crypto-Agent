@@ -1,70 +1,34 @@
-import numpy as np
 import requests
 import pandas as pd
-from datetime import datetime
-from backend.app.prediction.charts import plot_price_chart, plot_macd_rsi, plot_bollinger_bands
+from backend.app.prediction.charts import plot_price_chart, plot_macd_rsi, plot_bollinger_bands, aggregate_candles
 
-BINANCE_ORDER_BOOK_URL = "https://api.binance.com/api/v3/depth"
-COINGECKO_MARKET_CHART_URL = "https://api.coingecko.com/api/v3/coins/{}/market_chart"
+BINANCE_KLINES_URL = "https://api.binance.com/api/v3/klines"
 
 
-def fetch_market_data(coin_symbol, days=365):
+def fetch_market_data(symbol, interval, limit=1000):
 
-    url = COINGECKO_MARKET_CHART_URL.format(coin_symbol.lower())
-    params = {"vs_currency": "usd", "days": days, "interval": "daily"}
-
+    params = {
+        "symbol": f"{symbol.upper()}USDT",
+        "interval": interval,  # "1h", "1d", "1w", "1M"
+        "limit": limit  # Max candles
+    }
     try:
-        response = requests.get(url, params=params, timeout=10)
-    except requests.exceptions.RequestException as e:
-        print(f"Request failed: {e}")
-        return None
-    if response.status_code == 200:
+        response = requests.get(BINANCE_KLINES_URL, params=params, timeout=10)
+        response.raise_for_status()
         data = response.json()
 
-        timestamps = [entry[0] for entry in data["prices"]]
-        closes = [entry[1] for entry in data["prices"]]
-        highs = [entry[1] for entry in data["prices"]]
-        lows = [entry[1] for entry in data["prices"]]
-        volumes = [entry[1] for entry in data["total_volumes"]]
-
-        df = pd.DataFrame({
-            "Date": [datetime.fromtimestamp(ts / 1000) for ts in timestamps],
-            "Open": closes,
-            "Close": closes,
-            "High": highs,
-            "Low": lows,
-            "Volume": volumes
-        })
-
-        df["Open"] = df["Close"].shift(1).fillna(df["Close"])
-        df["High"] = df["Close"] * np.random.uniform(1.001, 1.02, len(df))
-        df["Low"] = df["Close"] * np.random.uniform(0.98, 0.999, len(df))
-
+        df = pd.DataFrame(data, columns=[
+            "timestamp", "Open", "High", "Low", "Close", "Volume",
+            "CloseTime", "QuoteAssetVolume", "Trades", "TakerBuyBase", "TakerBuyQuote", "Ignore"
+        ])
+        df["Date"] = pd.to_datetime(df["timestamp"], unit="ms")
+        df = df[["Date", "Open", "High", "Low", "Close", "Volume"]]
         df.set_index("Date", inplace=True)
+        df = df.astype(float)
         return df
-    else:
-        print(f"Error {response.status_code}: {response.text}")
+    except requests.exceptions.RequestException as e:
+        print(f"⚠️ Error fetching Binance data: {e}")
         return None
-
-
-def fetch_order_book(coin_symbol):
-
-    symbol = f"{coin_symbol.upper()}USDT"
-    params = {"symbol": symbol, "limit": 100}
-
-    try:
-        response = requests.get(BINANCE_ORDER_BOOK_URL, params=params, timeout=10)
-        data = response.json()
-
-        bids = np.sum([float(order[1]) for order in data["bids"]])
-        asks = np.sum([float(order[1]) for order in data["asks"]])
-
-        buying_pressure = "High" if bids > asks else "Low" if asks > bids else "Medium"
-        selling_pressure = "High" if asks > bids else "Low" if bids > asks else "Medium"
-
-        return buying_pressure, selling_pressure
-    except requests.exceptions.RequestException:
-        return "Unknown", "Unknown"
 
 
 def calculate_indicators(df):
@@ -105,16 +69,26 @@ def calculate_indicators(df):
 
 
 def generate_and_plot_charts(coin_symbol, timeframe=None):
+    market_data = fetch_market_data(coin_symbol, timeframe)
 
-    market_data = fetch_market_data(coin_symbol)
     if market_data is not None:
-        df = calculate_indicators(market_data)
+        # Aggregate OHLCV data for selected timeframe
+        df_resampled = aggregate_candles(market_data, timeframe)
 
-        plot_price_chart(df, coin_symbol, timeframe)
-        plot_macd_rsi(df, timeframe)
-        plot_bollinger_bands(df, coin_symbol, timeframe)
+        # If resampling failed, skip plotting
+        if df_resampled is None or df_resampled.empty:
+            print(f"⚠️ Not enough data for {coin_symbol} ({timeframe}).")
+            return
+
+        # Calculate indicators for resampled data
+        df_with_indicators = calculate_indicators(df_resampled)
+
+        # Plot all charts
+        plot_price_chart(df_resampled, coin_symbol, timeframe)
+        plot_bollinger_bands(df_resampled, coin_symbol, timeframe)
+        plot_macd_rsi(df_with_indicators, timeframe)  # Now correctly computed
     else:
-        print(f"❌ Failed to fetch market data for {coin_symbol}")
+        print(f"⚠️ Failed to fetch market data for {coin_symbol}")
 
 
 if __name__ == "__main__":
