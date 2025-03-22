@@ -33,7 +33,6 @@ def fetch_market_data(symbol, interval, limit=1000):
 
 def calculate_indicators(df):
 
-    df["SMA_9"] = df["Close"].rolling(window=9, min_periods=1).mean()
     df["SMA_50"] = df["Close"].rolling(window=50, min_periods=1).mean()
     df["SMA_200"] = df["Close"].rolling(window=200, min_periods=1).mean()
 

@@ -49,8 +49,8 @@ def plot_price_chart(df, coin_symbol, timeframe=None):
         return
 
     # Calculate Moving Averages
-    df["SMA_9"] = df["Close"].rolling(window=9, min_periods=1).mean()
-    df["SMA_21"] = df["Close"].rolling(window=21, min_periods=1).mean()
+    df["SMA_50"] = df["Close"].rolling(window=50, min_periods=1).mean()
+    df["SMA_200"] = df["Close"].rolling(window=200, min_periods=1).mean()
 
     # Define Support and Resistance Levels
     resistance_levels = [df["Close"].max() * 1.01, df["Close"].max() * 1.02]
@@ -89,8 +89,8 @@ def plot_price_chart(df, coin_symbol, timeframe=None):
         ax1.bar(date, body_height, bottom=body_bottom, color=color, width=candle_width, linewidth=0)
 
     # Plot Moving Averages
-    ax1.plot(df.index, df["SMA_9"], label="SMA 9", color="yellow", linewidth=1.5)
-    ax1.plot(df.index, df["SMA_21"], label="SMA 21", color="pink", linewidth=1.5)
+    ax1.plot(df.index, df["SMA_50"], label="SMA 50", color="yellow", linewidth=1.5)
+    ax1.plot(df.index, df["SMA_200"], label="SMA 200", color="pink", linewidth=1.5)
 
     # Draw Support & Resistance Lines
     for r_level in resistance_levels:
