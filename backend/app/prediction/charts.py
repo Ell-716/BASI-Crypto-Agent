@@ -26,7 +26,7 @@ def aggregate_candles(df, timeframe):
     elif timeframe == "1m":
         ohlcv_df = df[["Open", "High", "Low", "Close", "Volume"]].resample("ME").agg({
             "Open": "first", "High": "max", "Low": "min", "Close": "last", "Volume": "sum"
-        }).dropna().tail(48)
+        }).dropna().tail(36)
     else:
         return df
 
@@ -61,13 +61,13 @@ def plot_price_chart(df, coin_symbol, timeframe=None):
     fig.patch.set_facecolor('black')
 
     if timeframe == "1h":
-        candle_width = 0.6
+        candle_width = 0.03
     elif timeframe == "1d":
         candle_width = 0.8
     elif timeframe == "1w":
         candle_width = 6
     elif timeframe == "1m":
-        candle_width = 10
+        candle_width = 20
     else:
         candle_width = 0.6
 
@@ -137,18 +137,27 @@ def plot_macd_rsi(df, timeframe):
         print(f"⚠️ Missing required columns for MACD/RSI: {missing_columns}. Ensure `calculate_indicators(df)` was applied before plotting.")
         return
 
-    smoothing_window = 7
+    smoothing_window = 10
     df["MACD_Line_Smooth"] = df["MACD_Line"].ewm(span=smoothing_window, adjust=False).mean()
     df["Signal_Line_Smooth"] = df["Signal_Line"].ewm(span=smoothing_window, adjust=False).mean()
-    df["Stoch_K_Smooth"] = df["Stoch_K"].ewm(span=smoothing_window, adjust=False).mean()
-    df["Stoch_D_Smooth"] = df["Stoch_D"].ewm(span=smoothing_window, adjust=False).mean()
+    df["Stoch_K_Smooth"] = df["Stoch_K"].rolling(window=5, min_periods=1).mean().rolling(window=3, min_periods=1).mean()
+    df["Stoch_D_Smooth"] = df["Stoch_D"].rolling(window=5, min_periods=1).mean().rolling(window=3, min_periods=1).mean()
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8), sharex=True, gridspec_kw={'height_ratios': [1, 1]})
     fig.patch.set_facecolor('black')
 
+    bar_width = {
+        "1h": 0.03,
+        "1d": 0.6,
+        "1w": 4,
+        "1m": 27,
+    }.get(timeframe, 0.6)
+
     ax1.plot(df.index, df["MACD_Line_Smooth"], label="MACD Line", color="deepskyblue", linewidth=1.5)
     ax1.plot(df.index, df["Signal_Line_Smooth"], label="Signal Line", color="orange", linewidth=1.5)
-    ax1.bar(df.index, df["MACD_Histogram"], color=np.where(df["MACD_Histogram"] >= 0, 'lime', 'red'), alpha=0.6, label="MACD Histogram")
+    ax1.bar(df.index, df["MACD_Histogram"], width=bar_width,
+            color=np.where(df["MACD_Histogram"] >= 0, 'lime', 'red'),
+            alpha=0.6, label="MACD Histogram")
 
     ax1.set_facecolor("black")
     ax1.set_title("MACD (12, 26, 9)", color="white")
@@ -203,13 +212,13 @@ def plot_bollinger_bands(df, coin_symbol, timeframe=None, window=20, num_std=2):
 
     # Candlestick Chart
     if timeframe == "1h":
-        candle_width = 0.6
+        candle_width = 0.03
     elif timeframe == "1d":
         candle_width = 0.8
     elif timeframe == "1w":
         candle_width = 6
     elif timeframe == "1m":
-        candle_width = 10
+        candle_width = 20
     else:
         candle_width = 0.6
 

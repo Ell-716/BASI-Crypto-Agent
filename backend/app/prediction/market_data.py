@@ -69,7 +69,8 @@ def calculate_indicators(df):
 
 
 def generate_and_plot_charts(coin_symbol, timeframe=None):
-    market_data = fetch_market_data(coin_symbol, timeframe)
+    fetch_interval = "1d" if timeframe == "1m" else timeframe
+    market_data = fetch_market_data(coin_symbol, interval=fetch_interval)
 
     if market_data is not None:
         # Aggregate OHLCV data for selected timeframe
