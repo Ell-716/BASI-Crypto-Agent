@@ -18,8 +18,6 @@ Do not introduce yourself. Begin the response directly with the report content. 
 - **Resistance Levels:** {derived_observations[resistance_levels]}  
 - **Volatility:** {derived_observations[volatility]}
 
-{derived_observations[volatility_warning]}
-
 **⚠ Disclaimer:** This analysis is for informational purposes only and should not be considered financial advice.  
 Always conduct your own research before making investment decisions.
 """
@@ -77,8 +75,6 @@ If **below 30**, the market is **oversold**, indicating a potential **upward rev
 - **Bollinger Bands Middle:** ${volatility[BB_middle]:,.2f}
 - **Bollinger Bands Lower:** ${volatility[BB_lower]:,.2f}
 - **Volatility:** {derived_observations[volatility]}
-
-{derived_observations[volatility_warning]}
 
 A **tight Bollinger Band range** suggests **low volatility**, while a **widening range** 
 indicates **increased price movement**.

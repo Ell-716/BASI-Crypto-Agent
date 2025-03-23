@@ -1,4 +1,3 @@
-from backend.app import create_app
 from backend.app.models import HistoricalData, TechnicalIndicators, Coin
 from datetime import datetime, timezone, timedelta
 from backend.app.prediction.prompt_formatter import generate_prompt, FULL_PROMPT_TEMPLATE, CONCISE_PROMPT_TEMPLATE
@@ -14,12 +13,12 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 load_dotenv()
 API_KEY = os.getenv('GROQ_API_KEY')
 
-# Initialize Flask app context
-app = create_app()
-
 
 def fetch_historical_data(coin_symbol, timeframe):
-    """Retrieve summarized historical price data and indicators for a given coin and timeframe."""
+    from backend.app import create_app
+
+    app = create_app()
+
     with app.app_context():
         coin = Coin.query.filter_by(coin_symbol=coin_symbol.upper()).first()
         if not coin:
@@ -106,8 +105,6 @@ def fetch_historical_data(coin_symbol, timeframe):
             volatility_status = "High" if abs(volatility["BB_upper"] - volatility["BB_lower"]) / volatility[
                 "BB_middle"] > threshold else "Low"
 
-        volatility_warning = ("⚠️ The market is experiencing low volatility. Some indicators "
-                              "(MACD, Bollinger Bands) may be unreliable.") if volatility_status == "Low" else ""
 
         # Proper Support & Resistance Calculation
         lowest_price = summary["lowest_price"]
@@ -136,7 +133,6 @@ def fetch_historical_data(coin_symbol, timeframe):
             "derived_observations": {
                 "trend": "Bullish" if indicators.SMA_50 > indicators.SMA_200 else "Bearish",
                 "volatility": volatility_status,
-                "volatility_warning": volatility_warning,
                 "support_levels": support_levels,
                 "resistance_levels": resistance_levels
             },
