@@ -105,7 +105,6 @@ def fetch_historical_data(coin_symbol, timeframe):
             volatility_status = "High" if abs(volatility["BB_upper"] - volatility["BB_lower"]) / volatility[
                 "BB_middle"] > threshold else "Low"
 
-
         # Proper Support & Resistance Calculation
         lowest_price = summary["lowest_price"]
         highest_price = summary["highest_price"]

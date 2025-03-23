@@ -93,4 +93,3 @@ def generate_and_plot_charts(coin_symbol, timeframe=None):
 
 if __name__ == "__main__":
     generate_and_plot_charts("bitcoin", timeframe="1d")
-

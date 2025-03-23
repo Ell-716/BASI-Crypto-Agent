@@ -1,42 +1,7 @@
-import pandas as pd
+from backend.app.utils.chart_helpers import aggregate_candles
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import numpy as np
-
-
-def aggregate_candles(df, timeframe):
-    df.index = pd.to_datetime(df.index)
-    df = df.sort_index()
-
-    # Preserve indicator columns
-    indicator_columns = [col for col in df.columns if col not in ["Open", "High", "Low", "Close", "Volume"]]
-    indicators_df = df[indicator_columns] if indicator_columns else None
-
-    # Resample OHLCV data only
-    if timeframe == "1h":
-        ohlcv_df = df[["Open", "High", "Low", "Close", "Volume"]].tail(96)
-    elif timeframe == "1d":
-        ohlcv_df = df[["Open", "High", "Low", "Close", "Volume"]].resample("1D").agg({
-            "Open": "first", "High": "max", "Low": "min", "Close": "last", "Volume": "sum"
-        }).dropna().tail(120)
-    elif timeframe == "1w":
-        ohlcv_df = df[["Open", "High", "Low", "Close", "Volume"]].resample("1W").agg({
-            "Open": "first", "High": "max", "Low": "min", "Close": "last", "Volume": "sum"
-        }).dropna().tail(96)
-    elif timeframe == "1m":
-        ohlcv_df = df[["Open", "High", "Low", "Close", "Volume"]].resample("ME").agg({
-            "Open": "first", "High": "max", "Low": "min", "Close": "last", "Volume": "sum"
-        }).dropna().tail(36)
-    else:
-        return df
-
-    # Reattach indicator columns
-    if indicators_df is not None:
-        filtered_df = ohlcv_df.join(indicators_df, how="left")
-    else:
-        filtered_df = ohlcv_df
-
-    return filtered_df
 
 
 def plot_base_candlestick_chart(df, coin_symbol, timeframe):
@@ -50,7 +15,8 @@ def plot_base_candlestick_chart(df, coin_symbol, timeframe):
     support_levels = [df["Close"].min() * 0.99, df["Close"].min() * 0.98]
 
     # Create chart
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8), sharex=True, gridspec_kw={'height_ratios': [3, 1]})
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8), sharex=True,
+                                   gridspec_kw={'height_ratios': [3, 1]})
     fig.patch.set_facecolor('black')
 
     # Candle width
@@ -79,9 +45,11 @@ def plot_base_candlestick_chart(df, coin_symbol, timeframe):
 
     # Draw Support & Resistance Lines
     for r in resistance_levels:
-        ax1.axhline(y=r, color="red", linestyle="dashed", linewidth=1.5, label="Resistance" if r == resistance_levels[0] else "")
+        ax1.axhline(y=r, color="red", linestyle="dashed", linewidth=1.5,
+                    label="Resistance" if r == resistance_levels[0] else "")
     for s in support_levels:
-        ax1.axhline(y=s, color="green", linestyle="dashed", linewidth=1.5, label="Support" if s == support_levels[0] else "")
+        ax1.axhline(y=s, color="green", linestyle="dashed", linewidth=1.5,
+                    label="Support" if s == support_levels[0] else "")
 
     ax1.set_facecolor("black")
     ax1.set_title(f"{coin_symbol}/USD Trading Chart - {timeframe.upper()}", color="white", fontsize=14)
@@ -149,7 +117,8 @@ def plot_macd_rsi(df, timeframe):
     required_columns = ["MACD_Line", "Signal_Line", "MACD_Histogram", "Stoch_K", "Stoch_D"]
     missing_columns = [col for col in required_columns if col not in df.columns]
     if missing_columns:
-        print(f"⚠️ Missing required columns for MACD/RSI: {missing_columns}. Ensure `calculate_indicators(df)` was applied before plotting.")
+        print(f"⚠️ Missing required columns for MACD/RSI: {missing_columns}. "
+              f"Ensure `calculate_indicators(df)` was applied before plotting.")
         return
 
     smoothing_window = 10
@@ -158,7 +127,8 @@ def plot_macd_rsi(df, timeframe):
     df["Stoch_K_Smooth"] = df["Stoch_K"].rolling(window=5, min_periods=1).mean().rolling(window=3, min_periods=1).mean()
     df["Stoch_D_Smooth"] = df["Stoch_D"].rolling(window=5, min_periods=1).mean().rolling(window=3, min_periods=1).mean()
 
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8), sharex=True, gridspec_kw={'height_ratios': [1, 1]})
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8), sharex=True,
+                                   gridspec_kw={'height_ratios': [1, 1]})
     fig.patch.set_facecolor('black')
 
     bar_width = {

@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from backend.app.api import fetch_coin_data
+from backend.app.utils.api import fetch_coin_data
 from backend.app.models import db, Coin, HistoricalData
 from datetime import datetime, timezone, timedelta
 

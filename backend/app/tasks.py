@@ -1,6 +1,6 @@
 from backend.app import create_app, db
 from backend.app.models import HistoricalData, TechnicalIndicators, Coin
-from backend.app.api import fetch_coin_data
+from backend.app.utils.api import fetch_coin_data
 from datetime import datetime, timezone, timedelta
 import pandas as pd
 import pandas_ta as ta
@@ -87,14 +87,23 @@ def update_technical_indicators():
 
             # Stochastic RSI Calculation
             stoch_rsi_values = ta.stochrsi(df['price'])
-            if stoch_rsi_values is not None and isinstance(stoch_rsi_values, pd.DataFrame) and not stoch_rsi_values.empty:
+            if stoch_rsi_values is not None and isinstance(stoch_rsi_values,
+                                                           pd.DataFrame) and not stoch_rsi_values.empty:
                 df['Stoch_RSI_K'], df['Stoch_RSI_D'] = stoch_rsi_values.iloc[:, 0], stoch_rsi_values.iloc[:, 1]
             else:
                 df['Stoch_RSI_K'], df['Stoch_RSI_D'] = None, None
 
             bb_values = ta.bbands(df['price'])
             if bb_values is not None and isinstance(bb_values, pd.DataFrame) and not bb_values.empty:
-                df['BB_upper'], df['BB_middle'], df['BB_lower'] = bb_values.iloc[:, 0], bb_values.iloc[:, 1], bb_values.iloc[:, 2]
+                (
+                    df["BB_upper"],
+                    df["BB_middle"],
+                    df["BB_lower"]
+                ) = (
+                    bb_values.iloc[:, 0],
+                    bb_values.iloc[:, 1],
+                    bb_values.iloc[:, 2]
+                )
             else:
                 df['BB_upper'], df['BB_middle'], df['BB_lower'] = None, None, None
 
