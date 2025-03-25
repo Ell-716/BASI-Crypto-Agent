@@ -20,10 +20,6 @@ def aggregate_candles(df, timeframe):
         ohlcv_df = df[["Open", "High", "Low", "Close", "Volume"]].resample("1W").agg({
             "Open": "first", "High": "max", "Low": "min", "Close": "last", "Volume": "sum"
         }).dropna().tail(96)
-    elif timeframe == "1m":
-        ohlcv_df = df[["Open", "High", "Low", "Close", "Volume"]].resample("ME").agg({
-            "Open": "first", "High": "max", "Low": "min", "Close": "last", "Volume": "sum"
-        }).dropna().tail(36)
     else:
         return df
 

@@ -21,7 +21,7 @@ def plot_base_candlestick_chart(df, coin_symbol, timeframe):
 
     # Candle width
     candle_width = {
-        "1h": 0.03, "1d": 0.8, "1w": 6, "1m": 20
+        "1h": 0.03, "1d": 0.8, "1w": 6
     }.get(timeframe, 0.6)
 
     # Candlesticks
@@ -134,8 +134,7 @@ def plot_macd_rsi(df, timeframe):
     bar_width = {
         "1h": 0.03,
         "1d": 0.6,
-        "1w": 4,
-        "1m": 27,
+        "1w": 4
     }.get(timeframe, 0.6)
 
     ax1.plot(df.index, df["MACD_Line_Smooth"], label="MACD Line", color="deepskyblue", linewidth=1.5)

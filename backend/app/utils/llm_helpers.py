@@ -1,33 +1,5 @@
 import pandas as pd
 import numpy as np
-import requests
-
-BINANCE_KLINES_URL = "https://api.binance.com/api/v3/klines"
-
-
-def fetch_binance_ohlcv(symbol, interval, limit=500):
-    params = {
-        "symbol": f"{symbol.upper()}USDT",
-        "interval": interval,
-        "limit": limit
-    }
-    try:
-        response = requests.get(BINANCE_KLINES_URL, params=params, timeout=10)
-        response.raise_for_status()
-        data = response.json()
-
-        df = pd.DataFrame(data, columns=[
-            "timestamp", "Open", "High", "Low", "Close", "Volume",
-            "CloseTime", "QuoteAssetVolume", "Trades", "TakerBuyBase", "TakerBuyQuote", "Ignore"
-        ])
-        df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
-        df = df[["timestamp", "Open", "High", "Low", "Close", "Volume"]]
-        df.columns = df.columns.str.lower()
-        df[["open", "high", "low", "close", "volume"]] = df[["open", "high", "low", "close", "volume"]].astype(float)
-        return df
-    except Exception as e:
-        print(f"⚠️ Failed to fetch Binance OHLCV: {e}")
-        return None
 
 
 def resample_and_compute_indicators(data, timeframe):

@@ -9,7 +9,7 @@ def fetch_market_data(symbol, interval, limit=1000):
 
     params = {
         "symbol": f"{symbol.upper()}USDT",
-        "interval": interval,  # "1h", "1d", "1w", "1M"
+        "interval": interval,  # "1h", "1d", "1w"
         "limit": limit  # Max candles
     }
     try:
@@ -68,8 +68,7 @@ def calculate_indicators(df):
 
 
 def generate_and_plot_charts(coin_symbol, timeframe=None):
-    fetch_interval = "1d" if timeframe == "1m" else timeframe
-    market_data = fetch_market_data(coin_symbol, interval=fetch_interval)
+    market_data = fetch_market_data(coin_symbol, interval=None)
 
     if market_data is not None:
         # Aggregate OHLCV data for selected timeframe

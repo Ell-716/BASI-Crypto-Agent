@@ -5,7 +5,7 @@ from groq import Groq
 from dotenv import load_dotenv
 import os
 import logging
-from backend.app.utils.llm_helpers import resample_and_compute_indicators, fetch_binance_ohlcv
+from backend.app.utils.llm_helpers import resample_and_compute_indicators
 
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
