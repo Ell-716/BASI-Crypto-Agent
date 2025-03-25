@@ -1,26 +1,59 @@
 import requests
 
-COINGECKO_API_URL = "https://api.coingecko.com/api/v3/coins/markets"
+BINANCE_BASE_URL = "https://api.binance.com"
+
+# Define the top 10 coins manually and use CoinGecko's CDN for images
+TOP_10_BINANCE_COINS = [
+    {"symbol": "BTCUSDT", "name": "Bitcoin",
+     "image": "https://assets.coingecko.com/coins/images/1/large/bitcoin.png"},
+    {"symbol": "ETHUSDT", "name": "Ethereum",
+     "image": "https://assets.coingecko.com/coins/images/279/large/ethereum.png"},
+    {"symbol": "BNBUSDT", "name": "BNB", "image": "https://assets.coingecko.com/coins/images/825/large/bnb.png"},
+    {"symbol": "SOLUSDT", "name": "Solana", "image": "https://assets.coingecko.com/coins/images/4128/large/solana.png"},
+    {"symbol": "XRPUSDT", "name": "XRP",
+     "image": "https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png"},
+    {"symbol": "ADAUSDT", "name": "Cardano",
+     "image": "https://assets.coingecko.com/coins/images/975/large/cardano.png"},
+    {"symbol": "AVAXUSDT", "name": "Avalanche",
+     "image": "https://assets.coingecko.com/coins/images/12559/large/coin-round-red.png"},
+    {"symbol": "DOGEUSDT", "name": "Dogecoin",
+     "image": "https://assets.coingecko.com/coins/images/5/large/dogecoin.png"},
+    {"symbol": "DOTUSDT", "name": "Polkadot",
+     "image": "https://assets.coingecko.com/coins/images/12171/large/polkadot.png"},
+    {"symbol": "LINKUSDT", "name": "Chainlink",
+     "image": "https://assets.coingecko.com/coins/images/877/large/chainlink-new-logo.png"},
+]
 
 
 def fetch_coin_data(coin_id=None):
-    """Fetch market data for a specific coin or the top 10 coins."""
-    params = {
-        'vs_currency': 'usd',
-        'order': 'market_cap_desc',
-        'per_page': 10,
-        'page': 1,
-        'sparkline': False
-    }
-    if coin_id:
-        params['ids'] = coin_id
+    coins = []
 
-    try:
-        response = requests.get(COINGECKO_API_URL, params=params, timeout=10)
-        if response.status_code == 200:
-            return response.json(), None
-        else:
-            return [], f"Error {response.status_code}: {response.text}"
+    for coin in TOP_10_BINANCE_COINS:
+        if coin_id and coin_id.lower() not in coin["name"].lower():
+            continue
 
-    except requests.exceptions.RequestException as e:
-        return [], str(e)
+        try:
+            res = requests.get(
+                f"{BINANCE_BASE_URL}/api/v3/ticker/24hr",
+                params={"symbol": coin["symbol"]},
+                timeout=10
+            )
+            if res.status_code != 200:
+                return [], f"Binance API error {res.status_code}: {res.text}"
+            data = res.json()
+            coins.append({
+                "symbol": coin["symbol"],
+                "name": coin["name"],
+                "image": coin["image"],
+                "current_price": float(data.get("lastPrice", 0)),
+                "total_volume": float(data.get("volume", 0)),
+                "market_cap": float(data.get("quoteVolume", 0)),  # approximation
+                "high_24h": float(data.get("highPrice", 0)),
+                "low_24h": float(data.get("lowPrice", 0)),
+            })
+        except requests.exceptions.RequestException as e:
+            return [], str(e)
+        except (ValueError, KeyError) as e:
+            return [], f"Invalid response for {coin['symbol']}: {e}"
+
+    return coins, None
