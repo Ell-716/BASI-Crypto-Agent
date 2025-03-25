@@ -5,7 +5,7 @@ from groq import Groq
 from dotenv import load_dotenv
 import os
 import logging
-from backend.app.utils.llm_helpers import resample_and_compute_indicators
+from backend.app.utils.llm_helpers import resample_and_compute_indicators, fetch_binance_ohlcv
 
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
@@ -23,20 +23,7 @@ def fetch_historical_data(coin_symbol, timeframe):
         if not coin:
             return None
 
-        # Define timeframe mappings
-        timeframes = {
-            "1h": timedelta(hours=1),
-            "1d": timedelta(days=1),
-            "1w": timedelta(weeks=1),
-            "1m": timedelta(weeks=4)
-        }
-
-        if timeframe not in timeframes:
-            return None
-
-        cutoff_time = datetime.now(timezone.utc) - timeframes[timeframe]
-
-        # Fetch historical data
+        cutoff_time = datetime.now(timezone.utc) - (timedelta(hours=1) if timeframe == "1h" else timedelta(days=1))
         historical_data = HistoricalData.query.filter(
             HistoricalData.coin_id == coin.id,
             HistoricalData.timestamp >= cutoff_time
@@ -100,13 +87,14 @@ def fetch_historical_data(coin_symbol, timeframe):
             volatility_status = "High" if diff > threshold else "Low"
 
         # S&R
+        recent_window = df.tail(30) if len(df) >= 30 else df
         support_levels = [
-            round(summary["lowest_price"] * 0.98, 2),
-            round(summary["lowest_price"] * 0.95, 2)
+            float(round(recent_window["low"].min() * 0.98, 2)),
+            float(round(recent_window["low"].min() * 0.95, 2))
         ]
         resistance_levels = [
-            round(summary["highest_price"] * 1.02, 2),
-            round(summary["highest_price"] * 1.05, 2)
+            float(round(recent_window["high"].max() * 1.02, 2)),
+            float(round(recent_window["high"].max() * 1.05, 2))
         ]
 
         # Recommendation
