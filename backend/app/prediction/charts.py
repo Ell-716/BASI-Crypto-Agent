@@ -109,6 +109,7 @@ def plot_bollinger_bands(df, coin_symbol, timeframe=None, window=20, num_std=2):
     ax1.plot(df.index, df["SMA"], label="SMA (Middle Band)", color="yellow", linewidth=1.5)
     ax1.plot(df.index, df["Upper Band"], label="Upper Band", color="deepskyblue", linewidth=1.7, linestyle="--")
     ax1.plot(df.index, df["Lower Band"], label="Lower Band", color="deepskyblue", linewidth=1.7, linestyle="--")
+    ax1.fill_between(df.index, df["Lower Band"], df["Upper Band"], color="deepskyblue", alpha=0.2)
     ax1.legend(loc="upper left", fontsize=10)
     legend = ax1.legend(loc="upper left", fontsize=10)
     legend.get_frame().set_facecolor("black")
