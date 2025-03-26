@@ -20,8 +20,7 @@ def resample_and_compute_indicators(data, timeframe):
     df.set_index("timestamp", inplace=True)
     df = df.sort_index()
 
-    # Remove invalid or extreme price values to avoid polluting indicator calculations
-    df = df[(df["close"] > 100) & (df["close"] < 100_000)]
+    df = df[df["close"] > 0.01]
 
     rule = {"1h": "h", "1d": "d", "1w": "W", "1m": "ME"}.get(timeframe, "d")
     df_resampled = df.resample(rule).agg({

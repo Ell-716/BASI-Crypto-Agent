@@ -68,13 +68,19 @@ def calculate_indicators(df):
 
 
 def generate_and_plot_charts(coin_symbol, timeframe=None):
-    market_data = fetch_market_data(coin_symbol, interval=None)
+    interval_map = {"1h": "1h", "1d": "1d", "1w": "1w"}
+    interval = interval_map.get(timeframe)
+
+    if interval is None:
+        print(f"⚠️ Invalid or missing timeframe: {timeframe}")
+        return
+
+    market_data = fetch_market_data(coin_symbol, interval=interval, limit=1000)
 
     if market_data is not None:
         # Aggregate OHLCV data for selected timeframe
         df_resampled = aggregate_candles(market_data, timeframe)
 
-        # If resampling failed, skip plotting
         if df_resampled is None or df_resampled.empty:
             print(f"⚠️ Not enough data for {coin_symbol} ({timeframe}).")
             return
@@ -85,10 +91,6 @@ def generate_and_plot_charts(coin_symbol, timeframe=None):
         # Plot all charts
         plot_price_chart(df_resampled, coin_symbol, timeframe)
         plot_bollinger_bands(df_resampled, coin_symbol, timeframe)
-        plot_macd_rsi(df_with_indicators, timeframe)  # Now correctly computed
+        plot_macd_rsi(df_with_indicators, timeframe)
     else:
         print(f"⚠️ Failed to fetch market data for {coin_symbol}")
-
-
-if __name__ == "__main__":
-    generate_and_plot_charts("bitcoin", timeframe="1d")
