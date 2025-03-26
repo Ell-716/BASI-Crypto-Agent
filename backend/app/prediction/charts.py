@@ -84,6 +84,12 @@ def plot_price_chart(df, coin_symbol, timeframe=None):
 
     ax1.plot(df.index, df["SMA_50"], label="SMA 50", color="yellow", linewidth=1.5)
     ax1.plot(df.index, df["SMA_200"], label="SMA 200", color="pink", linewidth=1.5)
+    ax1.legend(loc="upper left", fontsize=10)
+    legend = ax1.legend(loc="upper left", fontsize=10)
+    legend.get_frame().set_facecolor("black")
+    legend.get_frame().set_edgecolor("white")
+    for text in legend.get_texts():
+        text.set_color("white")
 
     plt.tight_layout()
     plt.show()
@@ -103,6 +109,12 @@ def plot_bollinger_bands(df, coin_symbol, timeframe=None, window=20, num_std=2):
     ax1.plot(df.index, df["SMA"], label="SMA (Middle Band)", color="yellow", linewidth=1.5)
     ax1.plot(df.index, df["Upper Band"], label="Upper Band", color="deepskyblue", linewidth=1.7, linestyle="--")
     ax1.plot(df.index, df["Lower Band"], label="Lower Band", color="deepskyblue", linewidth=1.7, linestyle="--")
+    ax1.legend(loc="upper left", fontsize=10)
+    legend = ax1.legend(loc="upper left", fontsize=10)
+    legend.get_frame().set_facecolor("black")
+    legend.get_frame().set_edgecolor("white")
+    for text in legend.get_texts():
+        text.set_color("white")
 
     plt.tight_layout()
     plt.show()

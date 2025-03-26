@@ -43,7 +43,11 @@ def fetch_historical_data(coin_symbol, timeframe):
             if not coin:
                 return None
 
-            cutoff_time = datetime.now(timezone.utc) - timedelta(hours=6)
+            if timeframe == "1h":
+                cutoff_time = datetime.now(timezone.utc) - timedelta(hours=6)
+            else:
+                cutoff_time = datetime.now(timezone.utc) - timedelta(days=60)
+
             historical_data = HistoricalData.query.filter(
                 HistoricalData.coin_id == coin.id,
                 HistoricalData.timestamp >= cutoff_time

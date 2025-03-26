@@ -1,7 +1,6 @@
 import requests
 import pandas as pd
 from backend.app.prediction.charts import plot_price_chart, plot_macd_rsi, plot_bollinger_bands, aggregate_candles
-from backend.app.utils.symbols import normalize_symbol
 
 BINANCE_KLINES_URL = "https://api.binance.com/api/v3/klines"
 
@@ -69,7 +68,6 @@ def calculate_indicators(df):
 
 
 def generate_and_plot_charts(coin_symbol, timeframe=None):
-    coin_symbol = normalize_symbol(coin_symbol)
     interval_map = {"1h": "1h", "1d": "1d", "1w": "1w"}
     interval = interval_map.get(timeframe)
 

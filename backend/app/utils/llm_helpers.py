@@ -22,7 +22,7 @@ def resample_and_compute_indicators(data, timeframe):
 
     df = df[df["close"] > 0.01]
 
-    rule = {"1h": "h", "1d": "d", "1w": "W", "1m": "ME"}.get(timeframe, "d")
+    rule = {"1h": "h", "1d": "D", "1w": "W"}.get(timeframe, "h")
     df_resampled = df.resample(rule).agg({
         "open": "first", "high": "max", "low": "min",
         "close": "last", "volume": "sum"
