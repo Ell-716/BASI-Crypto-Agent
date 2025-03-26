@@ -7,6 +7,7 @@ import os
 import logging
 from backend.app.utils.llm_helpers import resample_and_compute_indicators
 from backend.app.prediction.market_data import fetch_market_data
+from backend.app.utils.symbols import normalize_symbol
 
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
@@ -16,6 +17,7 @@ API_KEY = os.getenv('GROQ_API_KEY')
 
 
 def fetch_historical_data(coin_symbol, timeframe):
+    coin_symbol = normalize_symbol(coin_symbol)
     from backend.app import create_app
     app = create_app()
 
