@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from backend.app.models import db, User, Coin
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
+from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -37,7 +37,7 @@ def add_user():
     return jsonify({"message": "User registered successfully"}), 201
 
 
-# User Login (Returns JWT Token)
+# Login route - issue both access and refresh tokens
 @users_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -52,7 +52,17 @@ def login():
         return jsonify({"error": "Invalid credentials"}), 401
 
     access_token = create_access_token(identity=str(user.id))
-    return jsonify({"access_token": access_token}), 200
+    refresh_token = create_refresh_token(identity=str(user.id))
+    return jsonify(access_token=access_token, refresh_token=refresh_token), 200
+
+
+# Token refresh route
+@users_bp.route('/refresh', methods=['POST'])
+@jwt_required(refresh=True)
+def refresh():
+    current_user = get_jwt_identity()
+    new_token = create_access_token(identity=current_user)
+    return jsonify(access_token=new_token), 200
 
 
 # Get User Details
