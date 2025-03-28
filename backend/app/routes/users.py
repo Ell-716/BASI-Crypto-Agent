@@ -4,7 +4,7 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
 import logging
 from backend.app.utils.security import is_strong_password
-from backend.app.utils.email_verification import generate_verification_token
+from backend.app.utils.email_verification import generate_verification_token, confirm_verification_token
 
 
 logging.basicConfig(level=logging.INFO)
@@ -52,6 +52,28 @@ def add_user():
     print("Email verification link:", verify_url)
 
     return jsonify({"message": "User registered successfully"}), 201
+
+
+@users_bp.route('/verify', methods=['GET'])
+def verify_email():
+    token = request.args.get('token')
+    if not token:
+        return jsonify({"error": "Missing token"}), 400
+
+    email = confirm_verification_token(token)
+    if not email:
+        return jsonify({"error": "Invalid or expired token"}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    if user.is_verified:
+        return jsonify({"message": "Email already verified"}), 200
+
+    user.is_verified = True
+    db.session.commit()
+    return jsonify({"message": "Email verified successfully"}), 200
 
 
 # Login route - issue both access and refresh tokens
