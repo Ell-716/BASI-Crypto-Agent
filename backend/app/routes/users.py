@@ -3,6 +3,8 @@ from backend.app.models import db, User, Coin
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
 import logging
+from backend.app.utils.security import is_strong_password
+
 
 logging.basicConfig(level=logging.INFO)
 bcrypt = Bcrypt()
@@ -19,6 +21,16 @@ def add_user():
 
     if not email or not password or not user_name:
         return jsonify({"error": "Missing email, password, or user_name"}), 400
+
+    if not is_strong_password(password):
+        return jsonify({
+            "error": "PASSWORD MUST CONTAIN:\n"
+                     "- At least one uppercase letter\n"
+                     "- At least one lowercase letter\n"
+                     "- At least one number\n"
+                     "- At least one special character (@, #, $, etc.)\n"
+                     "- Minimum 8 characters"
+        }), 400
 
     if User.query.filter_by(email=email).first():
         return jsonify({"error": "User already exists"}), 400
