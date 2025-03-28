@@ -4,6 +4,7 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
 import logging
 from backend.app.utils.security import is_strong_password
+from backend.app.utils.email_verification import generate_verification_token
 
 
 logging.basicConfig(level=logging.INFO)
@@ -46,6 +47,10 @@ def add_user():
         logging.error(f"Database error: {e}")
         return jsonify({"error": "Database error"}), 500
 
+    token = generate_verification_token(email)
+    verify_url = f"http://localhost:5050/users/verify?token={token}"
+    print("Email verification link:", verify_url)
+
     return jsonify({"message": "User registered successfully"}), 201
 
 
@@ -62,6 +67,9 @@ def login():
     user = User.query.filter_by(email=email).first()
     if not user or not bcrypt.check_password_hash(user.password_hash, password):
         return jsonify({"error": "Invalid credentials"}), 401
+
+    if not user.is_verified:
+        return jsonify({"error": "Email not verified"}), 403
 
     access_token = create_access_token(identity=str(user.id))
     refresh_token = create_refresh_token(identity=str(user.id))

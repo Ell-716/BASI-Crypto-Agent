@@ -20,6 +20,7 @@ class User(db.Model):
     user_name = db.Column(db.String(50), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, onupdate=datetime.now)
+    is_verified = db.Column(db.Boolean, default=False)
 
     # Many-to-Many Relationship with Coin (Favorites)
     favorite_coins = db.relationship(
