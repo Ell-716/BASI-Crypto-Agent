@@ -1,10 +1,19 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Home from './pages/Home';
+import AIAgent from './pages/AIAgent';
+import About from './pages/About';
+
 function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background text-text">
-      <h1 className="text-4xl md:text-6xl font-bold tracking-wide">
-        <span className="text-yellow-500">₿</span>A<span className="text-green-500">$</span>I
-      </h1>
-    </div>
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/ai-agent" element={<AIAgent />} />
+        <Route path="/about" element={<About />} />
+      </Routes>
+    </Router>
   );
 }
 

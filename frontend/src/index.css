@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Navbar logo styling */
+.bitcoin-logo {
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 35px;
+  position: relative;
+}
+
+/* Table header text */
+table thead th {
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500;
+  color: #6B7280; /* gray-500 */
+}
+
