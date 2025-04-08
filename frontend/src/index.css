@@ -4,9 +4,10 @@
 
 /* Navbar logo styling */
 .bitcoin-logo {
-  font-family: sans-serif;
+  font-family: serif;
   font-weight: bold;
   font-size: 35px;
+  letter-spacing: 0.1em;
   position: relative;
 }
 
