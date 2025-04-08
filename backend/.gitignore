@@ -19,6 +19,3 @@ backend/.env
 cron_log.txt
 instance/
 !backend/instance/
-
-
-

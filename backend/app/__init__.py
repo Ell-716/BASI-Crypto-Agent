@@ -1,4 +1,5 @@
 from flask import Flask
+import os
 from flask_jwt_extended import JWTManager
 from backend.config import config
 from backend.app.models import db
@@ -12,14 +13,18 @@ jwt = JWTManager()
 
 
 def create_app(config_name='development'):
-    app = Flask(__name__)
+    app = Flask(
+        __name__,
+        instance_path=os.path.join(os.path.dirname(__file__), '..', 'instance'),
+        instance_relative_config=True
+    )
     app.config.from_object(config[config_name])
 
     db.init_app(app)
     jwt.init_app(app)
 
-    #with app.app_context():  # Run once to create the db tables
-        #db.create_all()
+    with app.app_context():  # Run once to create the db tables
+        db.create_all()
 
     # Register Blueprints
     app.register_blueprint(users_bp)
