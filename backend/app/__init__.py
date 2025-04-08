@@ -1,6 +1,7 @@
 from flask import Flask
 import os
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 from backend.config import config
 from backend.app.models import db
 from backend.app.routes.users import users_bp
@@ -19,6 +20,7 @@ def create_app(config_name='development'):
         instance_relative_config=True
     )
     app.config.from_object(config[config_name])
+    CORS(app)
 
     db.init_app(app)
     jwt.init_app(app)
