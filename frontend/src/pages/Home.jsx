@@ -6,6 +6,16 @@ const Home = () => {
   const [topVolume, setTopVolume] = useState(null);
   const [fearGreed, setFearGreed] = useState(null);
   const [coins, setCoins] = useState([]);
+  const [favorites, setFavorites] = useState([]);
+
+    const toggleFavorite = (symbol) => {
+        setFavorites((prev) =>
+            prev.includes(symbol)
+            ? prev.filter((s) => s !== symbol)
+            : [...prev, symbol]
+        );
+    };
+
 
   // Fetch fear & greed and top volume once
   useEffect(() => {
@@ -70,6 +80,7 @@ const Home = () => {
         <table className="min-w-full text-sm text-left">
           <thead className="border-y border-gray-300 bg-white text-gray-600 font-medium">
             <tr>
+              <th className="px-2 py-3"></th> {/* star column */}
               <th className="px-4 py-3">#</th>
               <th className="px-4 py-3">Coin</th>
               <th className="px-4 py-3">Price</th>
@@ -82,12 +93,24 @@ const Home = () => {
           <tbody>
             {coins.map((coin, index) => (
               <tr key={coin.symbol} className="border-b border-gray-200">
+                <td className="px-2 py-2 text-center">
+                    <button
+                        onClick={() => toggleFavorite(coin.symbol)}
+                        className="text-yellow-400 text-lg focus:outline-none"
+                        title="Add to favorites"
+                    >
+                        {favorites.includes(coin.symbol) ? "★" : "☆"}
+                    </button>
+                </td>
                 <td className="px-4 py-2">{index + 1}</td>
                 <td className="px-4 py-2 flex items-center gap-2">
                   <img src={coin.image} alt={coin.name} className="w-5 h-5" />
-                  {coin.name} {coin.symbol}
+                  <div className="flex gap-1 items-baseline">
+                      <span className="font-semibold">{coin.name}</span>
+                      <span className="text-gray-500 text-sm">{coin.symbol}</span>
+                  </div>
                 </td>
-                <td className="px-4 py-2">${parseFloat(coin.price).toLocaleString()}</td>
+                <td className="px-4 py-2">${parseFloat(coin.current_price).toLocaleString()}</td>
                 <td className="px-4 py-2">${parseFloat(coin.high_24h).toLocaleString()}</td>
                 <td className="px-4 py-2">${parseFloat(coin.low_24h).toLocaleString()}</td>
                 <td className="px-4 py-2">${parseFloat(coin.total_volume).toLocaleString()}</td>

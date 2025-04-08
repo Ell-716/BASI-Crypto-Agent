@@ -8,7 +8,7 @@ TOP_10_BINANCE_COINS = [
      "image": "https://assets.coingecko.com/coins/images/1/large/bitcoin.png"},
     {"symbol": "ETHUSDT", "name": "Ethereum",
      "image": "https://assets.coingecko.com/coins/images/279/large/ethereum.png"},
-    {"symbol": "BNBUSDT", "name": "BNB", "image": "https://assets.coingecko.com/coins/images/825/large/bnb.png"},
+    {"symbol": "BNBUSDT", "name": "BNB", "image": "https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png"},
     {"symbol": "SOLUSDT", "name": "Solana", "image": "https://assets.coingecko.com/coins/images/4128/large/solana.png"},
     {"symbol": "XRPUSDT", "name": "XRP",
      "image": "https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png"},
@@ -42,7 +42,7 @@ def fetch_coin_data(coin_id=None):
                 return [], f"Binance API error {res.status_code}: {res.text}"
             data = res.json()
             coins.append({
-                "symbol": coin["symbol"],
+                "symbol": coin["symbol"].replace("USDT", ""),
                 "name": coin["name"],
                 "image": coin["image"],
                 "current_price": float(data.get("lastPrice", 0)),
