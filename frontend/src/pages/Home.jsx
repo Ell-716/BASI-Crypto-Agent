@@ -7,32 +7,42 @@ const Home = () => {
   const [fearGreed, setFearGreed] = useState(null);
   const [coins, setCoins] = useState([]);
 
+  // Fetch fear & greed and top volume once
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchStaticData = async () => {
       try {
-        const [volumeRes, fearGreedRes, coinsRes] = await Promise.all([
+        const [volumeRes, fearGreedRes] = await Promise.all([
           axios.get("http://localhost:5050/dashboard/top-volume"),
           axios.get("http://localhost:5050/dashboard/fear-greed"),
-          axios.get("http://localhost:5050/dashboard/coins"),
         ]);
         setTopVolume(volumeRes.data);
         setFearGreed(fearGreedRes.data);
+      } catch (error) {
+        console.error("Error fetching static dashboard data:", error);
+      }
+    };
+    fetchStaticData();
+  }, []);
+
+  // Update coin data every minute
+  useEffect(() => {
+    const fetchLiveCoins = async () => {
+      try {
+        const coinsRes = await axios.get("http://localhost:5050/dashboard/coins");
         setCoins(coinsRes.data);
       } catch (error) {
-        console.error("Error fetching dashboard data:", error);
+        console.error("Error fetching live coins:", error);
       }
     };
 
-    fetchData();
-    const interval = setInterval(fetchData, 60000);
+    fetchLiveCoins();
+    const interval = setInterval(fetchLiveCoins, 60000);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <main className="bg-white min-h-screen p-6 text-gray-800">
-      {/* Top section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-        {/* Top Volume Card */}
         <div className="rounded-md border shadow-sm p-4 bg-white">
           <h2 className="text-lg font-semibold text-center mb-4">Highest 24h trading volume</h2>
           {topVolume && (
@@ -43,7 +53,6 @@ const Home = () => {
           )}
         </div>
 
-        {/* Fear & Greed Card */}
         <div className="rounded-md border shadow-sm p-4 bg-white text-center">
           <h2 className="text-lg font-semibold mb-4">Fear & Greed Index</h2>
           {fearGreed ? (
@@ -57,7 +66,6 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Coin Table */}
       <div className="overflow-x-auto mt-4">
         <table className="min-w-full text-sm text-left">
           <thead className="border-y border-gray-300 bg-white text-gray-600 font-medium">

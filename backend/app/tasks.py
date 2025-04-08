@@ -38,8 +38,18 @@ def update_historical_data():
                 db.session.add(coin_obj)
                 db.session.commit()
 
+            # Round to the hour to avoid minute-level duplicates
+            timestamp = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
+
+            # Convert to naive datetime for consistent comparison with DB
+            timestamp = timestamp.replace(tzinfo=None)
+
+            # Skip if data for this coin already exists for this hour
+            existing = HistoricalData.query.filter_by(coin_id=coin_obj.id, timestamp=timestamp).first()
+            if existing:
+                continue
+
             # Insert new historical price
-            timestamp = datetime.now(timezone.utc)
             historical_entry = HistoricalData(
                 coin_id=coin_obj.id,
                 price=price,
@@ -50,6 +60,7 @@ def update_historical_data():
                 timestamp=timestamp
             )
             db.session.add(historical_entry)
+
         db.session.commit()
 
     # Update Indicators after updating historical data

@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
+
 const FearGreedMeter = ({ value, classification }) => {
-  const angle = (value / 100) * 180 - 90;
+  const angle = (value / 100) * 180;
 
   const getColor = () => {
     if (value < 20) return "#dc2626";      // red
@@ -29,15 +31,18 @@ const FearGreedMeter = ({ value, classification }) => {
           strokeWidth="20"
         />
 
-        {/* Needle */}
+        {/* Needle with animation */}
         <line
           x1="100"
           y1="110"
-          x2={100 + 80 * Math.cos((angle * Math.PI) / 180)}
-          y2={110 + 80 * Math.sin((angle * Math.PI) / 180)}
+          x2={100 - 80 * Math.cos((angle * Math.PI) / 180)}
+          y2={110 - 80 * Math.sin((angle * Math.PI) / 180)}
           stroke="#000"
           strokeWidth="3"
           strokeLinecap="round"
+          style={{
+            transition: "all 0.8s ease-in-out"
+          }}
         />
 
         {/* Center dot */}
