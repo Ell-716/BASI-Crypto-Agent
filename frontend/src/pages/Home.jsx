@@ -78,16 +78,16 @@ const Home = () => {
 
       <div className="overflow-x-auto mt-4">
         <table className="min-w-full text-sm text-left">
-          <thead className="border-y border-gray-300 bg-white text-gray-600 font-medium">
+          <thead className="border-y border-gray-300 bg-white">
             <tr>
-              <th className="px-2 py-3"></th> {/* star column */}
-              <th className="px-4 py-3">#</th>
-              <th className="px-4 py-3">Coin</th>
-              <th className="px-4 py-3">Price</th>
-              <th className="px-4 py-3">24h High</th>
-              <th className="px-4 py-3">24h Low</th>
-              <th className="px-4 py-3">24h Volume</th>
-              <th className="px-4 py-3">Market Cap</th>
+              <th className="px-2 py-3 font-bold text-black"></th> {/* star column */}
+              <th className="px-4 py-3 font-bold text-black">#</th>
+              <th className="px-4 py-3 font-bold text-black">Coin</th>
+              <th className="px-4 py-3 font-bold text-black">Price</th>
+              <th className="px-4 py-3 font-bold text-black">24h High</th>
+              <th className="px-4 py-3 font-bold text-black">24h Low</th>
+              <th className="px-4 py-3 font-bold text-black">24h Volume</th>
+              <th className="px-4 py-3 font-bold text-black">Market Cap</th>
             </tr>
           </thead>
           <tbody>
