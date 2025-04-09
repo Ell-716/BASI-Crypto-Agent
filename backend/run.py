@@ -4,8 +4,8 @@ from backend.app import socketio
 
 
 config_name = os.getenv('FLASK_ENV', 'development')
-
 app = create_app(config_name)
 
 if __name__ == '__main__':
-    socketio.run(app, debug=(config_name == 'development'), port=5050)
+    socketio.run(app, host="localhost", port=5050, debug=True, use_reloader=False)
+

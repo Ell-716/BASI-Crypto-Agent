@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import FearGreedMeter from "@/components/FearGreedMeter";
+import { io } from "socket.io-client";
 
 const Home = () => {
   const [topVolume, setTopVolume] = useState(null);
@@ -34,21 +35,31 @@ const Home = () => {
     fetchStaticData();
   }, []);
 
+
   // Update coin data every minute
   useEffect(() => {
-    const fetchLiveCoins = async () => {
-      try {
-        const coinsRes = await axios.get("http://localhost:5050/dashboard/coins");
-        setCoins(coinsRes.data);
-      } catch (error) {
-        console.error("Error fetching live coins:", error);
-      }
-    };
+    const socket = io("http://localhost:5050", {
+        transports: ["websocket"],
+        path: "/socket.io"
+    });
 
-    fetchLiveCoins();
-    const interval = setInterval(fetchLiveCoins, 60000);
-    return () => clearInterval(interval);
-  }, []);
+    socket.on("connect", () => {
+        console.log("Connected to WebSocket");
+    });
+
+    socket.on("coin_data", (data) => {
+        console.log("Received coin_data:", data);
+        setCoins(data);
+    });
+
+    socket.on("disconnect", () => {
+        console.log("Disconnected from WebSocket");
+    });
+
+    return () => {
+        socket.disconnect();
+    };
+}, []);
 
   return (
     <main className="bg-white min-h-screen p-6 text-gray-800">
@@ -80,7 +91,7 @@ const Home = () => {
         <table className="min-w-full text-sm text-left">
           <thead className="border-y border-gray-300 bg-white">
             <tr>
-              <th className="px-2 py-3 font-bold text-black"></th> {/* star column */}
+              <th className="px-2 py-3 font-bold text-black"></th>
               <th className="px-4 py-3 font-bold text-black">#</th>
               <th className="px-4 py-3 font-bold text-black">Coin</th>
               <th className="px-4 py-3 font-bold text-black">Price</th>

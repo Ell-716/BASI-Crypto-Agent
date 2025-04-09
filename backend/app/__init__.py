@@ -3,7 +3,6 @@ import os
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from flask_socketio import SocketIO
-import eventlet
 from backend.config import config
 from backend.app.models import db
 from backend.app.routes.users import users_bp
@@ -13,9 +12,7 @@ from backend.app.routes.dashboard_routes import dashboard_bp
 from backend.app.utils.socket_tasks import start_coin_stream
 
 
-eventlet.monkey_patch()
-socketio = SocketIO(cors_allowed_origins="*")
-
+socketio = SocketIO(cors_allowed_origins="*", async_mode="gevent")
 jwt = JWTManager()
 
 
@@ -31,6 +28,7 @@ def create_app(config_name='development'):
     db.init_app(app)
     jwt.init_app(app)
     socketio.init_app(app)
+    start_coin_stream(socketio)
 
     #with app.app_context():  # Run once to create the db tables
         #db.create_all()
@@ -40,7 +38,5 @@ def create_app(config_name='development'):
     app.register_blueprint(coins_bp)
     app.register_blueprint(predictions_bp)
     app.register_blueprint(dashboard_bp)
-
-    start_coin_stream()
 
     return app
