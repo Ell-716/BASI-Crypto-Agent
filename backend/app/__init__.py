@@ -10,6 +10,7 @@ from backend.app.routes.users import users_bp
 from backend.app.routes.coins import coins_bp
 from backend.app.routes.predictions import predictions_bp
 from backend.app.routes.dashboard_routes import dashboard_bp
+from backend.app.utils.socket_tasks import start_coin_stream
 
 
 eventlet.monkey_patch()
@@ -39,5 +40,7 @@ def create_app(config_name='development'):
     app.register_blueprint(coins_bp)
     app.register_blueprint(predictions_bp)
     app.register_blueprint(dashboard_bp)
+
+    start_coin_stream()
 
     return app
