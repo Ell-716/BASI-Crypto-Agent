@@ -67,9 +67,15 @@ const Home = () => {
         <div className="rounded-md border shadow-sm p-4 bg-white">
           <h2 className="text-lg font-semibold text-center mb-4">Highest 24h trading volume</h2>
           {topVolume && (
-            <div className="text-center">
-              <p className="text-2xl font-bold">{topVolume.coin_name} {topVolume.symbol}</p>
-              <p className="text-4xl text-blue-600 mt-2">${parseFloat(topVolume.price).toLocaleString()}</p>
+            <div className="flex items-center justify-center gap-2 text-center text-1xl mb-2">
+                <img
+                    src={topVolume.image}
+                    alt={topVolume.coin_name}
+                    className="w-8 h-8"
+                />
+                <span className="font-bold">{topVolume.coin_name}</span>
+                <span className="text-gray-500">{topVolume.symbol}</span>
+                <span className="text-gray-500">Price</span>
             </div>
           )}
         </div>
