@@ -1,5 +1,6 @@
 from backend.app import create_app
 import os
+from backend.app import socketio
 
 
 config_name = os.getenv('FLASK_ENV', 'development')
@@ -7,4 +8,4 @@ config_name = os.getenv('FLASK_ENV', 'development')
 app = create_app(config_name)
 
 if __name__ == '__main__':
-    app.run(debug=(config_name == 'development'), port=5050)
+    socketio.run(app, debug=(config_name == 'development'), port=5050)
