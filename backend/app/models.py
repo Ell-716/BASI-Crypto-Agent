@@ -89,3 +89,15 @@ class TechnicalIndicators(db.Model):
 
     def __repr__(self):
         return f"TechnicalIndicators CoinID={self.coin_id} Timestamp={self.timestamp}"
+
+
+class FearGreedIndex(db.Model):
+    __tablename__ = "fear_greed_index"
+
+    id = db.Column(db.Integer, primary_key=True)
+    value = db.Column(db.Integer, nullable=False)
+    classification = db.Column(db.String(50), nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False, index=True)
+
+    def __repr__(self):
+        return f"<FearGreedIndex {self.classification} ({self.value}) at {self.timestamp}>"
