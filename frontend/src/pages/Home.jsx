@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import FearGreedMeter from "@/components/FearGreedMeter";
 import { io } from "socket.io-client";
+import SparklineChart from "@/components/SparklineChart";
+
 
 const Home = () => {
   const [topVolume, setTopVolume] = useState(null);
   const [fearGreed, setFearGreed] = useState(null);
   const [coins, setCoins] = useState([]);
   const [favorites, setFavorites] = useState([]);
+  const [sparklineData, setSparklineData] = useState([]);
 
   const topCoinData = coins.find((coin) => coin.symbol === topVolume?.symbol);
 
@@ -36,6 +39,15 @@ const Home = () => {
     };
     fetchStaticData();
   }, []);
+
+  useEffect(() => {
+    if (topVolume?.symbol) {
+        axios
+        .get(`http://localhost:5050/dashboard/sparkline/${topVolume.symbol}`)
+        .then((res) => setSparklineData(res.data))
+        .catch((err) => console.error("Sparkline fetch error:", err));
+    }
+  }, [topVolume]);
 
 
   // Update coin data every minute
@@ -83,6 +95,11 @@ const Home = () => {
                 {topCoinData && (
                     <div className="text-5xl font-bold text-gray-900 mt-2">
                         ${topCoinData.current_price.toLocaleString()}
+                    </div>
+                )}
+                {sparklineData.length > 0 && (
+                    <div className="mt-4">
+                        <SparklineChart data={sparklineData} />
                     </div>
                 )}
             </div>
