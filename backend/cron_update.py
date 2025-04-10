@@ -9,5 +9,3 @@ from backend.app.tasks import update_historical_data, update_technical_indicator
 if __name__ == "__main__":
     update_historical_data()
     update_technical_indicators()
-
-
