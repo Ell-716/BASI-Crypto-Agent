@@ -1,6 +1,13 @@
 import requests
+import time
 from backend.app.models import Coin, CoinSnapshot
+from backend.app.utils.coin_gecko import COINGECKO_API, COIN_SYMBOL_TO_ID
 
+# Cache for CoinGecko market data
+_coingecko_cache = {
+    "data": None,
+    "timestamp": 0
+}
 
 BINANCE_BASE_URL = "https://api.binance.com"
 
@@ -26,6 +33,24 @@ TOP_10_BINANCE_COINS = [
     {"symbol": "LINKUSDT", "name": "Chainlink",
      "image": "https://assets.coingecko.com/coins/images/877/large/chainlink-new-logo.png"},
 ]
+
+
+def get_cached_coingecko_data():
+    now = time.time()
+    if _coingecko_cache["data"] and now - _coingecko_cache["timestamp"] < 60:
+        return _coingecko_cache["data"]
+
+    try:
+        ids = ",".join(COIN_SYMBOL_TO_ID.values())
+        res = requests.get(COINGECKO_API, params={"vs_currency": "usd", "ids": ids}, timeout=10)
+        res.raise_for_status()
+        data = res.json()
+        _coingecko_cache["data"] = data
+        _coingecko_cache["timestamp"] = now
+        return data
+    except Exception as e:
+        print(f"[CoinGecko] Error fetching market data: {e}")
+        return []
 
 
 def fetch_coin_data(coin_id=None):
