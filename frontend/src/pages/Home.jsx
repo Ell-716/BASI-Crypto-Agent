@@ -11,6 +11,7 @@ const Home = () => {
   const [coins, setCoins] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [sparklineData, setSparklineData] = useState([]);
+  const [snapshot, setSnapshot] = useState(null);
 
   const topCoinData = coins.find((coin) => coin.symbol === topVolume?.symbol);
 
@@ -49,6 +50,15 @@ const Home = () => {
     }
   }, [topVolume]);
 
+  // Fetch the CoinSnapshot
+  useEffect(() => {
+      if (topVolume?.symbol) {
+          axios
+            .get(`http://localhost:5050/dashboard/snapshot/${topVolume.symbol}`)
+            .then((res) => setSnapshot(res.data))
+            .catch((err) => console.error("Snapshot fetch error:", err));
+      }
+  }, [topVolume]);
 
   // Update coin data every minute
   useEffect(() => {
@@ -97,6 +107,7 @@ const Home = () => {
                         ${topCoinData.current_price.toLocaleString()}
                     </div>
                 )}
+
                 {sparklineData.length > 0 && (
                     <div className="mt-4">
                         <SparklineChart data={sparklineData} />
@@ -156,8 +167,12 @@ const Home = () => {
                 <td className="px-4 py-2">${parseFloat(coin.current_price).toLocaleString()}</td>
                 <td className="px-4 py-2">${parseFloat(coin.high_24h).toLocaleString()}</td>
                 <td className="px-4 py-2">${parseFloat(coin.low_24h).toLocaleString()}</td>
-                <td className="px-4 py-2">${parseFloat(coin.total_volume).toLocaleString()}</td>
-                <td className="px-4 py-2">${parseFloat(coin.market_cap).toLocaleString()}</td>
+                <td className="px-4 py-2">
+                    {coin.global_volume ? `$${parseFloat(coin.global_volume).toLocaleString()}` : '—'}
+                </td>
+                <td className="px-4 py-2">
+                    {coin.market_cap ? `$${parseFloat(coin.market_cap).toLocaleString()}` : '—'}
+                </td>
               </tr>
             ))}
           </tbody>

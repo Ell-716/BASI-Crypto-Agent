@@ -28,7 +28,7 @@ def create_app(config_name='development'):
     db.init_app(app)
     jwt.init_app(app)
     socketio.init_app(app)
-    start_coin_stream(socketio)
+    start_coin_stream(socketio, app)
 
     #with app.app_context():  # Run once to create the db tables
         #db.create_all()
