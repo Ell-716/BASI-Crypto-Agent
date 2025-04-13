@@ -46,7 +46,7 @@ class Coin(db.Model):
     historical_data = db.relationship('HistoricalData', backref='coin', lazy=True, cascade="all, delete-orphan")
     technical_indicators = db.relationship('TechnicalIndicators', backref='coin',
                                            lazy=True, cascade="all, delete-orphan")
-    coin = db.relationship("Coin", backref="snapshots", lazy=True, cascade="all, delete-orphan")
+    snapshots = db.relationship("CoinSnapshot", backref="coin", lazy=True, cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"Coin {self.coin_name} ({self.coin_symbol})"

@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify
 from backend.app.dashboard.coin_data import get_live_top_10_coins
 from backend.app.models import FearGreedIndex
 from backend.app.dashboard.top_volume import get_top_coin_by_24h_volume
-from backend.app.models import Coin, HistoricalData
+from backend.app.models import Coin, HistoricalData, CoinSnapshot
 from datetime import datetime, timedelta, timezone
 
 dashboard_bp = Blueprint('dashboard', __name__)
@@ -64,3 +64,27 @@ def get_sparkline_data(symbol):
         return jsonify(prices)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@dashboard_bp.route("/dashboard/snapshot/<symbol>", methods=["GET"])
+def get_latest_snapshot(symbol):
+    coin = Coin.query.filter_by(coin_symbol=symbol.upper()).first()
+    if not coin:
+        return jsonify({"error": "Coin not found"}), 404
+
+    snapshot = (
+        CoinSnapshot.query
+        .filter_by(coin_id=coin.id)
+        .order_by(CoinSnapshot.timestamp.desc())
+        .first()
+    )
+
+    if not snapshot:
+        return jsonify({"error": "No snapshot data available"}), 404
+
+    return jsonify({
+        "symbol": coin.coin_symbol,
+        "market_cap": snapshot.market_cap,
+        "global_volume": snapshot.global_volume,
+        "timestamp": snapshot.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+    })
