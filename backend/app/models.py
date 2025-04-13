@@ -46,6 +46,7 @@ class Coin(db.Model):
     historical_data = db.relationship('HistoricalData', backref='coin', lazy=True, cascade="all, delete-orphan")
     technical_indicators = db.relationship('TechnicalIndicators', backref='coin',
                                            lazy=True, cascade="all, delete-orphan")
+    coin = db.relationship("Coin", backref="snapshots", lazy=True, cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"Coin {self.coin_name} ({self.coin_symbol})"
@@ -100,3 +101,16 @@ class FearGreedIndex(db.Model):
 
     def __repr__(self):
         return f"<FearGreedIndex {self.classification} ({self.value}) at {self.timestamp}>"
+
+
+class CoinSnapshot(db.Model):
+    __tablename__ = "coin_snapshot"
+
+    id = db.Column(db.Integer, primary_key=True)
+    coin_id = db.Column(db.Integer, db.ForeignKey("coins.id", ondelete="CASCADE"))
+    market_cap = db.Column(db.Float, nullable=True)
+    global_volume = db.Column(db.Float, nullable=True)
+    timestamp = db.Column(db.DateTime, nullable=False, index=True)
+
+    def __repr__(self):
+        return f"<CoinSnapshot CoinID={self.coin_id} MarketCap={self.market_cap} Volume={self.global_volume} @ {self.timestamp}>"
