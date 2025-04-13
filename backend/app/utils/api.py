@@ -47,7 +47,6 @@ def fetch_coin_data(coin_id=None):
                 "image": coin["image"],
                 "current_price": float(data.get("lastPrice", 0)),
                 "total_volume": float(data.get("volume", 0)),
-                "market_cap": float(data.get("quoteVolume", 0)),  # approximation
                 "high_24h": float(data.get("highPrice", 0)),
                 "low_24h": float(data.get("lowPrice", 0)),
             })

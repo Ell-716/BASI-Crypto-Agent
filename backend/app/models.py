@@ -60,7 +60,6 @@ class HistoricalData(db.Model):
     high = db.Column(db.Float, nullable=True)
     low = db.Column(db.Float, nullable=True)
     volume = db.Column(db.Float, nullable=False)
-    market_cap = db.Column(db.Float, nullable=True)
     timestamp = db.Column(db.DateTime, default=datetime.now)
 
     def __repr__(self):

@@ -29,7 +29,6 @@ def update_historical_data():
             volume = coin["total_volume"]
             high = coin["high_24h"]
             low = coin["low_24h"]
-            market_cap = coin["market_cap"]
 
             # Ensure the coin exists in the database
             coin_obj = Coin.query.filter_by(coin_symbol=coin_symbol).first()
@@ -56,7 +55,6 @@ def update_historical_data():
                 high=high,
                 low=low,
                 volume=volume,
-                market_cap=market_cap,
                 timestamp=timestamp
             )
             db.session.add(historical_entry)

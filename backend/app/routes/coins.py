@@ -49,7 +49,6 @@ def get_historical_data():
                 high=coin['high_24h'],
                 low=coin['low_24h'],
                 volume=coin['total_volume'],
-                market_cap=coin['market_cap'],
                 timestamp=datetime.now(timezone.utc)
             ))
 
@@ -126,7 +125,6 @@ def get_history(coin_id):
                 'high': h.high,
                 'low': h.low,
                 'volume': h.volume,
-                'market_cap': h.market_cap,
                 'timestamp': h.timestamp.strftime("%Y-%m-%d %H:%M:%S")
             }
             for h in paginated_history.items
