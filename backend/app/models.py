@@ -46,7 +46,8 @@ class Coin(db.Model):
     historical_data = db.relationship('HistoricalData', backref='coin', lazy=True, cascade="all, delete-orphan")
     technical_indicators = db.relationship('TechnicalIndicators', backref='coin',
                                            lazy=True, cascade="all, delete-orphan")
-    snapshots = db.relationship("CoinSnapshot", backref="coin", lazy=True, cascade="all, delete-orphan")
+    snapshots = db.relationship('CoinSnapshot', backref='coin', lazy=True, cascade="all, delete-orphan")
+    top_volume24 = db.relationship('TopVolume24h', backref='coin', lazy=True, cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"Coin {self.coin_name} ({self.coin_symbol})"
@@ -114,3 +115,15 @@ class CoinSnapshot(db.Model):
 
     def __repr__(self):
         return f"<CoinSnapshot CoinID={self.coin_id} MarketCap={self.market_cap} Volume={self.global_volume} @ {self.timestamp}>"
+
+
+class TopVolume24h(db.Model):
+    __tablename__ = "top_volume_24h"
+
+    id = db.Column(db.Integer, primary_key=True)
+    coin_id = db.Column(db.Integer, db.ForeignKey("coins.id", ondelete="CASCADE"), nullable=False)
+    volume = db.Column(db.Float, nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False, index=True)
+
+    def __repr__(self):
+        return f"<TopVolume24h CoinID={self.coin_id} Volume={self.volume} at {self.timestamp}>"
