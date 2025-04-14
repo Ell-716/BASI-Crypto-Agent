@@ -122,7 +122,7 @@ class TopVolume24h(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     coin_id = db.Column(db.Integer, db.ForeignKey("coins.id", ondelete="CASCADE"), nullable=False)
-    volume = db.Column(db.Float, nullable=False)
+    top_volume = db.Column(db.Float, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, index=True)
 
     def __repr__(self):

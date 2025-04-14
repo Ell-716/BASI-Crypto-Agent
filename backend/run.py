@@ -10,4 +10,3 @@ print(f"[INIT] Flask app initialized in {config_name} mode")
 
 if __name__ == '__main__':
     socketio.run(app, host="localhost", port=5050, debug=True, use_reloader=False)
-
