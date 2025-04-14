@@ -39,7 +39,9 @@ def update_top_volume_24h():
 
 
 def get_top_coin_by_24h_volume():
-    today = datetime.now(timezone.utc).date()
+    now = datetime.now(timezone.utc)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    tomorrow_start = today_start + timedelta(days=1)
 
     result = (
         db.session.query(
@@ -49,7 +51,8 @@ def get_top_coin_by_24h_volume():
             TopVolume24h.top_volume
         )
         .join(TopVolume24h, Coin.id == TopVolume24h.coin_id)
-        .filter(cast(TopVolume24h.timestamp, Date) == today)
+        .filter(TopVolume24h.timestamp >= today_start)
+        .filter(TopVolume24h.timestamp < tomorrow_start)
         .order_by(desc(TopVolume24h.top_volume))
         .first()
     )
