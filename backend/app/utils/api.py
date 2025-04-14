@@ -96,6 +96,7 @@ def fetch_coin_data(coin_id=None):
             "current_price": float(data.get("lastPrice", 0)),
             "high_24h": float(data.get("highPrice", 0)),
             "low_24h": float(data.get("lowPrice", 0)),
+            "total_volume": float(data.get("volume", 0)),
             "global_volume": snapshot.global_volume if snapshot else None,
             "market_cap": snapshot.market_cap if snapshot else None
         })
