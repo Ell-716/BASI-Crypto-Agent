@@ -16,22 +16,16 @@ def fetch_fear_and_greed_index():
         classification = latest["value_classification"]
         timestamp = datetime.fromtimestamp(int(latest["timestamp"]))
 
-        # Check if record for this day already exists
-        existing = FearGreedIndex.query.filter(
-            db.func.date(FearGreedIndex.timestamp) == timestamp.date()
-        ).first()
+        db.session.query(FearGreedIndex).delete()
 
-        if not existing:
-            index_entry = FearGreedIndex(
-                value=value,
-                classification=classification,
-                timestamp=timestamp
-            )
-            db.session.add(index_entry)
-            db.session.commit()
-            print(f"[FearGreed] Stored new index: {value} ({classification}) at {timestamp}")
-        else:
-            print("[FearGreed] Index for this date already exists. Skipping insert.")
+        index_entry = FearGreedIndex(
+            value=value,
+            classification=classification,
+            timestamp=timestamp
+        )
+        db.session.add(index_entry)
+        db.session.commit()
+        print(f"[FearGreed] Stored new index: {value} ({classification}) at {timestamp}")
 
         return {
             "value": value,
