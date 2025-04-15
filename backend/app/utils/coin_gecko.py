@@ -1,6 +1,7 @@
 import requests
 from datetime import datetime, timezone
 from backend.app.models import db, Coin, CoinSnapshot
+from sqlalchemy import func, Date
 
 COINGECKO_API = "https://api.coingecko.com/api/v3/coins/markets"
 COIN_SYMBOL_TO_ID = {
@@ -24,6 +25,12 @@ def update_coin_snapshots():
         response.raise_for_status()
         data = response.json()
         now = datetime.now(timezone.utc)
+        today = now.date()
+
+        # Delete today's existing snapshots
+        db.session.query(CoinSnapshot).filter(
+            func.date(CoinSnapshot.timestamp) == today
+        ).delete()
 
         for item in data:
             symbol = item["symbol"].upper()
