@@ -3,26 +3,27 @@ from backend.app.models import HistoricalData, Coin
 from sqlalchemy import func, desc
 from datetime import datetime, timedelta, timezone
 from backend.app.models import TopVolume24h
-from sqlalchemy import cast, Date
+from sqlalchemy import func, Date
 
 
 def update_top_volume_24h():
-    since = datetime.now(timezone.utc) - timedelta(hours=24)
-    today = datetime.now(timezone.utc).date()
+    now = datetime.now(timezone.utc)
+    cutoff = now - timedelta(days=2)
+    volume_window = now - timedelta(hours=24)
 
-    # Delete existing entries for today
+    # Delete anything older than 2 days
     db.session.query(TopVolume24h).filter(
-        cast(TopVolume24h.timestamp, Date) == today
+        TopVolume24h.timestamp < cutoff
     ).delete()
 
-    # Get summed volumes for each coin over the last 24h
+    # Calculate 24h volume
     results = (
         db.session.query(
             Coin.id.label("coin_id"),
             func.sum(HistoricalData.volume).label("top_volume")
         )
         .join(HistoricalData, Coin.id == HistoricalData.coin_id)
-        .filter(HistoricalData.timestamp >= since)
+        .filter(HistoricalData.timestamp >= volume_window)
         .group_by(Coin.id)
         .all()
     )
@@ -31,7 +32,7 @@ def update_top_volume_24h():
         db.session.add(TopVolume24h(
             coin_id=row.coin_id,
             top_volume=row.top_volume,
-            timestamp=datetime.now(timezone.utc)
+            timestamp=now
         ))
 
     db.session.commit()
