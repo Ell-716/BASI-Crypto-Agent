@@ -1,9 +1,9 @@
 from backend.app import db
 from backend.app.models import HistoricalData, Coin
-from sqlalchemy import func, desc
+from sqlalchemy import desc
 from datetime import datetime, timedelta, timezone
 from backend.app.models import TopVolume24h
-from sqlalchemy import func, Date
+from sqlalchemy import func
 
 
 def update_top_volume_24h():
@@ -11,10 +11,14 @@ def update_top_volume_24h():
     cutoff = now - timedelta(days=2)
     volume_window = now - timedelta(hours=24)
 
-    # Delete anything older than 2 days
-    db.session.query(TopVolume24h).filter(
+    # Delete entries older than 2 days
+    old_entries = db.session.query(TopVolume24h).filter(
         TopVolume24h.timestamp < cutoff
-    ).delete()
+    ).all()
+    for entry in old_entries:
+        db.session.delete(entry)
+    db.session.commit()
+    print(f"[TopVolume] Deleted {len(old_entries)} entries before {cutoff.date()}")
 
     # Calculate 24h volume
     results = (

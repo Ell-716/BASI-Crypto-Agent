@@ -25,12 +25,9 @@ def update_coin_snapshots():
         response.raise_for_status()
         data = response.json()
         now = datetime.now(timezone.utc)
-        today = now.date()
 
-        # Delete today's existing snapshots
-        db.session.query(CoinSnapshot).filter(
-            func.date(CoinSnapshot.timestamp) == today
-        ).delete()
+        # Delete all previous entries
+        db.session.query(CoinSnapshot).delete()
 
         for item in data:
             symbol = item["symbol"].upper()

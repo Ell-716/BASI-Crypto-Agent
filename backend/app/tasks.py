@@ -67,6 +67,11 @@ def update_historical_data():
 
 def update_technical_indicators():
     with app.app_context():
+        # Rolling window cleanup
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=60)
+        db.session.query(TechnicalIndicators).filter(TechnicalIndicators.timestamp < cutoff_date).delete()
+        db.session.commit()
+
         coins = Coin.query.all()
 
         for coin in coins:
