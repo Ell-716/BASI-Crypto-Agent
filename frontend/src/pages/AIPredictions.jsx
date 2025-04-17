@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import ReactMarkdown from "react-markdown";
 
 const AIPredictions = () => {
   const [coin, setCoin] = useState("");
@@ -120,7 +121,14 @@ const AIPredictions = () => {
           {prediction.error ? (
             <p className="text-red-600">{prediction.error}</p>
           ) : (
-            <pre className="text-sm whitespace-pre-wrap text-gray-800">{JSON.stringify(prediction, null, 2)}</pre>
+            <div className="mt-8 bg-white p-6 rounded-md border shadow-sm">
+              <h2 className="text-3xl font-bold text-blue-600 text-center mb-4">
+                {coins.find((c) => c.symbol === coin)?.name || coin} {timeframe} prediction
+              </h2>
+              <div className="prose max-w-none">
+                <ReactMarkdown>{prediction.analysis}</ReactMarkdown>
+              </div>
+            </div>
           )}
         </div>
       )}
