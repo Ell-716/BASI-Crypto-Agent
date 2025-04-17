@@ -103,7 +103,7 @@ def fetch_historical_data(coin_symbol, timeframe):
 
     # Volatility flags
     if df["close"].std() < 0.0001:
-        print(f"⚠️ {coin.coin_symbol} has very low price volatility. MACD & BB may be unreliable.")
+        print(f"{coin.coin_symbol} has very low price volatility. MACD & BB may be unreliable.")
         momentum_indicators["MACD"], momentum_indicators["MACD_signal"] = None, None
         volatility["BB_upper"], volatility["BB_middle"], volatility["BB_lower"] = None, None, None
 

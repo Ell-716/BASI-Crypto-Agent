@@ -7,7 +7,7 @@ import numpy as np
 def plot_base_candlestick_chart(df, coin_symbol, timeframe):
     df = aggregate_candles(df, timeframe)
     if df is None or df.empty:
-        print("⚠️ Not enough data available for the selected timeframe.")
+        print("Not enough data available for the selected timeframe.")
         return None, None, None
 
     # Support & Resistance
@@ -124,13 +124,13 @@ def plot_bollinger_bands(df, coin_symbol, timeframe=None, window=20, num_std=2):
 def plot_macd_rsi(df, timeframe):
     df = aggregate_candles(df, timeframe)
     if df is None or df.empty:
-        print("⚠️ Not enough data available for the selected timeframe.")
+        print("Not enough data available for the selected timeframe.")
         return
 
     required_columns = ["MACD_Line", "Signal_Line", "MACD_Histogram", "Stoch_K", "Stoch_D"]
     missing_columns = [col for col in required_columns if col not in df.columns]
     if missing_columns:
-        print(f"⚠️ Missing required columns for MACD/RSI: {missing_columns}. "
+        print(f"Missing required columns for MACD/RSI: {missing_columns}. "
               f"Ensure `calculate_indicators(df)` was applied before plotting.")
         return
 

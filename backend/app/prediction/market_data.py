@@ -28,7 +28,7 @@ def fetch_market_data(symbol, interval, limit=1000):
         df = df.astype(float)
         return df
     except requests.exceptions.RequestException as e:
-        print(f"⚠️ Error fetching Binance data: {e}")
+        print(f"Error fetching Binance data: {e}")
         return None
 
 
@@ -74,7 +74,7 @@ def generate_and_plot_charts(coin_symbol, timeframe=None):
     interval = interval_map.get(timeframe)
 
     if interval is None:
-        print(f"⚠️ Invalid or missing timeframe: {timeframe}")
+        print(f"Invalid or missing timeframe: {timeframe}")
         return
 
     market_data = fetch_market_data(coin_symbol, interval=interval, limit=1000)
@@ -84,7 +84,7 @@ def generate_and_plot_charts(coin_symbol, timeframe=None):
         df_resampled = aggregate_candles(market_data, timeframe)
 
         if df_resampled is None or df_resampled.empty:
-            print(f"⚠️ Not enough data for {coin_symbol} ({timeframe}).")
+            print(f"Not enough data for {coin_symbol} ({timeframe}).")
             return
 
         # Calculate indicators for resampled data
@@ -95,4 +95,4 @@ def generate_and_plot_charts(coin_symbol, timeframe=None):
         plot_bollinger_bands(df_resampled, coin_symbol, timeframe)
         plot_macd_rsi(df_with_indicators, timeframe)
     else:
-        print(f"⚠️ Failed to fetch market data for {coin_symbol}")
+        print(f"Failed to fetch market data for {coin_symbol}")

@@ -1,7 +1,6 @@
 import requests
 from datetime import datetime, timezone
 from backend.app.models import db, Coin, CoinSnapshot
-from sqlalchemy import func, Date
 
 COINGECKO_API = "https://api.coingecko.com/api/v3/coins/markets"
 COIN_SYMBOL_TO_ID = {
