@@ -1,9 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 const AIPredictions = () => {
   const [coin, setCoin] = useState("");
+  const [coins, setCoins] = useState([]);
   const [timeframe, setTimeframe] = useState("1h");
   const [outputStyle, setOutputStyle] = useState("full");
+
+  useEffect(() => {
+    axios.get("http://localhost:5050/api/coins")
+      .then(res => {
+          console.log("Fetched coins:", res.data);
+          setCoins(res.data);
+      })
+      .catch(err => console.error("Error fetching coins:", err));
+  }, []);
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -26,11 +37,14 @@ const AIPredictions = () => {
           <select
             value={coin}
             onChange={(e) => setCoin(e.target.value)}
-            className="border rounded-md px-3 py-2 w-40"
+            className="border rounded-md px-3 py-2 w-46"
           >
             <option value="">Select a coin</option>
-            <option value="BTC">Bitcoin (BTC)</option>
-            <option value="ETH">Ethereum (ETH)</option>
+            {coins.map((c) => (
+                <option key={c.id} value={c.symbol}>
+                    {c.name} ({c.symbol})
+                </option>
+            ))}
           </select>
         </div>
 
