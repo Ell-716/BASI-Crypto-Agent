@@ -7,7 +7,7 @@ import os
 import logging
 from backend.app.utils.llm_helpers import resample_and_compute_indicators
 from backend.app.prediction.market_data import fetch_market_data
-from backend.app.utils.symbols import normalize_symbol
+from backend.app.utils.symbols import SYMBOL_MAP
 
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
@@ -17,13 +17,15 @@ API_KEY = os.getenv('GROQ_API_KEY')
 
 
 def fetch_historical_data(coin_symbol, timeframe):
-    coin_symbol = normalize_symbol(coin_symbol)
+    raw_symbol = coin_symbol.upper()
+    normalized_symbol = SYMBOL_MAP.get(raw_symbol, raw_symbol)
+
     from backend.app import create_app
     app = create_app()
 
     if timeframe == "1w":
         interval = "1w"
-        binance_df = fetch_market_data(coin_symbol, interval, limit=500)
+        binance_df = fetch_market_data(normalized_symbol, interval, limit=500)
         if binance_df is None or binance_df.empty:
             return None
         binance_df = binance_df.reset_index().rename(columns={"Date": "timestamp"})
@@ -38,7 +40,7 @@ def fetch_historical_data(coin_symbol, timeframe):
 
     else:
         with app.app_context():
-            coin = Coin.query.filter_by(coin_symbol=coin_symbol.upper()).first()
+            coin = Coin.query.filter_by(coin_symbol=raw_symbol).first()
 
             if not coin:
                 return None
@@ -151,22 +153,26 @@ def fetch_historical_data(coin_symbol, timeframe):
 
 
 def analyze_with_llm(coin_symbol, timeframe, report_type="concise"):
-    """Analyze market data using LLM and return either a concise or full report."""
     data = fetch_historical_data(coin_symbol, timeframe)
     if not data:
         return {"error": "No sufficient data available."}
 
-    # Generate the appropriate prompt
     prompt = generate_prompt(data, report_type)
 
-    client = Groq(api_key=API_KEY)
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[
-            {"role": "system", "content": FULL_PROMPT_TEMPLATE if report_type == "full" else CONCISE_PROMPT_TEMPLATE},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=1500 if report_type == "full" else 500
-    )
+    try:
+        client = Groq(api_key=API_KEY)
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": FULL_PROMPT_TEMPLATE if report_type == "full" else CONCISE_PROMPT_TEMPLATE},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=1500 if report_type == "full" else 500
+        )
+        return {
+            "coin": coin_symbol.upper(),
+            "analysis": response.choices[0].message.content
+        }
+    except Exception as e:
+        return {"error": f"LLM call failed: {str(e)}"}
 
-    return {"coin": coin_symbol.upper(), "analysis": response.choices[0].message.content}
