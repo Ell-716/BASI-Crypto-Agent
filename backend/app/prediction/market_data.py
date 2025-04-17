@@ -7,7 +7,9 @@ BINANCE_KLINES_URL = "https://api.binance.com/api/v3/klines"
 
 
 def fetch_market_data(symbol, interval, limit=1000):
-    pair = f"{symbol.upper()}USDT"
+    pair = symbol.upper()
+    if not pair.endswith("USDT"):
+        pair += "USDT"
     params = {
         "symbol": pair,
         "interval": interval,

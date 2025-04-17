@@ -125,8 +125,33 @@ const AIPredictions = () => {
               <h2 className="text-3xl font-bold text-blue-600 text-center mb-4">
                 {coins.find((c) => c.symbol === coin)?.name || coin} {timeframe} prediction
               </h2>
-              <div className="prose max-w-none">
-                <ReactMarkdown>{prediction.analysis}</ReactMarkdown>
+              <div className="prose max-w-none text-gray-800">
+                  {console.log("RAW MARKDOWN:\n", prediction.analysis)}
+                <ReactMarkdown
+                    components={{
+                        img: ({ alt, src }) => {
+
+                            const chartUrls = {
+                                "chart-price": `http://localhost:5050/chart/price/${coin}?timeframe=${timeframe}`,
+                                "chart-macd-rsi": `http://localhost:5050/chart/macd-rsi/${coin}?timeframe=${timeframe}`,
+                                "chart-bollinger": `http://localhost:5050/chart/bollinger/${coin}?timeframe=${timeframe}`,
+                            };
+
+                            const chartUrl = chartUrls[src?.trim()];
+                            if (!chartUrl) return <p className="text-red-600"> Unknown chart: {src}</p>;
+
+                            return (
+                                <img
+                                    src={chartUrl}
+                                    alt={alt}
+                                    className="my-6 rounded shadow-md border border-gray-300"
+                                />
+                            );
+                        }
+                    }}
+                >
+                    {prediction.analysis}
+                </ReactMarkdown>
               </div>
             </div>
           )}
