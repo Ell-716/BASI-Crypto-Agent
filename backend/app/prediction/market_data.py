@@ -7,11 +7,11 @@ BINANCE_KLINES_URL = "https://api.binance.com/api/v3/klines"
 
 
 def fetch_market_data(symbol, interval, limit=1000):
-
+    pair = f"{symbol.upper()}USDT"
     params = {
-        "symbol": f"{symbol.upper()}",
-        "interval": interval,  # "1h", "1d", "1w"
-        "limit": limit  # Max candles
+        "symbol": pair,
+        "interval": interval,
+        "limit": limit
     }
     try:
         response = requests.get(BINANCE_KLINES_URL, params=params, timeout=10)

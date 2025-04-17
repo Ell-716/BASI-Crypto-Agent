@@ -92,7 +92,7 @@ def plot_price_chart(df, coin_symbol, timeframe=None):
         text.set_color("white")
 
     plt.tight_layout()
-    plt.show()
+    return fig
 
 
 def plot_bollinger_bands(df, coin_symbol, timeframe=None, window=20, num_std=2):
@@ -118,7 +118,7 @@ def plot_bollinger_bands(df, coin_symbol, timeframe=None, window=20, num_std=2):
         text.set_color("white")
 
     plt.tight_layout()
-    plt.show()
+    return fig
 
 
 def plot_macd_rsi(df, timeframe):
@@ -181,4 +181,4 @@ def plot_macd_rsi(df, timeframe):
     plt.xlabel("Date", color="white")
 
     plt.tight_layout()
-    plt.show()
+    return fig

@@ -10,6 +10,7 @@ from backend.app.routes.coins import coins_bp
 from backend.app.routes.predictions import predictions_bp
 from backend.app.routes.dashboard_routes import dashboard_bp
 from backend.app.utils.socket_tasks import start_coin_stream
+from backend.app.routes.chart_routes import chart_bp
 
 
 socketio = SocketIO(cors_allowed_origins="*", async_mode="gevent")
@@ -38,5 +39,6 @@ def create_app(config_name='development'):
     app.register_blueprint(coins_bp)
     app.register_blueprint(predictions_bp)
     app.register_blueprint(dashboard_bp)
+    app.register_blueprint(chart_bp)
 
     return app
