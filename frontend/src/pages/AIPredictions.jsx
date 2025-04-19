@@ -9,6 +9,8 @@ const AIPredictions = () => {
   const [outputStyle, setOutputStyle] = useState("full");
   const [loading, setLoading] = useState(false);
   const [prediction, setPrediction] = useState(null);
+  const [displayedPrediction, setDisplayedPrediction] = useState(null);
+
 
   // Fetch coin list
   useEffect(() => {
@@ -33,6 +35,13 @@ const AIPredictions = () => {
         },
       });
       setPrediction(res.data);
+      setDisplayedPrediction(res.data);
+      setDisplayedPrediction({
+        ...res.data,
+        _coin: coin,
+        _timeframe: timeframe,
+      });
+
     } catch (err) {
       console.error("Prediction error:", err);
       setPrediction({ error: "Failed to fetch prediction." });
@@ -116,25 +125,25 @@ const AIPredictions = () => {
       </div>
 
       {/* Prediction Output */}
-      {prediction && (
+      {displayedPrediction && (
         <div className="mt-8 bg-gray-50 p-4 rounded-md border border-gray-200">
-          {prediction.error ? (
-            <p className="text-red-600">{prediction.error}</p>
+          {displayedPrediction.error ? (
+            <p className="text-red-600">{displayedPrediction.error}</p>
           ) : (
             <div className="mt-8 bg-white p-6 rounded-md border shadow-sm">
               <h2 className="text-3xl font-bold text-blue-600 text-center mb-4">
-                {coins.find((c) => c.symbol === coin)?.name || coin} {timeframe} prediction
+                {coins.find((c) => c.symbol === displayedPrediction._coin)?.name || displayedPrediction._coin} {displayedPrediction._timeframe} prediction
               </h2>
               <div className="prose max-w-none text-gray-800">
-                  {console.log("RAW MARKDOWN:\n", prediction.analysis)}
+                  {console.log("RAW MARKDOWN:\n", displayedPrediction.analysis)}
                 <ReactMarkdown
                     components={{
                         img: ({ alt, src }) => {
 
                             const chartUrls = {
-                                "chart-price": `http://localhost:5050/chart/price/${coin}?timeframe=${timeframe}`,
-                                "chart-macd-rsi": `http://localhost:5050/chart/macd-rsi/${coin}?timeframe=${timeframe}`,
-                                "chart-bollinger": `http://localhost:5050/chart/bollinger/${coin}?timeframe=${timeframe}`,
+                                "chart-price": `http://localhost:5050/chart/price/${displayedPrediction._coin}?timeframe=${displayedPrediction._timeframe}`,
+                                "chart-macd-rsi": `http://localhost:5050/chart/macd-rsi/${displayedPrediction._coin}?timeframe=${displayedPrediction._timeframe}`,
+                                "chart-bollinger": `http://localhost:5050/chart/bollinger/${displayedPrediction._coin}?timeframe=${displayedPrediction._timeframe}`,
                             };
 
                             const chartUrl = chartUrls[src?.trim()];
@@ -150,7 +159,7 @@ const AIPredictions = () => {
                         }
                     }}
                 >
-                    {prediction.analysis}
+                    {displayedPrediction.analysis}
                 </ReactMarkdown>
               </div>
             </div>
