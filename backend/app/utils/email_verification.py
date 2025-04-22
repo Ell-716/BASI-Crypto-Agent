@@ -1,7 +1,5 @@
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from flask import current_app
-from flask_mail import Message
-from backend.app import mail
 
 
 def generate_verification_token(email):
@@ -21,9 +19,20 @@ def confirm_verification_token(token, expiration=3600):
 
 
 def send_verification_email(email, verify_url):
+    from backend.app import mail
+    from flask_mail import Message
+
     msg = Message(
-        subject="Verify your email",
+        subject="Welcome to BASI - Verify your email",
         recipients=[email],
-        body=f"Click to verify your email: {verify_url}"
+        body=(
+            "Hi there,\n\n"
+            "Thanks for signing up for BASI(Blockchain AI Smart Investor)!\n\n"
+            "Please confirm your email address by clicking the link below:\n\n"
+            f"{verify_url}\n\n"
+            "If you didn’t request this, just ignore this message.\n\n"
+            "Best,\n"
+            "The BASI Team"
+        )
     )
     mail.send(msg)
