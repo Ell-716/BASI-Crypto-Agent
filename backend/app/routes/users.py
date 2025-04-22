@@ -7,6 +7,7 @@ from backend.app.utils.security import is_strong_password
 from backend.app.utils.email_verification import generate_verification_token, confirm_verification_token
 from backend.app.utils.email_verification import send_verification_email
 from backend.app.utils.password_reset import generate_password_reset_token
+from backend.app.utils.email_verification import send_password_reset_email
 
 
 logging.basicConfig(level=logging.INFO)
@@ -214,6 +215,6 @@ def request_password_reset():
     reset_url = f"http://localhost:5050/users/reset-password?token={token}"
 
     # Plug in the email sender after this commit
-    print("Reset link:", reset_url)
+    send_password_reset_email(email, reset_url)
 
     return jsonify({"message": "If that email exists, a reset link was sent."}), 200

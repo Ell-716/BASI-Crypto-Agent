@@ -36,3 +36,21 @@ def send_verification_email(email, verify_url):
         )
     )
     mail.send(msg)
+
+
+def send_password_reset_email(email, reset_url):
+    from backend.app import mail
+    from flask_mail import Message
+
+    msg = Message(
+        subject="Reset your BASI password",
+        recipients=[email],
+        body=(
+            "Hi,\n\n"
+            "We received a request to reset your BASI account password.\n\n"
+            f"Click the link below to reset your password:\n\n{reset_url}\n\n"
+            "If you didn't request this, you can safely ignore this email.\n\n"
+            "Best,\nThe BASI Team"
+        )
+    )
+    mail.send(msg)
