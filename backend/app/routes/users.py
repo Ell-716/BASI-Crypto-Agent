@@ -5,6 +5,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_tok
 import logging
 from backend.app.utils.security import is_strong_password
 from backend.app.utils.email_verification import generate_verification_token, confirm_verification_token
+from backend.app.utils.email_verification import send_verification_email
 
 
 logging.basicConfig(level=logging.INFO)
@@ -49,7 +50,7 @@ def add_user():
 
     token = generate_verification_token(email)
     verify_url = f"http://localhost:5050/users/verify?token={token}"
-    print("Email verification link:", verify_url)
+    send_verification_email(email, verify_url)
 
     return jsonify({"message": "User registered successfully"}), 201
 

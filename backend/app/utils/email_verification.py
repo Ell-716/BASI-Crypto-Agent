@@ -1,5 +1,7 @@
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from flask import current_app
+from flask_mail import Message
+from backend.app import mail
 
 
 def generate_verification_token(email):
@@ -16,3 +18,12 @@ def confirm_verification_token(token, expiration=3600):
     except BadSignature:
         return None  # Token is invalid
     return email
+
+
+def send_verification_email(email, verify_url):
+    msg = Message(
+        subject="Verify your email",
+        recipients=[email],
+        body=f"Click to verify your email: {verify_url}"
+    )
+    mail.send(msg)
