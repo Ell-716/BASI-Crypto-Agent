@@ -8,7 +8,7 @@ predictions_bp = Blueprint("predictions", __name__)
 def get_prediction():
     coin = request.args.get("coin")
     timeframe = request.args.get("timeframe", "1d")
-    report_type = request.args.get("type", "concise")  # "concise" or "full"
+    report_type = request.args.get("type", "concise")
 
     if not coin:
         return jsonify({"error": "Coin parameter is required"}), 400

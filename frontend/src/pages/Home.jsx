@@ -14,6 +14,8 @@ const Home = () => {
   const [snapshot, setSnapshot] = useState(null);
 
   const topCoinData = coins.find((coin) => coin.symbol === topVolume?.symbol);
+  console.log("[RENDER] Home component rendered with", coins.length, "coins");
+
 
     const toggleFavorite = (symbol) => {
         setFavorites((prev) =>
@@ -62,17 +64,23 @@ const Home = () => {
 
   // Update coin data every minute
   useEffect(() => {
+    console.log("[WS] useEffect triggered");
+
     const socket = io("http://localhost:5050", {
         transports: ["websocket"],
-        path: "/socket.io"
+        path: "/socket.io",
+        forceNew: true,
+        reconnection: false
     });
 
     socket.on("connect", () => {
         console.log("Connected to WebSocket");
+        socket.emit("request_coin_data");
     });
 
+    socket.off("coin_data");
     socket.on("coin_data", (data) => {
-        console.log("Received coin_data:", data);
+        console.log("🔁 Updating state with", data.length, "coins");
         setCoins(data);
     });
 
@@ -81,7 +89,10 @@ const Home = () => {
     });
 
     return () => {
-        socket.disconnect();
+        if (socket.connected) {
+            console.log("[WS] Cleanup socket");
+            socket.disconnect();
+        }
     };
 }, []);
 

@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown";
 
 const AIPredictions = () => {
   const [coin, setCoin] = useState("");
-  const [coins, setCoins] = useState([]);
+  const [coinList, setCoinList] = useState([]);
   const [timeframe, setTimeframe] = useState("1h");
   const [outputStyle, setOutputStyle] = useState("full");
   const [loading, setLoading] = useState(false);
@@ -16,7 +16,7 @@ const AIPredictions = () => {
   useEffect(() => {
     axios
       .get("http://localhost:5050/api/coins")
-      .then((res) => setCoins(res.data))
+      .then((res) => setCoinList(res.data))
       .catch((err) => console.error("Error fetching coins:", err));
   }, []);
 
@@ -35,12 +35,13 @@ const AIPredictions = () => {
         },
       });
       setPrediction(res.data);
-      setDisplayedPrediction(res.data);
       setDisplayedPrediction({
         ...res.data,
         _coin: coin,
         _timeframe: timeframe,
       });
+
+      await axios.post("http://localhost:5050/internal/emit-coin-data");
 
     } catch (err) {
       console.error("Prediction error:", err);
@@ -74,7 +75,7 @@ const AIPredictions = () => {
             className="border rounded-md px-3 py-2 w-46"
           >
             <option value="">Select a coin</option>
-            {coins.map((c) => (
+            {coinList.map((c) => (
               <option key={c.id} value={c.symbol}>
                 {c.name} ({c.symbol})
               </option>
@@ -132,7 +133,7 @@ const AIPredictions = () => {
           ) : (
             <div className="mt-8 bg-white p-6 rounded-md border shadow-sm">
               <h2 className="text-3xl font-bold text-blue-600 text-center mb-4">
-                {coins.find((c) => c.symbol === displayedPrediction._coin)?.name || displayedPrediction._coin} {displayedPrediction._timeframe} prediction
+                {coinList.find((c) => c.symbol === displayedPrediction._coin)?.name || displayedPrediction._coin} {displayedPrediction._timeframe} prediction
               </h2>
               <div className="prose max-w-none text-gray-800">
                   {console.log("RAW MARKDOWN:\n", displayedPrediction.analysis)}

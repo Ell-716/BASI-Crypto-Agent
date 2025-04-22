@@ -20,8 +20,7 @@ def fetch_historical_data(coin_symbol, timeframe):
     raw_symbol = coin_symbol.upper()
     normalized_symbol = SYMBOL_MAP.get(raw_symbol, raw_symbol)
 
-    from backend.app import create_app
-    app = create_app()
+    from flask import current_app
 
     if timeframe == "1w":
         interval = "1w"
@@ -39,7 +38,7 @@ def fetch_historical_data(coin_symbol, timeframe):
         df = resample_and_compute_indicators(binance_df, timeframe)
 
     else:
-        with app.app_context():
+        with current_app.app_context():
             coin = Coin.query.filter_by(coin_symbol=raw_symbol).first()
 
             if not coin:
