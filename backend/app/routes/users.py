@@ -6,7 +6,7 @@ import logging
 from backend.app.utils.security import is_strong_password
 from backend.app.utils.email_verification import generate_verification_token, confirm_verification_token
 from backend.app.utils.email_verification import send_verification_email
-from backend.app.utils.password_reset import generate_password_reset_token
+from backend.app.utils.password_reset import generate_password_reset_token, confirm_password_reset_token
 from backend.app.utils.email_verification import send_password_reset_email
 
 
@@ -218,3 +218,37 @@ def request_password_reset():
     send_password_reset_email(email, reset_url)
 
     return jsonify({"message": "If that email exists, a reset link was sent."}), 200
+
+
+@users_bp.route('/reset-password', methods=['POST'])
+def reset_password():
+    data = request.get_json()
+    token = data.get('token')
+    new_password = data.get('new_password')
+
+    if not token or not new_password:
+        return jsonify({"error": "Missing token or new password"}), 400
+
+    email = confirm_password_reset_token(token)
+    if not email:
+        return jsonify({"error": "Invalid or expired token"}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    if not is_strong_password(new_password):
+        return jsonify({
+            "error": "PASSWORD MUST CONTAIN:\n"
+                     "- At least one uppercase letter\n"
+                     "- At least one lowercase letter\n"
+                     "- At least one number\n"
+                     "- At least one special character (@, #, $, etc.)\n"
+                     "- Minimum 8 characters"
+        }), 400
+
+    user.password_hash = bcrypt.generate_password_hash(new_password).decode('utf-8')
+    db.session.commit()
+
+    return jsonify({"message": "Password has been reset successfully"}), 200
+
