@@ -26,10 +26,23 @@ const ResetPassword = () => {
         token,
         new_password: newPassword
       });
+
       setSuccess(res.data.message);
-    } catch (err) {
-      const msg = err.response?.data?.error || 'Something went wrong.';
-      setError(msg);
+      setTimeout(() => {
+          window.location.href = '/login';
+      }, 2000);
+    }
+      catch (err) {
+        const msg = err.response?.data?.error || 'Something went wrong.';
+        if (msg.includes("expired") || msg.includes("invalid")) {
+            setError("This link is invalid or has expired. Please request a new reset link.");
+
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 3000);
+        } else {
+        setError(msg);
+      }
     }
   };
 
