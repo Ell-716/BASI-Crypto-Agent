@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Email Verified - ₿A$I</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      font-family: system-ui, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 3rem 2.5rem;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
+    }
+
+    .checkmark {
+      font-size: 4rem;
+      color: #22c55e;
+      margin-bottom: 1.2rem;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin: 0;
+      color: #111827;
+    }
+
+    p {
+      margin-top: 0.5rem;
+      font-size: 1rem;
+      color: #4b5563;
+    }
+
+    a.button {
+      display: inline-block;
+      margin-top: 2rem;
+      background-color: #3b82f6;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background-color 0.2s ease;
+    }
+
+    a.button:hover {
+      background-color: #2563eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="checkmark">✔️</div>
+    <h1>Email Verified</h1>
+    <p>{{ message }}</p>
+    <a class="button" href="http://localhost:5173/login">Go to Log in</a>
+  </div>
+</body>
+</html>

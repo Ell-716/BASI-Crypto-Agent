@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template
 from backend.app.models import db, User, Coin
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
@@ -61,22 +61,22 @@ def add_user():
 def verify_email():
     token = request.args.get('token')
     if not token:
-        return jsonify({"error": "Missing token"}), 400
+        return render_template("verified.html", message="Missing token")
 
     email = confirm_verification_token(token)
     if not email:
-        return jsonify({"error": "Invalid or expired token"}), 400
+        return render_template("verified.html", message="Invalid or expired token")
 
     user = User.query.filter_by(email=email).first()
     if not user:
-        return jsonify({"error": "User not found"}), 404
+        return render_template("verified.html", message="User not found")
 
     if user.is_verified:
-        return jsonify({"message": "Email already verified"}), 200
+        return render_template("verified.html", message="Email already verified")
 
     user.is_verified = True
     db.session.commit()
-    return jsonify({"message": "Email verified successfully"}), 200
+    return render_template("verified.html", message="Email verified successfully")
 
 
 # Login route - issue both access and refresh tokens
