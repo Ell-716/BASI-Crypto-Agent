@@ -27,7 +27,7 @@ def send_verification_email(email, verify_url):
         recipients=[email],
         body=(
             "Hi there,\n\n"
-            "Thanks for signing up for BASI(Blockchain AI Smart Investor)!\n\n"
+            "Thanks for signing up for BASI (Blockchain AI Smart Investor)!\n\n"
             "Please confirm your email address by clicking the link below:\n\n"
             f"{verify_url}\n\n"
             "If you didn’t request this, just ignore this message.\n\n"
