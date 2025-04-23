@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Eye, EyeOff } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function LogIn() {
   const [email, setEmail] = useState('');
@@ -20,8 +21,13 @@ export default function LogIn() {
         email,
         password
       });
-      setSuccess('Logged in successfully');
-      console.log(res.data); // Save tokens to localStorage or context
+
+      if (res.status === 200 && res.data.access_token) {
+        window.location.href = '/';
+      } else {
+          setError('Unexpected response from server.');
+      }
+
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed');
     }
