@@ -41,6 +41,13 @@ export default function LogIn() {
         email: resetEmail
       });
       setResetMessage(res.data.message);
+
+      setTimeout(() => {
+          setResetOpen(false);
+          setResetEmail('');
+          setResetMessage('');
+      }, 2000);
+
     } catch (err) {
       setResetMessage('Something went wrong.');
     }

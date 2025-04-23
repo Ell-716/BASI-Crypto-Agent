@@ -212,9 +212,8 @@ def request_password_reset():
         return jsonify({"message": "If that email exists, a reset link was sent."}), 200
 
     token = generate_password_reset_token(email)
-    reset_url = f"http://localhost:5050/users/reset-password?token={token}"
+    reset_url = f"http://localhost:5173/reset-password?token={token}"
 
-    # Plug in the email sender after this commit
     send_password_reset_email(email, reset_url)
 
     return jsonify({"message": "If that email exists, a reset link was sent."}), 200
