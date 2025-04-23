@@ -44,7 +44,11 @@ export default function SignUp() {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-no-repeat bg-cover bg-center"
-      style={{ backgroundImage: "url('/background.jpg')" }}>
+      style={{
+          backgroundImage: "url('/background.jpg')",
+          backgroundPosition: 'center 50%'
+       }}
+    >
 
       {/* Mobile: Logo + Tagline (Top) */}
       <div className="lg:hidden flex flex-col items-center pt-10 px-4 text-white">
@@ -57,7 +61,7 @@ export default function SignUp() {
       </div>
 
       {/* Desktop: Left Side - Logo + Tagline */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col justify-end items-start pb-[180px] pl-20">
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-start items-start pt-40 pl-20">
         <div className="text-white">
           <h1 className="text-9xl font-extrabold text-white [text-shadow:_0_0_15px_rgb(59_130_246),_0_0_30px_rgb(59_130_246)]">
             ₿A$I
