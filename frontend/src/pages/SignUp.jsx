@@ -43,26 +43,40 @@ export default function SignUp() {
   };
 
   return (
-    <div
-      className="min-h-screen flex bg-no-repeat bg-cover bg-center"
-      style={{ backgroundImage: "url('/background.jpg')" }}
-    >
-      {/* Left Side - Logo + tagline positioned higher */}
-      <div className="w-1/2 flex flex-col justify-end items-start pb-[180px] pl-20">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-no-repeat bg-cover bg-center"
+      style={{ backgroundImage: "url('/background.jpg')" }}>
+
+      {/* Mobile: Logo + Tagline (Top) */}
+      <div className="lg:hidden flex flex-col items-center pt-10 px-4 text-white">
+        <h1 className="text-7xl md:text-8xl font-extrabold text-white [text-shadow:_0_0_15px_rgb(59_130_246),_0_0_30px_rgb(59_130_246)]">
+          ₿A$I
+        </h1>
+        <p className="text-xl md:text-2xl font-medium mt-4 text-center">
+          Get AI-powered buy, sell or hold predictions!
+        </p>
+      </div>
+
+      {/* Desktop: Left Side - Logo + Tagline */}
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-end items-start pb-[180px] pl-20">
         <div className="text-white">
-          <h1 className="text-9xl font-extrabold text-white [text-shadow:_0_0_15px_rgb(59_130_246),_0_0_30px_rgb(59_130_246)]">₿A$I</h1>
+          <h1 className="text-9xl font-extrabold text-white [text-shadow:_0_0_15px_rgb(59_130_246),_0_0_30px_rgb(59_130_246)]">
+            ₿A$I
+          </h1>
           <p className="text-2xl font-medium mt-8">
             Get AI-powered buy, sell or hold predictions!
           </p>
         </div>
       </div>
 
-      {/* Right Side - Form */}
-      <div className="w-1/2 flex items-center justify-center p-16">
-        <div className="w-full max-w-md bg-white bg-opacity-90 border-2 border-blue-600 rounded-3xl p-10 shadow-xl">
-          <h2 className="text-3xl font-bold text-center text-blue-600 mb-8">Sign Up</h2>
-          {error && <p className="text-red-600 text-sm mb-6 text-center">{error}</p>}
-          {success && <p className="text-green-600 text-sm mb-6 text-center">{success}</p>}
+      {/* Form (Centered on mobile, right side on desktop) */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 lg:p-16">
+        <div className="w-full max-w-md bg-white bg-opacity-90 border-2 border-blue-600 rounded-3xl p-6 sm:p-10 shadow-xl">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center text-blue-600 mb-6 sm:mb-8">
+            Sign Up
+          </h2>
+
+          {error && <p className="text-red-600 text-sm mb-4 sm:mb-6 text-center">{error}</p>}
+          {success && <p className="text-green-600 text-sm mb-4 sm:mb-6 text-center">{success}</p>}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <input
@@ -118,7 +132,7 @@ export default function SignUp() {
             </button>
           </form>
 
-          <p className="mt-6 text-base text-center text-gray-600">
+          <p className="mt-4 sm:mt-6 text-sm sm:text-base text-center text-gray-600">
             Already have an account?{' '}
             <a href="/login" className="text-blue-600 font-semibold hover:underline">
               Log in!
