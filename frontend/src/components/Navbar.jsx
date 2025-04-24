@@ -1,13 +1,46 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { jwtDecode } from 'jwt-decode';
+
+function getInitials(name) {
+  const parts = name.trim().split(' ');
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [loggedIn, setLoggedIn] = useState(false);
+  const [initials, setInitials] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
-    setLoggedIn(!!token);
+    if (!token) return;
+
+    setLoggedIn(true);
+
+    try {
+      const decoded = jwtDecode(token);
+      const userId = decoded.sub;
+
+      fetch(`http://localhost:5050/users/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.user_name) {
+            const userInitials = getInitials(data.user_name);
+            setInitials(userInitials);
+          }
+        })
+        .catch(() => {
+          setInitials('?');
+        });
+    } catch {
+      setInitials('?');
+    }
   }, []);
 
   const handleLogout = () => {
@@ -32,10 +65,15 @@ const Navbar = () => {
         <div className="flex space-x-4">
           {loggedIn ? (
             <>
-              <Link to="/account" className="text-base font-medium text-gray-800 hover:text-blue-600">Account</Link>
+              <Link
+                to="/account"
+                className="h-9 w-9 rounded-full border-2 border-blue-600 text-blue-600 flex items-center justify-center text-sm font-semibold"
+              >
+                {initials}
+              </Link>
               <button
                 onClick={handleLogout}
-                className="text-base font-medium text-gray-800 hover:text-blue-600"
+                className="px-4 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
                 Log out
               </button>
