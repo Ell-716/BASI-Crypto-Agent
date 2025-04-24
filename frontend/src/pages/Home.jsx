@@ -100,7 +100,7 @@ const Home = () => {
     <main className="bg-white min-h-screen px-6 sm:px-10 lg:px-16 xl:px-24 2xl:px-32 py-6 text-gray-800 max-w-[1600px] mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
         <div className="rounded-md border shadow-sm p-4 bg-white">
-          <h2 className="text-lg font-semibold text-center mb-4">Highest 24h trading volume</h2>
+          <h2 className="text-xl font-semibold text-center mb-4">Highest 24h trading volume</h2>
           {topVolume && (
             <div className="text-center">
                 <div className="flex items-center justify-center gap-2 text-center text-1xl mb-2">
@@ -129,7 +129,7 @@ const Home = () => {
         </div>
 
         <div className="rounded-md border shadow-sm p-4 bg-white text-center">
-          <h2 className="text-lg font-semibold mb-4">Fear & Greed Index</h2>
+          <h2 className="text-xl font-semibold mb-4">Fear & Greed Index</h2>
           {fearGreed ? (
             <FearGreedMeter
               value={fearGreed.value}

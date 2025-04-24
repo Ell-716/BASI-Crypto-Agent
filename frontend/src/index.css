@@ -2,15 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Navbar logo styling */
-.bitcoin-logo {
-  font-family: serif;
-  font-weight: bold;
-  font-size: 35px;
-  letter-spacing: 0.1em;
-  position: relative;
-}
-
 /* Table header text */
 table thead th {
   font-size: 0.875rem; /* text-sm */
