@@ -24,13 +24,14 @@ function AppContent() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<LogIn />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/" element={<Navigate to="/login" />} /> {/* Default */}
-
-        <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
+        <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
         <Route path="/ai-predictions" element={<PrivateRoute><AIPredictions /></PrivateRoute>} />
         <Route path="/about" element={<PrivateRoute><About /></PrivateRoute>} />
         <Route path="/account" element={<PrivateRoute><Account /></PrivateRoute>} />
+        {/* Catch-all redirect to login */}
+        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
+
     </>
   );
 }

@@ -23,6 +23,8 @@ export default function LogIn() {
       });
 
       if (res.status === 200 && res.data.access_token) {
+        localStorage.setItem('access_token', res.data.access_token);
+        localStorage.setItem('refresh_token', res.data.refresh_token);
         window.location.href = '/';
       } else {
           setError('Unexpected response from server.');
