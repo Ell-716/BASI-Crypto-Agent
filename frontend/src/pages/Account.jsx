@@ -5,6 +5,8 @@ import { jwtDecode } from 'jwt-decode';
 export default function Account() {
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
+  const [editingUsername, setEditingUsername] = useState(false);
+  const [newUsername, setNewUsername] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
@@ -26,12 +28,31 @@ export default function Account() {
       .get(`http://localhost:5050/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
-      .then((res) => setUser(res.data))
+      .then((res) => {
+        setUser(res.data);
+        setNewUsername(res.data.user_name);
+      })
+
       .catch((err) => {
         const msg = err.response?.data?.error || 'Failed to fetch user data';
         setError(msg);
       });
   }, []);
+
+  const handleUsernameUpdate = async () => {
+    const token = localStorage.getItem('access_token');
+    try {
+      await axios.put(`http://localhost:5050/users/${user.id}`, {
+        user_name: newUsername,
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUser({ ...user, user_name: newUsername });
+      setEditingUsername(false);
+    } catch (err) {
+      setError('Failed to update username');
+    }
+  };
 
   return (
     <main className="bg-white min-h-screen px-6 sm:px-10 lg:px-16 xl:px-24 2xl:px-32 py-6 text-gray-800 max-w-[1600px] mx-auto">
@@ -43,12 +64,33 @@ export default function Account() {
         <>
           <div className="text-left space-y-4 mb-2">
             <p>
-              <strong>Username:</strong> {user.user_name}
-              <span className="ml-2 text-gray-400 hover:text-gray-600 cursor-pointer">✎</span>
+              <strong>Username: </strong>
+              {editingUsername ? (
+                <>
+                  <input
+                    value={newUsername}
+                    onChange={(e) => setNewUsername(e.target.value)}
+                    className="border px-2 ml-2 rounded-sm"
+                  />
+                  <button onClick={handleUsernameUpdate} className="ml-2 text-blue-600 hover:underline">Save</button>
+                  <button onClick={() => setEditingUsername(false)} className="ml-2 text-gray-500 hover:underline">Cancel</button>
+                </>
+              ) : (
+                <>
+                  {user.user_name}
+                  <span
+                    onClick={() => setEditingUsername(true)}
+                    className="material-icons text-gray-400 hover:text-gray-600 cursor-pointer text-base ml-2 align-middle"
+                  >
+                    edit
+                  </span>
+                </>
+              )}
             </p>
+
             <p>
               <strong>Email:</strong> {user.email}
-              <span className="ml-2 text-gray-400 hover:text-gray-600 cursor-pointer">✎</span>
+              <span className="ml-2 text-gray-400 hover:text-gray-600 cursor-pointer"></span>
             </p>
             <div className="flex items-center gap-3 pt-2">
               <span className="font-medium"><strong>Mode:</strong></span>
