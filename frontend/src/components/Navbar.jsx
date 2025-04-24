@@ -51,16 +51,16 @@ const Navbar = () => {
   };
 
   return (
-    <header className="py-0.5 px-6 border-b border-gray-200 bg-white">
+    <header className="py-0.5 px-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
       <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 xl:px-24 2xl:px-32 flex justify-between items-center">
         <div className="flex items-center gap-10">
           <span className="text-[45px] font-extrabold text-blue-600 tracking-wide">
             ₿A$I
           </span>
           <nav className="hidden md:flex space-x-8 pl-12">
-            <Link to="/" className="text-base font-medium text-gray-800 hover:text-blue-600">Cryptocurrencies</Link>
-            <Link to="/ai-predictions" className="text-base font-medium text-gray-800 hover:text-blue-600">AI Predictions</Link>
-            <Link to="/about" className="text-base font-medium text-gray-800 hover:text-blue-600">About</Link>
+            <Link to="/" className="text-base font-medium text-gray-800 dark:text-gray-100 hover:text-blue-600">Cryptocurrencies</Link>
+            <Link to="/ai-predictions" className="text-base font-medium text-gray-800 dark:text-gray-100 hover:text-blue-600">AI Predictions</Link>
+            <Link to="/about" className="text-base font-medium text-gray-800 dark:text-gray-100 hover:text-blue-600">About</Link>
           </nav>
         </div>
 

@@ -49,7 +49,7 @@ const ResetPassword = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-black px-4">
       <div className="bg-white p-8 rounded-xl max-w-md w-full shadow-lg text-center">
-        <h2 className="text-2xl font-bold mb-4">Reset Your Password</h2>
+        <h2 className="text-xl font-bold mb-4 text-gray-900">Reset Your Password</h2>
 
         {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
         {success && <p className="text-green-600 text-sm mb-4">{success}</p>}
@@ -61,7 +61,7 @@ const ResetPassword = () => {
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             required
-            className="w-full px-4 py-3 border border-gray-300 rounded-md"
+            className="w-full px-4 py-3 text-lg border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-600 bg-white"
           />
           <input
             type="password"
@@ -69,7 +69,7 @@ const ResetPassword = () => {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
-            className="w-full px-4 py-3 border border-gray-300 rounded-md"
+            className="w-full px-4 py-3 text-lg border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-600 bg-white"
           />
           <button
             type="submit"

@@ -97,9 +97,9 @@ const Home = () => {
 }, []);
 
   return (
-    <main className="bg-white min-h-screen px-6 sm:px-10 lg:px-16 xl:px-24 2xl:px-32 py-6 text-gray-800 max-w-[1600px] mx-auto">
+    <main className="bg-white dark:bg-gray-900 min-h-screen px-6 sm:px-10 lg:px-16 xl:px-24 2xl:px-32 py-6 text-gray-800 dark:text-gray-100 max-w-[1600px] mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-        <div className="rounded-md border shadow-sm p-4 bg-white">
+        <div className="rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-4 bg-white dark:bg-gray-800">
           <h2 className="text-xl font-semibold text-center mb-4">Highest 24h trading volume</h2>
           {topVolume && (
             <div className="text-center">
@@ -110,11 +110,11 @@ const Home = () => {
                         className="w-8 h-8"
                     />
                     <span className="font-bold">{topVolume.coin_name}</span>
-                    <span className="text-gray-500">{topVolume.symbol}</span>
-                    <span className="text-gray-500">Price</span>
+                    <span className="text-gray-500 dark:text-gray-400">{topVolume.symbol}</span>
+                    <span className="text-gray-500 dark:text-gray-400">Price</span>
                 </div>
                 {topCoinData && (
-                    <div className="text-5xl font-bold text-gray-900 mt-2">
+                    <div className="text-5xl font-bold text-gray-900 dark:text-white mt-2">
                         ${topCoinData.current_price.toLocaleString()}
                     </div>
                 )}
@@ -128,8 +128,8 @@ const Home = () => {
           )}
         </div>
 
-        <div className="rounded-md border shadow-sm p-4 bg-white text-center">
-          <h2 className="text-xl font-semibold mb-4">Fear & Greed Index</h2>
+        <div className="rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-4 bg-white dark:bg-gray-800">
+          <h2 className="text-xl font-semibold text-center mb-4">Fear & Greed Index</h2>
           {fearGreed ? (
             <FearGreedMeter
               value={fearGreed.value}
@@ -143,21 +143,21 @@ const Home = () => {
 
       <div className="overflow-x-auto mt-4">
         <table className="min-w-full text-sm text-left">
-          <thead className="border-y border-gray-300 bg-white">
+          <thead className="border-y border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
             <tr>
-              <th className="px-2 py-3 font-bold text-black w-8"></th>
-              <th className="px-4 py-3 font-bold text-black w-8">#</th>
-              <th className="px-4 py-3 font-bold text-black min-w-[180px]">Coin</th>
-              <th className="px-4 py-3 font-bold text-black text-right min-w-[120px]">Price</th>
-              <th className="px-4 py-3 font-bold text-black text-right min-w-[120px]">24h High</th>
-              <th className="px-4 py-3 font-bold text-black text-right min-w-[120px]">24h Low</th>
-              <th className="px-4 py-3 font-bold text-black text-right min-w-[150px]">24h Volume</th>
-              <th className="px-4 py-3 font-bold text-black text-right min-w-[150px]">Market Cap</th>
+              <th className="px-2 py-3 font-bold text-black dark:text-white w-8"></th>
+              <th className="px-4 py-3 font-bold text-black dark:text-white w-8">#</th>
+              <th className="px-4 py-3 font-bold text-black dark:text-white min-w-[180px]">Coin</th>
+              <th className="px-4 py-3 font-bold text-black dark:text-white text-right min-w-[120px]">Price</th>
+              <th className="px-4 py-3 font-bold text-black dark:text-white text-right min-w-[120px]">24h High</th>
+              <th className="px-4 py-3 font-bold text-black dark:text-white text-right min-w-[120px]">24h Low</th>
+              <th className="px-4 py-3 font-bold text-black dark:text-white text-right min-w-[150px]">24h Volume</th>
+              <th className="px-4 py-3 font-bold text-black dark:text-white text-right min-w-[150px]">Market Cap</th>
             </tr>
           </thead>
           <tbody>
             {coins.map((coin, index) => (
-              <tr key={coin.symbol} className="border-b border-gray-200 hover:bg-gray-50">
+              <tr key={coin.symbol} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
                 <td className="px-2 py-4 text-center w-8">
                     <button
                         onClick={() => toggleFavorite(coin.symbol)}
@@ -173,7 +173,7 @@ const Home = () => {
                         <img src={coin.image} alt={coin.name} className="w-6 h-6" />
                         <div className="flex flex-col sm:flex-row sm:gap-1 sm:items-center h-full">
                             <span className="font-semibold">{coin.name}</span>
-                            <span className="text-gray-500 text-xs sm:text-sm">{coin.symbol}</span>
+                            <span className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm">{coin.symbol}</span>
                         </div>
                     </div>
                 </td>

@@ -96,7 +96,7 @@ export default function LogIn() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600"
+              className="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-600 bg-white"
             />
             <div className="relative">
               <input
@@ -105,7 +105,7 @@ export default function LogIn() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 pr-12"
+                className="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-600 bg-white"
               />
               <div
                 className="absolute inset-y-0 right-4 flex items-center cursor-pointer text-gray-500 hover:text-gray-700"
@@ -138,7 +138,7 @@ export default function LogIn() {
       {resetOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-xl w-80 shadow-md text-center">
-            <h3 className="text-xl font-bold mb-4">Reset Password</h3>
+            <h3 className="text-xl font-bold mb-4 text-gray-900">Reset Password</h3>
             <form onSubmit={handleReset} className="space-y-4">
               <input
                 type="email"
@@ -146,7 +146,7 @@ export default function LogIn() {
                 value={resetEmail}
                 onChange={(e) => setResetEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 border rounded-md"
+                className="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-600 bg-white"
               />
               <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">
                 Send Reset Link

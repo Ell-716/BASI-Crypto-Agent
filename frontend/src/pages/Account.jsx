@@ -1,12 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import { useTheme } from '../context/ThemeContext';
 
 export default function Account() {
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
   const [editingUsername, setEditingUsername] = useState(false);
   const [newUsername, setNewUsername] = useState('');
+  const { darkMode, setDarkMode } = useTheme();
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+  }, [darkMode]);
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
@@ -55,7 +62,7 @@ export default function Account() {
   };
 
   return (
-    <main className="bg-white min-h-screen px-6 sm:px-10 lg:px-16 xl:px-24 2xl:px-32 py-6 text-gray-800 max-w-[1600px] mx-auto">
+    <main className="bg-white dark:bg-gray-900 min-h-screen px-6 sm:px-10 lg:px-16 xl:px-24 2xl:px-32 py-6 text-gray-800 dark:text-gray-100 max-w-[1600px] mx-auto">
       <h2 className="text-2xl font-semibold mb-4">Account Info</h2>
       <hr className="my-5 border-gray-300" />
       {error && <p className="text-red-600 text-sm mb-6">{error}</p>}
@@ -94,8 +101,19 @@ export default function Account() {
             </p>
             <div className="flex items-center gap-3 pt-2">
               <span className="font-medium"><strong>Mode:</strong></span>
-              <button className="px-3 py-1 border rounded-l-full bg-gray-100 text-sm">Light</button>
-              <button className="px-3 py-1 border rounded-r-full bg-gray-200 text-sm">Dark</button>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={darkMode}
+                  onChange={() => setDarkMode(!darkMode)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:bg-blue-600 transition-colors duration-300"></div>
+                <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 peer-checked:translate-x-5"></div>
+                <span className="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+                  {darkMode ? 'Dark' : 'Light'}
+                </span>
+              </label>
             </div>
           </div>
 

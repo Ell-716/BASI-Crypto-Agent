@@ -9,3 +9,9 @@ table thead th {
   color: #6B7280; /* gray-500 */
 }
 
+body {
+  @apply bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100;
+}
+
+
+

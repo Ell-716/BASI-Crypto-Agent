@@ -52,14 +52,14 @@ const AIPredictions = () => {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-6 max-w-5xl mx-auto text-gray-800 dark:text-gray-100">
       {/* Explanation */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm text-center">
-        <p className="text-lg text-gray-800 leading-relaxed">
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm text-center">
+        <p className="text-lg text-gray-800 dark:text-gray-100 leading-relaxed">
           <strong className="text-blue-600 text-xl">Get AI-powered crypto predictions: buy, sell, or hold — in seconds.</strong><br />
           Select a coin, choose your timeframe (1h, 1d, or 1w), and pick your report type.
         </p>
-        <ul className="mt-3 text-gray-700 text-base list-disc list-inside text-left inline-block text-start">
+        <ul className="mt-3 text-gray-700 dark:text-gray-300 text-base list-disc list-inside text-left inline-block text-start">
           <li><strong>Concise</strong>: A quick recommendation with 2 essential charts.</li>
           <li><strong>Full</strong>: A deep dive with all key indicators explained and 3 detailed charts.</li>
         </ul>
@@ -72,7 +72,7 @@ const AIPredictions = () => {
           <select
             value={coin}
             onChange={(e) => setCoin(e.target.value)}
-            className="border rounded-md px-3 py-2 w-46"
+            className="border rounded-md px-3 py-2 w-46 bg-white text-gray-800 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
           >
             <option value="">Select a coin</option>
             {coinList.map((c) => (
@@ -90,7 +90,9 @@ const AIPredictions = () => {
               key={tf}
               onClick={() => setTimeframe(tf)}
               className={`px-4 py-2 rounded-md border ${
-                timeframe === tf ? "bg-blue-600 text-white" : "bg-white"
+                timeframe === tf
+                  ? "bg-blue-600 text-white"
+                  : "bg-white dark:bg-gray-800 dark:text-gray-100"
               }`}
             >
               {tf}
@@ -105,7 +107,9 @@ const AIPredictions = () => {
               key={style}
               onClick={() => setOutputStyle(style)}
               className={`px-4 py-2 rounded-md border ${
-                outputStyle === style ? "bg-blue-600 text-white" : "bg-white"
+                outputStyle === style
+                  ? "bg-blue-600 text-white"
+                  : "bg-white dark:bg-gray-800 dark:text-gray-100"
               }`}
             >
               {style}
@@ -127,15 +131,15 @@ const AIPredictions = () => {
 
       {/* Prediction Output */}
       {displayedPrediction && (
-        <div className="mt-8 bg-gray-50 p-4 rounded-md border border-gray-200">
+        <div className="mt-8 bg-gray-50 dark:bg-gray-900 p-4 rounded-md border border-gray-200 dark:border-gray-700">
           {displayedPrediction.error ? (
             <p className="text-red-600">{displayedPrediction.error}</p>
           ) : (
-            <div className="mt-8 bg-white p-6 rounded-md border shadow-sm">
+            <div className="mt-8 bg-white dark:bg-gray-800 p-6 rounded-md border dark:border-gray-700 shadow-sm">
               <h2 className="text-3xl font-bold text-blue-600 text-center mb-4">
                 {coinList.find((c) => c.symbol === displayedPrediction._coin)?.name || displayedPrediction._coin} {displayedPrediction._timeframe} prediction
               </h2>
-              <div className="prose max-w-none text-gray-800">
+              <div className="prose dark:prose-invert text-gray-800 dark:text-gray-100 max-w-none">
                   {console.log("RAW MARKDOWN:\n", displayedPrediction.analysis)}
                 <ReactMarkdown
                     components={{
@@ -154,7 +158,7 @@ const AIPredictions = () => {
                                 <img
                                     src={chartUrl}
                                     alt={alt}
-                                    className="my-6 rounded shadow-md border border-gray-300"
+                                    className="my-6 rounded shadow-md border border-gray-300 dark:border-gray-600"
                                 />
                             );
                         }
