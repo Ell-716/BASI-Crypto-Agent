@@ -6,6 +6,7 @@ import About from './pages/About';
 import SignUp from './pages/SignUp';
 import LogIn from './pages/LogIn';
 import ResetPassword from './pages/ResetPassword';
+import Account from './pages/Account';
 
 function AppContent() {
   const location = useLocation();
@@ -21,6 +22,7 @@ function AppContent() {
         <Route path="/" element={<Home />} />
         <Route path="/ai-predictions" element={<AIPredictions />} />
         <Route path="/about" element={<About />} />
+        <Route path="/account" element={<Account />} />
       </Routes>
     </>
   );
