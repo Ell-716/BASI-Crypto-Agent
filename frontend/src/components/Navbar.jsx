@@ -58,9 +58,9 @@ const Navbar = () => {
             ₿A$I
           </span>
           <nav className="hidden md:flex space-x-8 pl-12">
-            <Link to="/" className="text-base font-medium text-gray-800 hover:text-blue-600">Cryptocurrencies</Link>
-            <Link to="/ai-predictions" className="text-base font-medium text-gray-800 hover:text-blue-600">AI Predictions</Link>
-            <Link to="/about" className="text-base font-medium text-gray-800 hover:text-blue-600">About</Link>
+            <Link to="/" className="text-lg font-medium text-gray-800 hover:text-blue-600">Cryptocurrencies</Link>
+            <Link to="/ai-predictions" className="text-lg font-medium text-gray-800 hover:text-blue-600">AI Predictions</Link>
+            <Link to="/about" className="text-lg font-medium text-gray-800 hover:text-blue-600">About</Link>
           </nav>
         </div>
 
@@ -69,7 +69,7 @@ const Navbar = () => {
             <>
               <Link
                 to="/account"
-                className="h-11 w-11 rounded-full border-2 border-blue-600 text-blue-600 flex items-center justify-center text-sm font-semibold hover:bg-blue-50"
+                className="h-11 w-11 rounded-full border-2 border-blue-600 text-blue-600 flex items-center justify-center text-lg font-semibold hover:bg-blue-50"
               >
                 {initials}
               </Link>
