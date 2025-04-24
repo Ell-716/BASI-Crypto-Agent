@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import AIPredictions from './pages/AIPredictions';
@@ -7,6 +7,11 @@ import SignUp from './pages/SignUp';
 import LogIn from './pages/LogIn';
 import ResetPassword from './pages/ResetPassword';
 import Account from './pages/Account';
+
+function PrivateRoute({ children }) {
+  const token = localStorage.getItem('access_token');
+  return token ? children : <Navigate to="/login" />;
+}
 
 function AppContent() {
   const location = useLocation();
@@ -19,10 +24,12 @@ function AppContent() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<LogIn />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/ai-predictions" element={<AIPredictions />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/account" element={<Account />} />
+        <Route path="/" element={<Navigate to="/login" />} /> {/* Default */}
+
+        <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
+        <Route path="/ai-predictions" element={<PrivateRoute><AIPredictions /></PrivateRoute>} />
+        <Route path="/about" element={<PrivateRoute><About /></PrivateRoute>} />
+        <Route path="/account" element={<PrivateRoute><Account /></PrivateRoute>} />
       </Routes>
     </>
   );
