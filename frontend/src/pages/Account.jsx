@@ -148,9 +148,9 @@ export default function Account() {
 
       {confirmOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md w-80 text-center">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Delete Account?</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">This action cannot be undone.</p>
+          <div className="bg-white p-6 rounded-xl shadow-md w-80 text-center">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Delete Account?</h3>
+            <p className="text-sm text-gray-600 mb-6">This action cannot be undone.</p>
             <div className="flex justify-center gap-4">
               <button
                 onClick={handleDeleteAccount}
