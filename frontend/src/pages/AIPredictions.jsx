@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from '@/api/axios';
 import ReactMarkdown from "react-markdown";
 
 const AIPredictions = () => {
@@ -14,8 +14,8 @@ const AIPredictions = () => {
 
   // Fetch coin list
   useEffect(() => {
-    axios
-      .get("http://localhost:5050/api/coins")
+    api
+      .get("/api/coins")
       .then((res) => setCoinList(res.data))
       .catch((err) => console.error("Error fetching coins:", err));
   }, []);
@@ -27,7 +27,7 @@ const AIPredictions = () => {
     setPrediction(null);
 
     try {
-      const res = await axios.get("http://localhost:5050/predict", {
+      const res = await api.get("/predict", {
         params: {
           coin,
           timeframe,
@@ -41,7 +41,7 @@ const AIPredictions = () => {
         _timeframe: timeframe,
       });
 
-      await axios.post("http://localhost:5050/internal/emit-coin-data");
+      await api.post("/internal/emit-coin-data");
 
     } catch (err) {
       console.error("Prediction error:", err);

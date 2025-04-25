@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from '@/api/axios';
 import FearGreedMeter from "@/components/FearGreedMeter";
 import { io } from "socket.io-client";
 import SparklineChart from "@/components/SparklineChart";
@@ -31,8 +31,8 @@ const Home = () => {
     const fetchStaticData = async () => {
       try {
         const [volumeRes, fearGreedRes] = await Promise.all([
-          axios.get("http://localhost:5050/dashboard/top-volume"),
-          axios.get("http://localhost:5050/dashboard/fear-greed"),
+          api.get("/dashboard/top-volume"),
+          api.get("/dashboard/fear-greed"),
         ]);
         setTopVolume(volumeRes.data);
         setFearGreed(fearGreedRes.data);
@@ -45,8 +45,8 @@ const Home = () => {
 
   useEffect(() => {
     if (topVolume?.symbol) {
-        axios
-        .get(`http://localhost:5050/dashboard/sparkline/${topVolume.symbol}`)
+        api
+        .get(`/dashboard/sparkline/${topVolume.symbol}`)
         .then((res) => setSparklineData(res.data))
         .catch((err) => console.error("Sparkline fetch error:", err));
     }
@@ -55,7 +55,7 @@ const Home = () => {
   // Fetch the CoinSnapshot
   useEffect(() => {
       if (topVolume?.symbol) {
-          axios
+          api
             .get(`http://localhost:5050/dashboard/snapshot/${topVolume.symbol}`)
             .then((res) => setSnapshot(res.data))
             .catch((err) => console.error("Snapshot fetch error:", err));

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '@/api/axios';
 import { jwtDecode } from 'jwt-decode';
 import { useTheme } from '../context/ThemeContext';
 
@@ -31,8 +31,8 @@ export default function Account() {
       return;
     }
 
-    axios
-      .get(`http://localhost:5050/users/${userId}`, {
+    api
+      .get(`/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((res) => {
@@ -49,7 +49,7 @@ export default function Account() {
   const handleUsernameUpdate = async () => {
     const token = localStorage.getItem('access_token');
     try {
-      await axios.put(`http://localhost:5050/users/${user.id}`, {
+      await api.put(`/users/${user.id}`, {
         user_name: newUsername,
       }, {
         headers: { Authorization: `Bearer ${token}` }
