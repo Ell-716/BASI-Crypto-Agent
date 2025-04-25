@@ -3,6 +3,7 @@ import api from '@/api/axios';
 import { jwtDecode } from 'jwt-decode';
 import { io } from 'socket.io-client';
 import { useTheme } from '../context/ThemeContext';
+import { Link } from "react-router-dom";
 
 export default function Account() {
   const [user, setUser] = useState(null);
@@ -179,7 +180,9 @@ export default function Account() {
                   <div className="flex items-center gap-2 h-full">
                     <img src={coin.image} alt={coin.name} className="w-6 h-6" />
                     <div className="flex flex-col sm:flex-row sm:gap-1 sm:items-center h-full">
-                      <span className="font-semibold">{coin.name}</span>
+                      <Link to={`/coin/${coin.symbol}`}>
+                        <span className="font-semibold">{coin.name}</span>
+                      </Link>
                       <span className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm">{coin.symbol}</span>
                     </div>
                   </div>
