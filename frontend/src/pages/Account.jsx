@@ -10,6 +10,22 @@ export default function Account() {
   const [newUsername, setNewUsername] = useState('');
   const { darkMode, setDarkMode } = useTheme();
 
+  const handleDeleteAccount = async () => {
+    if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      await api.delete(`/users/${user.id}`);
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      window.location.href = '/login';
+    } catch (err) {
+      setError('Failed to delete account');
+      console.error('Delete account error:', err);
+    }
+  };
+
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
     localStorage.setItem('theme', darkMode ? 'dark' : 'light');
@@ -118,7 +134,10 @@ export default function Account() {
           </div>
 
           <div className="mt-8">
-            <button className="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition">
+            <button
+              onClick={handleDeleteAccount}
+              className="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition"
+            >
               Delete account
             </button>
           </div>
