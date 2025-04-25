@@ -9,12 +9,9 @@ export default function Account() {
   const [editingUsername, setEditingUsername] = useState(false);
   const [newUsername, setNewUsername] = useState('');
   const { darkMode, setDarkMode } = useTheme();
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleDeleteAccount = async () => {
-    if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
-      return;
-    }
-
     try {
       await api.delete(`/users/${user.id}`);
       localStorage.removeItem('access_token');
@@ -47,15 +44,11 @@ export default function Account() {
       return;
     }
 
-    api
-      .get(`/users/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+    api.get(`/users/${userId}`)
       .then((res) => {
         setUser(res.data);
         setNewUsername(res.data.user_name);
       })
-
       .catch((err) => {
         const msg = err.response?.data?.error || 'Failed to fetch user data';
         setError(msg);
@@ -63,13 +56,8 @@ export default function Account() {
   }, []);
 
   const handleUsernameUpdate = async () => {
-    const token = localStorage.getItem('access_token');
     try {
-      await api.put(`/users/${user.id}`, {
-        user_name: newUsername,
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.put(`/users/${user.id}`, { user_name: newUsername });
       setUser({ ...user, user_name: newUsername });
       setEditingUsername(false);
     } catch (err) {
@@ -112,9 +100,8 @@ export default function Account() {
             </p>
 
             <p>
-              <strong>Email:</strong> {user.email}
-              <span className="ml-2 text-gray-400 hover:text-gray-600 cursor-pointer"></span>
-            </p>
+              <strong>Email:</strong> {user.email}</p>
+
             <div className="flex items-center gap-3 pt-2">
               <span className="font-medium"><strong>Mode:</strong></span>
               <label className="relative inline-flex items-center cursor-pointer">
@@ -135,7 +122,7 @@ export default function Account() {
 
           <div className="mt-8">
             <button
-              onClick={handleDeleteAccount}
+              onClick={() => setConfirmOpen(true)}
               className="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition"
             >
               Delete account
@@ -157,6 +144,29 @@ export default function Account() {
         </ul>
       ) : (
         <p className="text-gray-500 text-left">You haven’t added any favorite coins yet.</p>
+      )}
+
+      {confirmOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md w-80 text-center">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Delete Account?</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">This action cannot be undone.</p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={handleDeleteAccount}
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setConfirmOpen(false)}
+                className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 px-4 py-2 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </main>
   );
