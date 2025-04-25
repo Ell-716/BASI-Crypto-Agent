@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from backend.app.utils.api import fetch_coin_data
-from backend.app.models import db, Coin, HistoricalData
+from backend.app.models import db, Coin, HistoricalData, CoinSnapshot
 from datetime import datetime, timezone, timedelta
 
 coins_bp = Blueprint('coins', __name__, url_prefix='/api')
@@ -161,3 +161,26 @@ def delete_coin(coin_id):
     db.session.delete(coin)
     db.session.commit()
     return jsonify({"message": "Coin and its historical data deleted successfully"})
+
+@coins_bp.route('/coins/symbol/<symbol>', methods=['GET'])
+def get_coin_by_symbol(symbol):
+    coin = Coin.query.filter_by(coin_symbol=symbol.upper()).first()
+    if not coin:
+        return jsonify({"message": "Coin not found"}), 404
+
+    latest_history = HistoricalData.query.filter_by(coin_id=coin.id)\
+        .order_by(HistoricalData.timestamp.desc()).first()
+
+    snapshot = CoinSnapshot.query.filter_by(coin_id=coin.id)\
+        .order_by(CoinSnapshot.timestamp.desc()).first()
+
+    return jsonify({
+        "coin_name": coin.coin_name,
+        "symbol": coin.coin_symbol,
+        "price": latest_history.price if latest_history else None,
+        "high": latest_history.high if latest_history else None,
+        "low": latest_history.low if latest_history else None,
+        "market_cap": snapshot.market_cap if snapshot else None,
+        "global_volume": snapshot.global_volume if snapshot else None,
+        "description": coin.description
+    })

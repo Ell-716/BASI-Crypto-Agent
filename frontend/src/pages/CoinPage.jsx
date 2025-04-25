@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import api from "@/api/axios";
 import TradingViewWidget from "../components/TradingViewWidget";
 
 function CoinPage() {
@@ -10,7 +10,7 @@ function CoinPage() {
   useEffect(() => {
     async function fetchCoinData() {
       try {
-        const res = await axios.get(`http://localhost:5050/coins/${symbol}`);
+        const res = await api.get(`/api/coins/symbol/${symbol}`);
         setCoinData(res.data);
       } catch (error) {
         console.error("Failed to fetch coin data", error);
