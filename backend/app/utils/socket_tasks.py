@@ -1,5 +1,6 @@
 from flask_socketio import emit
 from backend.app.utils.api import fetch_coin_data, get_cached_coingecko_data
+from backend.app.models import Coin
 
 socketio_instance_ref = None
 
@@ -45,19 +46,22 @@ def prepare_coin_data():
         print(f"[SOCKET] ⚠️ Fetch error: {error}")
         return []
 
+    # Map local coin symbols to their DB ID
+    coin_ids = {c.coin_symbol.upper(): c.id for c in Coin.query.all()}
+
     gecko_data = get_cached_coingecko_data()
     gecko_map = {item["symbol"].upper(): item for item in gecko_data}
 
     for coin in coins:
-        g = gecko_map.get(coin["symbol"].upper())
+        symbol = coin["symbol"].upper()
+        coin["id"] = coin_ids.get(symbol)
+        g = gecko_map.get(symbol)
         if g:
             coin["market_cap"] = g.get("market_cap")
             coin["global_volume"] = g.get("total_volume")
 
     return coins
 
-
-# ✅ Standalone REST endpoint for re-emitting coin data manually
 def register_emit_route(app):
     @app.route("/internal/emit-coin-data", methods=["POST"])
     def trigger_emit_coin_data():

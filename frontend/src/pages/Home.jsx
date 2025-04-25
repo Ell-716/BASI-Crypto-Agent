@@ -3,7 +3,7 @@ import api from '@/api/axios';
 import FearGreedMeter from "@/components/FearGreedMeter";
 import { io } from "socket.io-client";
 import SparklineChart from "@/components/SparklineChart";
-
+import { jwtDecode } from 'jwt-decode';
 
 const Home = () => {
   const [topVolume, setTopVolume] = useState(null);
@@ -13,18 +13,45 @@ const Home = () => {
   const [sparklineData, setSparklineData] = useState([]);
   const [snapshot, setSnapshot] = useState(null);
 
+  const token = localStorage.getItem('access_token');
+  let userId = null;
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      userId = decoded.sub;
+    } catch {
+      console.error("Invalid token");
+    }
+  }
+
   const topCoinData = coins.find((coin) => coin.symbol === topVolume?.symbol);
-  console.log("[RENDER] Home component rendered with", coins.length, "coins");
 
+  const toggleFavorite = async (symbol) => {
+    const coin = coins.find(c => c.symbol === symbol);
+    if (!coin || !userId) {
+      console.warn("Missing coin or userId", { coin, userId });
+      return;
+    }
 
-    const toggleFavorite = (symbol) => {
-        setFavorites((prev) =>
-            prev.includes(symbol)
-            ? prev.filter((s) => s !== symbol)
-            : [...prev, symbol]
-        );
-    };
+    const coinId = coin.id;
+    const isFavorite = favorites.includes(symbol);
+    console.log("Toggle favorite:", { symbol, isFavorite, coinId });
 
+    const payload = isFavorite
+      ? { remove_coins: [coinId] }
+      : { add_coins: [coinId] };
+
+    try {
+      await api.put(`/users/${userId}`, payload);
+      setFavorites((prev) =>
+        isFavorite
+          ? prev.filter((s) => s !== symbol)
+          : [...prev, symbol]
+      );
+    } catch (err) {
+      console.error("Failed to update favorites:", err);
+    }
+  };
 
   // Fetch fear & greed and top volume once
   useEffect(() => {
@@ -45,56 +72,54 @@ const Home = () => {
 
   useEffect(() => {
     if (topVolume?.symbol) {
-        api
-        .get(`/dashboard/sparkline/${topVolume.symbol}`)
+      api.get(`/dashboard/sparkline/${topVolume.symbol}`)
         .then((res) => setSparklineData(res.data))
         .catch((err) => console.error("Sparkline fetch error:", err));
     }
   }, [topVolume]);
 
-  // Fetch the CoinSnapshot
   useEffect(() => {
-      if (topVolume?.symbol) {
-          api
-            .get(`http://localhost:5050/dashboard/snapshot/${topVolume.symbol}`)
-            .then((res) => setSnapshot(res.data))
-            .catch((err) => console.error("Snapshot fetch error:", err));
-      }
+    if (topVolume?.symbol) {
+      api.get(`/dashboard/snapshot/${topVolume.symbol}`)
+        .then((res) => setSnapshot(res.data))
+        .catch((err) => console.error("Snapshot fetch error:", err));
+    }
   }, [topVolume]);
 
-  // Update coin data every minute
+  // Fetch user favorites
   useEffect(() => {
-    console.log("[WS] useEffect triggered");
+    if (!userId) return;
+    api.get(`/users/${userId}`)
+      .then((res) => setFavorites(res.data.favorite_coins || []))
+      .catch((err) => console.error("Failed to load favorites:", err));
+  }, [userId]);
 
+  // WebSocket for live updates
+  useEffect(() => {
     const socket = io("http://localhost:5050", {
-        transports: ["websocket"],
-        path: "/socket.io",
-        forceNew: true,
-        reconnection: false
+      transports: ["websocket"],
+      path: "/socket.io",
+      forceNew: true,
+      reconnection: false
     });
 
     socket.on("connect", () => {
-        console.log("Connected to WebSocket");
-        socket.emit("request_coin_data");
+      socket.emit("request_coin_data");
     });
 
     socket.off("coin_data");
     socket.on("coin_data", (data) => {
-        console.log("🔁 Updating state with", data.length, "coins");
-        setCoins(data);
+      setCoins(data);
     });
 
     socket.on("disconnect", () => {
-        console.log("Disconnected from WebSocket");
+      console.log("Disconnected from WebSocket");
     });
 
     return () => {
-        if (socket.connected) {
-            console.log("[WS] Cleanup socket");
-            socket.disconnect();
-        }
+      if (socket.connected) socket.disconnect();
     };
-}, []);
+  }, []);
 
   return (
     <main className="bg-white dark:bg-gray-900 min-h-screen px-6 sm:px-10 lg:px-16 xl:px-24 2xl:px-32 py-6 text-gray-800 dark:text-gray-100 max-w-[1600px] mx-auto">
@@ -103,27 +128,22 @@ const Home = () => {
           <h2 className="text-xl font-semibold text-center mb-4">Highest 24h trading volume</h2>
           {topVolume && (
             <div className="text-center">
-                <div className="flex items-center justify-center gap-2 text-center text-1xl mb-2">
-                    <img
-                        src={topVolume.image}
-                        alt={topVolume.coin_name}
-                        className="w-8 h-8"
-                    />
-                    <span className="font-bold">{topVolume.coin_name}</span>
-                    <span className="text-gray-500 dark:text-gray-400">{topVolume.symbol}</span>
-                    <span className="text-gray-500 dark:text-gray-400">Price</span>
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <img src={topVolume.image} alt={topVolume.coin_name} className="w-8 h-8" />
+                <span className="font-bold">{topVolume.coin_name}</span>
+                <span className="text-gray-500 dark:text-gray-400">{topVolume.symbol}</span>
+                <span className="text-gray-500 dark:text-gray-400">Price</span>
+              </div>
+              {topCoinData && (
+                <div className="text-5xl font-bold text-gray-900 dark:text-white mt-2">
+                  ${topCoinData.current_price.toLocaleString()}
                 </div>
-                {topCoinData && (
-                    <div className="text-5xl font-bold text-gray-900 dark:text-white mt-2">
-                        ${topCoinData.current_price.toLocaleString()}
-                    </div>
-                )}
-
-                {sparklineData.length > 0 && (
-                    <div className="mt-4">
-                        <SparklineChart data={sparklineData} />
-                    </div>
-                )}
+              )}
+              {sparklineData.length > 0 && (
+                <div className="mt-4">
+                  <SparklineChart data={sparklineData} />
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -131,10 +151,7 @@ const Home = () => {
         <div className="rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-4 bg-white dark:bg-gray-800">
           <h2 className="text-xl font-semibold text-center mb-4">Fear & Greed Index</h2>
           {fearGreed ? (
-            <FearGreedMeter
-              value={fearGreed.value}
-              classification={fearGreed.classification}
-            />
+            <FearGreedMeter value={fearGreed.value} classification={fearGreed.classification} />
           ) : (
             <p>Loading...</p>
           )}
@@ -159,23 +176,23 @@ const Home = () => {
             {coins.map((coin, index) => (
               <tr key={coin.symbol} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
                 <td className="px-2 py-4 text-center w-8">
-                    <button
-                        onClick={() => toggleFavorite(coin.symbol)}
-                        className="text-yellow-400 text-lg focus:outline-none"
-                        title="Add to favorites"
-                    >
-                        {favorites.includes(coin.symbol) ? "★" : "☆"}
-                    </button>
+                  <button
+                    onClick={() => toggleFavorite(coin.symbol)}
+                    className="text-yellow-400 text-lg focus:outline-none"
+                    title="Add to favorites"
+                  >
+                    {favorites.includes(coin.symbol) ? "★" : "☆"}
+                  </button>
                 </td>
                 <td className="px-2 py-4 w-8">{index + 1}</td>
                 <td className="px-4 py-4 min-w-[180px]">
-                    <div className="flex items-center gap-2 h-full">
-                        <img src={coin.image} alt={coin.name} className="w-6 h-6" />
-                        <div className="flex flex-col sm:flex-row sm:gap-1 sm:items-center h-full">
-                            <span className="font-semibold">{coin.name}</span>
-                            <span className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm">{coin.symbol}</span>
-                        </div>
+                  <div className="flex items-center gap-2 h-full">
+                    <img src={coin.image} alt={coin.name} className="w-6 h-6" />
+                    <div className="flex flex-col sm:flex-row sm:gap-1 sm:items-center h-full">
+                      <span className="font-semibold">{coin.name}</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm">{coin.symbol}</span>
                     </div>
+                  </div>
                 </td>
                 <td className="px-4 py-4 text-right min-w-[120px]">
                   ${parseFloat(coin.current_price).toLocaleString()}

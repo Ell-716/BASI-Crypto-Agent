@@ -26,8 +26,7 @@ class User(db.Model):
     favorite_coins = db.relationship(
         'Coin',
         secondary=user_favorite_coins,
-        backref=db.backref('favorited_by', lazy='dynamic'),
-        lazy='dynamic'
+        backref=db.backref('favorited_by')
     )
 
     def __repr__(self):
