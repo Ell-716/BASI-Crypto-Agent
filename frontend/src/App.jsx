@@ -7,6 +7,7 @@ import SignUp from './pages/SignUp';
 import LogIn from './pages/LogIn';
 import ResetPassword from './pages/ResetPassword';
 import Account from './pages/Account';
+import CoinPage from "./pages/CoinPage";
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem('access_token');
@@ -25,6 +26,7 @@ function AppContent() {
         <Route path="/login" element={<LogIn />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
+        <Route path="/coin/:symbol" element={<PrivateRoute><CoinPage /></PrivateRoute>} />
         <Route path="/ai-predictions" element={<PrivateRoute><AIPredictions /></PrivateRoute>} />
         <Route path="/about" element={<PrivateRoute><About /></PrivateRoute>} />
         <Route path="/account" element={<PrivateRoute><Account /></PrivateRoute>} />
