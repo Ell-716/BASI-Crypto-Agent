@@ -167,9 +167,7 @@ def analyze_with_llm(coin_symbol, timeframe, report_type="concise"):
                 {"role": "user", "content": prompt}
             ],
             max_tokens=2500 if report_type == "full" else 500,
-            temperature=0.2,
-            presence_penalty=0.1,
-            frequency_penalty=0.2
+            temperature=0.2
         )
         return {
             "coin": coin_symbol.upper(),
