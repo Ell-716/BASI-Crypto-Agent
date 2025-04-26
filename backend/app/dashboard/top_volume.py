@@ -3,7 +3,6 @@ from backend.app.models import HistoricalData, Coin
 from sqlalchemy import desc
 from datetime import datetime, timedelta, timezone
 from backend.app.models import TopVolume24h
-from sqlalchemy import func
 
 
 def update_top_volume_24h():
@@ -20,27 +19,31 @@ def update_top_volume_24h():
     db.session.commit()
     print(f"[TopVolume] Deleted {len(old_entries)} entries before {cutoff.date()}")
 
-    # Calculate 24h volume
-    results = (
-        db.session.query(
-            Coin.id.label("coin_id"),
-            func.sum(HistoricalData.volume).label("top_volume")
-        )
-        .join(HistoricalData, Coin.id == HistoricalData.coin_id)
-        .filter(HistoricalData.timestamp >= volume_window)
-        .group_by(Coin.id)
-        .all()
-    )
+    coins = Coin.query.all()
+    count = 0
 
-    for row in results:
+    for coin in coins:
+        historical_entries = (
+            HistoricalData.query
+            .filter(HistoricalData.coin_id == coin.id)
+            .filter(HistoricalData.timestamp >= volume_window)
+            .all()
+        )
+
+        if not historical_entries:
+            continue
+
+        total_quote_volume = sum(entry.price * entry.volume for entry in historical_entries)
+
         db.session.add(TopVolume24h(
-            coin_id=row.coin_id,
-            top_volume=row.top_volume,
+            coin_id=coin.id,
+            top_volume=total_quote_volume,
             timestamp=now
         ))
+        count += 1
 
     db.session.commit()
-    print(f"[TopVolume] Stored volume for {len(results)} coins.")
+    print(f"[TopVolume] Stored volume for {count} coins.")
 
 
 def get_top_coin_by_24h_volume():

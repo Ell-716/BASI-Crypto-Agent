@@ -1,45 +1,23 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { jwtDecode } from 'jwt-decode';
-
-function getInitials(name) {
-  const parts = name.trim().split(' ');
-  if (parts.length === 1) return parts[0][0].toUpperCase();
-  return (parts[0][0] + parts[1][0]).toUpperCase();
-}
+import { User } from 'lucide-react';
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [loggedIn, setLoggedIn] = useState(false);
-  const [initials, setInitials] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
     if (!token) return;
 
-    setLoggedIn(true);
-
     try {
       const decoded = jwtDecode(token);
-      const userId = decoded.sub;
-
-      fetch(`http://localhost:5050/users/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.user_name) {
-            const userInitials = getInitials(data.user_name);
-            setInitials(userInitials);
-          }
-        })
-        .catch(() => {
-          setInitials('?');
-        });
+      if (decoded.sub) {
+        setLoggedIn(true);
+      }
     } catch {
-      setInitials('?');
+      setLoggedIn(false);
     }
   }, []);
 
@@ -69,9 +47,9 @@ const Navbar = () => {
             <>
               <Link
                 to="/account"
-                className="h-11 w-11 rounded-full border-2 border-blue-600 text-blue-600 flex items-center justify-center text-lg font-semibold hover:bg-blue-50"
+                className="h-11 w-11 rounded-full border-2 border-blue-600 bg-white flex items-center justify-center hover:bg-blue-50"
               >
-                {initials}
+                <User className="w-6 h-6 text-blue-600" />
               </Link>
               <button
                 onClick={handleLogout}
