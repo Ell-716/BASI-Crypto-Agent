@@ -153,9 +153,7 @@ const Home = () => {
           <h2 className="text-xl font-semibold text-center mb-4">Fear & Greed Index</h2>
           {fearGreed ? (
             <FearGreedMeter value={fearGreed.value} classification={fearGreed.classification} />
-          ) : (
-            <p>Loading...</p>
-          )}
+          )
         </div>
       </div>
 

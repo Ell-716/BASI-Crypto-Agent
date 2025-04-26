@@ -3,7 +3,7 @@ from backend.app.models import db, User, Coin
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
 import logging
-from backend.app.utils.security import is_strong_password
+from backend.app.utils.security import is_strong_password, is_valid_username
 from backend.app.utils.email_verification import generate_verification_token, confirm_verification_token
 from backend.app.utils.email_verification import send_verification_email
 from backend.app.utils.password_reset import generate_password_reset_token, confirm_password_reset_token
@@ -24,7 +24,7 @@ def add_user():
     password = data.get('password')
 
     if not email or not password or not user_name:
-        return jsonify({"error": "Missing email, password, or user_name"}), 400
+        return jsonify({"error": "Missing email, password, or username."}), 400
 
     if not is_strong_password(password):
         return jsonify({
@@ -36,8 +36,14 @@ def add_user():
                      "- Minimum 8 characters"
         }), 400
 
+    if not is_valid_username(user_name):
+        return jsonify({"error": "Invalid username. Only letters, numbers, and underscores are allowed."}), 400
+
+    if User.query.filter_by(user_name=user_name).first():
+        return jsonify({"error": "Username already exists."}), 400
+
     if User.query.filter_by(email=email).first():
-        return jsonify({"error": "User already exists"}), 400
+        return jsonify({"error": "Email already registered."}), 400
 
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
     new_user = User(email=email, password_hash=hashed_password, user_name=user_name)
@@ -48,7 +54,7 @@ def add_user():
     except Exception as e:
         db.session.rollback()
         logging.error(f"Database error: {e}")
-        return jsonify({"error": "Database error"}), 500
+        return jsonify({"error": "Database error. Please try again."}), 500
 
     token = generate_verification_token(email)
     verify_url = f"http://localhost:5050/users/verify?token={token}"
@@ -250,4 +256,3 @@ def reset_password():
     db.session.commit()
 
     return jsonify({"message": "Password has been reset successfully"}), 200
-
