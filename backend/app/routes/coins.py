@@ -162,6 +162,7 @@ def delete_coin(coin_id):
     db.session.commit()
     return jsonify({"message": "Coin and its historical data deleted successfully"})
 
+
 @coins_bp.route('/coins/symbol/<symbol>', methods=['GET'])
 def get_coin_by_symbol(symbol):
     coin = Coin.query.filter_by(coin_symbol=symbol.upper()).first()
@@ -177,6 +178,7 @@ def get_coin_by_symbol(symbol):
     return jsonify({
         "coin_name": coin.coin_name,
         "symbol": coin.coin_symbol,
+        "image": coin.coin_image,
         "price": latest_history.price if latest_history else None,
         "high": latest_history.high if latest_history else None,
         "low": latest_history.low if latest_history else None,
