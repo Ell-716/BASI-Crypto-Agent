@@ -39,7 +39,8 @@ def add_user():
     if not is_valid_username(user_name):
         return jsonify({"error": "Invalid username. Only letters, numbers, and underscores are allowed."}), 400
 
-    if User.query.filter_by(user_name=user_name).first():
+    existing_user = User.query.filter(User.user_name.ilike(user_name)).first()
+    if existing_user:
         return jsonify({"error": "Username already exists."}), 400
 
     if User.query.filter_by(email=email).first():
