@@ -54,7 +54,7 @@ def add_user():
     verify_url = f"http://localhost:5050/users/verify?token={token}"
     send_verification_email(email, verify_url)
 
-    return jsonify({"message": "User registered successfully"}), 201
+    return jsonify({"message": "Registration successful! Please verify your email to activate your account."}), 201
 
 
 @users_bp.route('/verify', methods=['GET'])
