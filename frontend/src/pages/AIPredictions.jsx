@@ -66,13 +66,13 @@ const AIPredictions = () => {
       </div>
 
       {/* Controls */}
-      <div className="mt-10 flex justify-between items-center">
+      <div className="mt-10 flex flex-col md:flex-row gap-4 md:gap-0 justify-between items-center">
         {/* Coin dropdown */}
         <div className="flex-1">
           <select
             value={coin}
             onChange={(e) => setCoin(e.target.value)}
-            className="border rounded-md px-3 py-2 w-46 bg-white text-gray-800 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
+            className="border rounded-md w-46 px-3 py-3 sm:py-2 bg-white text-gray-800 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
           >
             <option value="">Select a coin</option>
             {coinList.map((c) => (
