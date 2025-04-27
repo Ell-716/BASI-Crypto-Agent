@@ -161,10 +161,10 @@ export default function Account() {
               <th className="px-4 py-3 font-bold text-black dark:text-white w-8">#</th>
               <th className="px-4 py-3 font-bold text-black dark:text-white min-w-[180px]">Coin</th>
               <th className="px-4 py-3 font-bold text-black dark:text-white text-right min-w-[120px]">Price</th>
-              <th className="px-4 py-3 font-bold text-black dark:text-white text-right min-w-[120px]">24h High</th>
-              <th className="px-4 py-3 font-bold text-black dark:text-white text-right min-w-[120px]">24h Low</th>
-              <th className="px-4 py-3 font-bold text-black dark:text-white text-right min-w-[150px]">24h Volume</th>
-              <th className="px-4 py-3 font-bold text-black dark:text-white text-right min-w-[150px]">Market Cap</th>
+              <th className="hidden sm:table-cell px-4 py-3 font-bold text-black dark:text-white text-right min-w-[120px]">24h High</th>
+              <th className="hidden sm:table-cell px-4 py-3 font-bold text-black dark:text-white text-right min-w-[120px]">24h Low</th>
+              <th className="hidden md:table-cell px-4 py-3 font-bold text-black dark:text-white text-right min-w-[150px]">24h Volume</th>
+              <th className="hidden lg:table-cell px-4 py-3 font-bold text-black dark:text-white text-right min-w-[150px]">Market Cap</th>
             </tr>
           </thead>
           <tbody>
@@ -188,10 +188,14 @@ export default function Account() {
                   </div>
                 </td>
                 <td className="px-4 py-4 text-right min-w-[120px]">${parseFloat(coin.current_price).toLocaleString()}</td>
-                <td className="px-4 py-4 text-right min-w-[120px]">${parseFloat(coin.high_24h).toLocaleString()}</td>
-                <td className="px-4 py-4 text-right min-w-[120px]">${parseFloat(coin.low_24h).toLocaleString()}</td>
-                <td className="px-4 py-4 text-right min-w-[150px]">{coin.global_volume ? `$${parseFloat(coin.global_volume).toLocaleString()}` : '—'}</td>
-                <td className="px-4 py-4 text-right min-w-[150px]">{coin.market_cap ? `$${parseFloat(coin.market_cap).toLocaleString()}` : '—'}</td>
+                <td className="hidden sm:table-cell px-4 py-4 text-right min-w-[120px]">${parseFloat(coin.high_24h).toLocaleString()}</td>
+                <td className="hidden sm:table-cell px-4 py-4 text-right min-w-[120px]">${parseFloat(coin.low_24h).toLocaleString()}</td>
+                <td className="hidden md:table-cell px-4 py-4 text-right min-w-[150px]">
+                  {coin.global_volume ? `$${parseFloat(coin.global_volume).toLocaleString()}` : '—'}
+          </    td>
+                <td className="hidden lg:table-cell px-4 py-4 text-right">
+                  {coin.market_cap ? `$${parseFloat(coin.market_cap).toLocaleString()}` : '—'}
+          </    td>
               </tr>
             ))}
           </tbody>

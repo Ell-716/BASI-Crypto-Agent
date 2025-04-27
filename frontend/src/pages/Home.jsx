@@ -123,24 +123,25 @@ const Home = () => {
   }, []);
 
   return (
-    <main className="bg-white dark:bg-gray-900 min-h-screen px-4 sm:px-6 md:px-8 lg:px-10 py-6 text-gray-800 dark:text-gray-100 max-w-[1600px] mx-auto">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-10">
+    <main className="bg-white dark:bg-gray-900 min-h-screen px-6 sm:px-10 lg:px-16 xl:px-24 2xl:px-32 py-6 text-gray-800 dark:text-gray-100 max-w-[1600px] mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
         <div className="rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-4 bg-white dark:bg-gray-800">
-          <h2 className="text-lg md:text-xl font-semibold text-center mb-3 md:mb-4">Highest 24h trading volume</h2>
+          <h2 className="text-xl font-semibold text-center mb-4">Highest 24h trading volume</h2>
           {topVolume && (
             <div className="text-center">
               <div className="flex items-center justify-center gap-2 mb-2">
-                <img src={topVolume.image} alt={topVolume.coin_name} className="w-6 h-6 md:w-8 md:h-8" />
-                <span className="font-bold text-sm md:text-base">{topVolume.coin_name}</span>
-                <span className="text-gray-500 dark:text-gray-400 text-xs md:text-sm">{topVolume.symbol}</span>
+                <img src={topVolume.image} alt={topVolume.coin_name} className="w-8 h-8" />
+                <span className="font-bold">{topVolume.coin_name}</span>
+                <span className="text-gray-500 dark:text-gray-400">{topVolume.symbol}</span>
+                <span className="text-gray-500 dark:text-gray-400">Price</span>
               </div>
               {topCoinData && (
-                <div className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mt-2">
+                <div className="text-5xl font-bold text-gray-900 dark:text-white mt-2">
                   ${topCoinData.current_price.toLocaleString()}
                 </div>
               )}
               {sparklineData.length > 0 && (
-                <div className="mt-3 md:mt-4 h-[80px] md:h-[100px]">
+                <div className="mt-4">
                   <SparklineChart data={sparklineData} />
                 </div>
               )}
@@ -149,68 +150,60 @@ const Home = () => {
         </div>
 
         <div className="rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-4 bg-white dark:bg-gray-800">
-          <h2 className="text-lg md:text-xl font-semibold text-center mb-3 md:mb-4">Fear & Greed Index</h2>
+          <h2 className="text-xl font-semibold text-center mb-4">Fear & Greed Index</h2>
           {fearGreed ? (
-            <div className="scale-90 md:scale-100">
-              <FearGreedMeter value={fearGreed.value} classification={fearGreed.classification} />
-            </div>
+            <FearGreedMeter value={fearGreed.value} classification={fearGreed.classification} />
           ) : null}
         </div>
       </div>
 
       <div className="overflow-x-auto mt-4">
-        <table className="min-w-full text-sm">
+        <table className="min-w-full text-sm text-left">
           <thead className="border-y border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
             <tr>
-              <th className="px-1 py-2 md:px-2 md:py-3 font-bold text-black dark:text-white w-6 md:w-8"></th>
-              <th className="px-1 py-2 md:px-2 md:py-3 font-bold text-black dark:text-white w-6 md:w-8">#</th>
-              <th className="px-2 py-2 md:px-4 md:py-3 font-bold text-black dark:text-white text-left min-w-[120px]">Coin</th>
-              <th className="px-2 py-2 md:px-4 md:py-3 font-bold text-black dark:text-white text-right min-w-[80px] md:min-w-[100px]">Price</th>
-              {/* Hidden columns on mobile */}
-              <th className="hidden sm:table-cell px-2 py-2 md:px-4 md:py-3 font-bold text-black dark:text-white text-right min-w-[80px] md:min-w-[100px]">24h High</th>
-              <th className="hidden sm:table-cell px-2 py-2 md:px-4 md:py-3 font-bold text-black dark:text-white text-right min-w-[80px] md:min-w-[100px]">24h Low</th>
-              <th className="hidden md:table-cell px-4 py-3 font-bold text-black dark:text-white text-right min-w-[120px]">24h Volume</th>
-              <th className="hidden lg:table-cell px-4 py-3 font-bold text-black dark:text-white text-right min-w-[120px]">Market Cap</th>
+              <th className="px-2 py-3 font-bold text-black dark:text-white w-8"></th>
+              <th className="px-4 py-3 font-bold text-black dark:text-white w-8">#</th>
+              <th className="px-4 py-3 font-bold text-black dark:text-white min-w-[180px]">Coin</th>
+              <th className="px-4 py-3 font-bold text-black dark:text-white text-right min-w-[120px]">Price</th>
+              <th className="hidden sm:table-cell px-4 py-3 font-bold text-black dark:text-white text-right min-w-[120px]">24h High</th>
+              <th className="hidden sm:table-cell px-4 py-3 font-bold text-black dark:text-white text-right min-w-[120px]">24h Low</th>
+              <th className="hidden md:table-cell px-4 py-3 font-bold text-black dark:text-white text-right min-w-[150px]">24h Volume</th>
+              <th className="hidden lg:table-cell px-4 py-3 font-bold text-black dark:text-white text-right min-w-[150px]">Market Cap</th>
             </tr>
           </thead>
           <tbody>
             {coins.map((coin, index) => (
               <tr key={coin.symbol} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
-                <td className="px-1 py-3 text-center w-6 md:w-8">
+                <td className="px-2 py-4 text-center w-8">
                   <button
                     onClick={() => toggleFavorite(coin.symbol)}
-                    className="text-yellow-400 text-base md:text-lg focus:outline-none"
+                    className="text-yellow-400 text-lg focus:outline-none"
                     title="Add to favorites"
                   >
                     {favorites.includes(coin.symbol) ? "★" : "☆"}
                   </button>
                 </td>
-                <td className="px-1 py-3 w-6 md:w-8 text-sm">{index + 1}</td>
-                <td className="px-2 py-3 min-w-[120px]">
-                  <div className="flex items-center gap-2">
-                    <img src={coin.image} alt={coin.name} className="w-5 h-5 md:w-6 md:h-6" />
-                    <div className="flex flex-col sm:flex-row sm:gap-1 sm:items-baseline">
-                      <Link to={`/coin/${coin.symbol}`} className="font-semibold text-sm md:text-base">
-                        {coin.name}
+                <td className="px-2 py-4 w-8">{index + 1}</td>
+                <td className="px-4 py-4 min-w-[180px]">
+                  <div className="flex items-center gap-2 h-full">
+                    <img src={coin.image} alt={coin.name} className="w-6 h-6" />
+                    <div className="flex flex-col sm:flex-row sm:gap-1 sm:items-center h-full">
+                      <Link to={`/coin/${coin.symbol}`}>
+                        <span className="font-semibold">{coin.name}</span>
                       </Link>
-                      <span className="text-gray-500 dark:text-gray-400 text-xs">{coin.symbol}</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm">{coin.symbol}</span>
                     </div>
                   </div>
                 </td>
-                <td className="px-2 py-3 text-right text-sm md:text-base min-w-[80px] md:min-w-[100px]">
+                <td className="px-4 py-4 text-right min-w-[120px]">
                   ${parseFloat(coin.current_price).toLocaleString()}
                 </td>
-                {/* Hidden columns on mobile */}
-                <td className="hidden sm:table-cell px-2 py-3 text-right text-sm md:text-base min-w-[80px] md:min-w-[100px]">
-                  ${parseFloat(coin.high_24h).toLocaleString()}
-                </td>
-                <td className="hidden sm:table-cell px-2 py-3 text-right text-sm md:text-base min-w-[80px] md:min-w-[100px]">
-                  ${parseFloat(coin.low_24h).toLocaleString()}
-                </td>
-                <td className="hidden md:table-cell px-4 py-3 text-right">
+                <td className="hidden sm:table-cell px-4 py-4 text-right min-w-[120px]">${parseFloat(coin.high_24h).toLocaleString()}</td>
+                <td className="hidden sm:table-cell px-4 py-4 text-right min-w-[120px]">${parseFloat(coin.low_24h).toLocaleString()}</td>
+                <td className="hidden md:table-cell px-4 py-4 text-right min-w-[150px]">
                   {coin.global_volume ? `$${parseFloat(coin.global_volume).toLocaleString()}` : '—'}
                 </td>
-                <td className="hidden lg:table-cell px-4 py-3 text-right">
+                <td className="hidden lg:table-cell px-4 py-4 text-right">
                   {coin.market_cap ? `$${parseFloat(coin.market_cap).toLocaleString()}` : '—'}
                 </td>
               </tr>
