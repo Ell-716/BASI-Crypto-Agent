@@ -68,12 +68,13 @@ function CoinPage() {
         {/* Left: Coin Info */}
         <div className="lg:w-[30%] space-y-6">
           <div className="flex items-center gap-2">
-            <img src={coinStatic.image} alt={coinStatic.coin_name} className="w-8 h-8" />
-            <span className="font-bold">{coinStatic.coin_name}</span>
-            <span className="text-gray-500 dark:text-gray-400">{coinStatic.symbol}</span>
-            <span className="text-gray-500 dark:text-gray-400">Price</span>
+            <img src={coinStatic.image} alt={coinStatic.coin_name} className="w-10 h-10 object-contain" />
+            <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-bold">{coinStatic.coin_name}</span>
+                <span className="text-gray-500 dark:text-gray-400">{coinStatic.symbol.toUpperCase()}</span>
+                <span className="text-gray-500 dark:text-gray-400">Price</span>
+            </div>
           </div>
-
           {/* Live Price */}
           <p className="text-5xl font-bold text-gray-900 dark:text-white mt-">
             ${Number(liveCoin.current_price).toFixed(2).toLocaleString()}
