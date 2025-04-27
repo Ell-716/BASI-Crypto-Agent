@@ -7,7 +7,8 @@ const About = () => {
         <p className="text-lg mb-6">
           <strong>₿A$I (Blockchain AI Smart Investor)</strong> is your personal AI Agent for the world of crypto trading.
           It’s designed to help you make smarter decisions by giving you real-time insights, AI-powered predictions,
-          and clear charts of the most important market indicators.
+          and clear charts of the most important market indicators. ₿A$I acts like a smart crypto analyst who watches the market,
+          thinks about it, and then explains it to you in simple, clear terms.
         </p>
 
         <p className="text-lg font-semibold mb-2 text-left">
