@@ -72,7 +72,7 @@ const AIPredictions = () => {
           <select
             value={coin}
             onChange={(e) => setCoin(e.target.value)}
-            className="border rounded-md w-46 px-3 py-3 sm:py-2 bg-white text-gray-800 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
+            className="rounded-md border border-gray-200 dark:border-gray-700 shadow-sm w-46 px-3 py-4 sm:py-2 bg-white text-gray-800 dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-600"
           >
             <option value="">Select a coin</option>
             {coinList.map((c) => (
@@ -91,8 +91,8 @@ const AIPredictions = () => {
               onClick={() => setTimeframe(tf)}
               className={`px-4 py-2 rounded-md border ${
                 timeframe === tf
-                  ? "bg-blue-600 text-white"
-                  : "bg-white dark:bg-gray-800 dark:text-gray-100"
+                  ? "bg-blue-600 text-white border border-gray-200 dark:border-gray-700 rounded-md border"
+                  : "rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-4 bg-white dark:bg-gray-800"
               }`}
             >
               {tf}
@@ -108,8 +108,8 @@ const AIPredictions = () => {
               onClick={() => setOutputStyle(style)}
               className={`px-4 py-2 rounded-md border ${
                 outputStyle === style
-                  ? "bg-blue-600 text-white"
-                  : "bg-white dark:bg-gray-800 dark:text-gray-100"
+                  ? "bg-blue-600 text-white border border-gray-200 dark:border-gray-700 rounded-md border"
+                  : "rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-4 bg-white dark:bg-gray-800"
               }`}
             >
               {style}

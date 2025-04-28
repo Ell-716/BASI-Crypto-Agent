@@ -1,7 +1,7 @@
 const About = () => {
   return (
     <div className="flex justify-center items-center min-h-screen p-4">
-      <div className="max-w-3xl w-full border border-gray-300 rounded-2xl p-8 shadow-sm bg-white dark:bg-black animate-fade-up">
+      <div className="max-w-3xl w-full rounded-md border border-gray-200 dark:border-gray-700 p-8 shadow-sm bg-white dark:bg-gray-800 animate-fade-up">
         <h1 className="text-3xl font-bold text-center text-blue-600 mb-8">About ₿A$I</h1>
 
         <p className="text-lg mb-6">
@@ -38,7 +38,7 @@ const About = () => {
           <li>Stay updated with a live dashboard designed for quick and easy use</li>
         </ul>
 
-        <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-md text-center text-sm mb-6">
+        <div className="bg-gray-100 dark:bg-gray-600 p-4 rounded-md text-center text-sm mb-6">
           <p><strong>Important:</strong> ₿A$I is an informational and educational tool.<br/>
           It does not provide financial advice or trading recommendations.</p>
         </div>

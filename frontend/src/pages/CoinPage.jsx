@@ -81,25 +81,25 @@ function CoinPage() {
           </p>
 
           <div className="space-y-3">
-            <div className="flex justify-between bg-white border p-3 rounded-md text-black">
+            <div className="flex justify-between rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-3 bg-white dark:bg-gray-800">
               <span className="font-bold">Market Cap:</span>
               <span>
                 {liveCoin.market_cap ? `$${Number(liveCoin.market_cap).toLocaleString()}` : '—'}
               </span>
             </div>
-            <div className="flex justify-between bg-white border p-3 rounded-md text-black">
+            <div className="flex justify-between rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-3 bg-white dark:bg-gray-800">
               <span className="font-bold">24h Volume:</span>
               <span>
                 {liveCoin.global_volume ? `$${Number(liveCoin.global_volume).toLocaleString()}` : '—'}
               </span>
             </div>
-            <div className="flex justify-between bg-white border p-3 rounded-md text-black">
+            <div className="flex justify-between rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-3 bg-white dark:bg-gray-800">
               <span className="font-bold">24h High:</span>
               <span>
                 ${Number(liveCoin.high_24h).toFixed(2).toLocaleString()}
               </span>
             </div>
-            <div className="flex justify-between bg-white border p-3 rounded-md text-black">
+            <div className="flex justify-between rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-3 bg-white dark:bg-gray-800">
               <span className="font-bold">24h Low:</span>
               <span>
                 ${Number(liveCoin.low_24h).toFixed(2).toLocaleString()}
@@ -107,7 +107,7 @@ function CoinPage() {
             </div>
             {/* Sparkline inside same block */}
             {sparklineData.length > 0 && (
-              <div className="bg-white border p-3 rounded-md">
+              <div className="flex justify-between rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-3 bg-white dark:bg-gray-800">
                 <SparklineChart data={sparklineData} />
               </div>
             )}
@@ -124,9 +124,9 @@ function CoinPage() {
       </div>
 
       {/* About Section */}
-      <div className="mt-10 bg-white border p-6 rounded-md">
+      <div className="mt-10 rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-3 bg-white dark:bg-gray-800">
         <h2 className="text-2xl font-bold text-blue-600 mb-4">About {coinStatic.coin_name}</h2>
-        <p className="text-black whitespace-pre-line">{coinStatic.description}</p>
+        <p className="text-gray-900 dark:text-white mt-">{coinStatic.description}</p>
       </div>
     </div>
   );

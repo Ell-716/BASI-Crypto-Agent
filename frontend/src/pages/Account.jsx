@@ -121,7 +121,7 @@ export default function Account() {
               <strong>Username: </strong>
               {editingUsername ? (
                 <>
-                  <input value={newUsername} onChange={(e) => setNewUsername(e.target.value)} className="border px-2 ml-2 rounded-sm" />
+                  <input value={newUsername} onChange={(e) => setNewUsername(e.target.value)} className="px-2 ml-2 rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-1 bg-white dark:bg-gray-800 focus:outline-none focus:ring-1 focus:ring-blue-600" />
                   <button onClick={handleUsernameUpdate} className="ml-2 text-blue-600 hover:underline">Save</button>
                   <button onClick={() => setEditingUsername(false)} className="ml-2 text-gray-500 hover:underline">Cancel</button>
                 </>

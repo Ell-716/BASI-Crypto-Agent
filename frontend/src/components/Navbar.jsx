@@ -112,7 +112,7 @@ const Navbar = () => {
                 placeholder={window.innerWidth < 768 ? "Search..." : "Search..."}
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="h-8 sm:h-9 w-24 sm:w-32 md:w-40 lg:w-48 xl:w-56 pl-8 pr-2 rounded-md border border-gray-300 dark:border-gray-600 text-xs sm:text-sm bg-white dark:bg-gray-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="h-8 sm:h-9 w-24 sm:w-32 md:w-40 lg:w-48 xl:w-56 pl-8 pr-2 rounded-md border border-gray-300 dark:border-gray-600 text-xs sm:text-sm bg-white dark:bg-gray-800 focus:outline-none focus:ring-1 focus:ring-blue-600"
               />
 
               {/* Search dropdown */}
@@ -122,7 +122,7 @@ const Navbar = () => {
                     <div
                       key={coin.coin_symbol}
                       onClick={() => handleSelectCoin(coin.coin_symbol)}
-                      className="px-3 py-1.5 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 text-xs sm:text-sm"
+                      className="px-3 py-1.5 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 text-xs sm:text-sm"
                     >
                       {coin.coin_name} ({coin.coin_symbol.toUpperCase()})
                     </div>
@@ -137,7 +137,7 @@ const Navbar = () => {
             <>
               <Link
                 to="/account"
-                className="hidden sm:flex h-8 w-8 md:h-9 md:w-9 rounded-full border-2 border-blue-600 bg-white dark:bg-gray-800 items-center justify-center hover:bg-blue-50 dark:hover:bg-blue-900"
+                className="hidden sm:flex h-8 w-8 md:h-9 md:w-9 rounded-full border-2 border-blue-600 bg-white dark:bg-gray-800 items-center justify-center hover:bg-gray-100 dark:hover:bg-blue-900"
               >
                 <User className="w-4 h-4 md:w-5 md:h-5 text-blue-600 dark:text-blue-400" />
               </Link>
