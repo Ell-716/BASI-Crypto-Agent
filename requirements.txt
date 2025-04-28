@@ -1,0 +1,14 @@
+Flask==3.1.0
+flask-cors==5.0.1
+Flask-JWT-Extended==4.7.1
+Flask-Mail==0.10.0
+Flask-SocketIO==5.5.1
+Flask-SQLAlchemy==3.1.1
+groq==0.18.0
+matplotlib==3.10.1
+numpy==2.2.3
+pandas==2.2.3
+pandas_ta==0.3.14b0
+python-dotenv==1.0.1
+requests==2.32.3
+SQLAlchemy==2.0.37
