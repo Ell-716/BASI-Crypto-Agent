@@ -98,7 +98,6 @@ def get_history(coin_id):
         '1h': timedelta(hours=1),
         '1d': timedelta(days=1),
         '1w': timedelta(weeks=1),
-        '1m': timedelta(days=30)
     }
 
     if interval not in time_deltas:
