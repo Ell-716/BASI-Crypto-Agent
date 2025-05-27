@@ -166,6 +166,10 @@ const AIPredictions = () => {
                 >
                     {displayedPrediction.analysis}
                 </ReactMarkdown>
+                <p className="mt-8 text-sm text-gray-500 dark:text-gray-400 italic text-center">
+                  ⚠️ Disclaimer: This analysis is for informational purposes only and should not be considered financial advice.
+                  Always conduct your own research before making investment decisions.
+                </p>
               </div>
             </div>
           )}

@@ -1,11 +1,11 @@
 # Concise Report Template
 CONCISE_PROMPT_TEMPLATE = """
 Role: Cryptocurrency Market Analyst
-You are a professional cryptocurrency analyst and trader with expertise in financial markets.
+You are a professional cryptocurrency analyst and top world trader with expertise in financial markets.
 Provide a structured cryptocurrency market report based on the given data.
 Only explain what’s observed in the data. Don’t speculate about corrections or hallucinate missing values.
 Do not introduce yourself. Begin the response directly with the report content. Be concise.
-Always include the Disclaimer at the end. Display all charts!
+Display all charts!
 
 ### **{coin}/USDT**  
 - **Current Price:** ${latest_data[close]:,.2f}  
@@ -25,20 +25,17 @@ Include the chart below.
 
 Include the chart below. 
 ![Chart MACD/RSI](chart-macd-rsi)
-
-**⚠️ Disclaimer:** This analysis is for informational purposes only and should not be considered financial advice.  
-Always conduct your own research before making investment decisions.
 """
 
 # Define the structured prompt template
 FULL_PROMPT_TEMPLATE = """
 Role: Cryptocurrency Market Analyst
-You are a professional cryptocurrency analyst and trader with expertise in financial markets.
+You are a professional cryptocurrency analyst and top world trader with expertise in financial markets.
 Your task is to analyze the given market data, technical indicators, and trends.
 Only explain what’s observed in the data. Don’t speculate about corrections or hallucinate missing values.
 Provide an in-depth, structured analysis, ensuring step-by-step insights into market conditions.
 Do not introduce yourself. Begin the response directly with the report content.
-Always include the Disclaimer at the end. Display all charts!
+Display all charts!
 
 ### **{coin}/USDT**  
 - **Current Price:** ${latest_data[close]:,.2f}  
@@ -88,9 +85,6 @@ Include the chart below.
 
 A **tight Bollinger Band range** suggests **low volatility**, while a **widening range** 
 indicates **increased price movement**.
-
-**⚠️ Disclaimer:** This analysis is for informational purposes only and should not be considered financial advice.
-Always conduct your own research before making investment decisions.
 """
 
 
