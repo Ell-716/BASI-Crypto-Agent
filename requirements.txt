@@ -11,5 +11,5 @@ numpy==2.2.3
 pandas==2.2.3
 pandas_ta==0.3.14b0
 python-dotenv==1.0.1
-requests==2.32.3
+requests==2.32.4
 SQLAlchemy==2.0.37
