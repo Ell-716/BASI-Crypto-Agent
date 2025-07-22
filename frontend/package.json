@@ -17,6 +17,7 @@
     "@tailwindcss/typography": "^0.5.16",
     "axios": "^1.8.4",
     "brace-expansion": "^2.0.2",
+    "form-data": "^4.0.4",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.503.0",
     "react": "^19.1.0",
