@@ -3,7 +3,7 @@ Flask-Bcrypt==1.0.1
 flask-cors==6.0.0
 Flask-JWT-Extended==4.7.1
 Flask-Mail==0.10.0
-Flask-SocketIO==5.5.1
+Flask-SocketIO==5.6.1
 Flask-SQLAlchemy==3.1.1
 groq==0.18.0
 matplotlib==3.10.1
