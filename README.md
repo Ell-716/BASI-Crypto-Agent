@@ -44,24 +44,37 @@
 git clone https://github.com/Ell-716/BASI-Crypto-Agent.git
 cd BASI-Crypto-Agent
 ```
+
 2. **Backend Setup**
 ```bash
-cd backend
-python3 -m venv venv
-source venv/bin/activate
+# Create virtual environment (if not already present)
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
-flask run
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env and add your actual API keys and credentials
 ```
-3. **Frontend Setup**
+
+3. **Start the Backend Server**
+```bash
+python app.py
+```
+
+4. **Frontend Setup**
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-4. **Set up Cron Jobs**
+
+5. **Set up Cron Jobs (Optional)**
 ```bash
-# Example (run every hour)
-0 * * * * /path/to/venv/bin/python /path/to/project/backend/instance/cron_update.py
+# Example: Run every hour to update market data
+0 * * * * /path/to/BASI-Crypto-Agent/.venv/bin/python /path/to/BASI-Crypto-Agent/backend/cron_update.py
 ```
 
 ## 📈 Future Roadmap
