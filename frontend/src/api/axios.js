@@ -38,8 +38,7 @@ api.interceptors.response.use(
 
         return api(originalRequest); // Retry the original request
       } catch (err) {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
+        localStorage.clear();
         window.location.href = '/login';
         return Promise.reject(err);
       }

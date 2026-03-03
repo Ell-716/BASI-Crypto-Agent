@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 load_dotenv()
 
@@ -10,6 +11,8 @@ class Config:
     # Common configuration settings
     SECRET_KEY = os.getenv('SECRET_KEY', 'default_secret')
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'default_jwt_secret')
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 587
