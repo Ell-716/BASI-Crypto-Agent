@@ -157,7 +157,7 @@ def get_user(user_id):
     if current_user_id != user_id:
         return jsonify({"error": "Unauthorized"}), 403
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
@@ -177,7 +177,7 @@ def update_user(user_id):
     if current_user_id != user_id:
         return jsonify({"error": "Unauthorized"}), 403
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
@@ -191,12 +191,12 @@ def update_user(user_id):
 
     try:
         for coin_id in add_coins:
-            coin = Coin.query.get(coin_id)
+            coin = db.session.get(Coin, coin_id)
             if coin and coin not in user.favorite_coins:
                 user.favorite_coins.append(coin)
 
         for coin_id in remove_coins:
-            coin = Coin.query.get(coin_id)
+            coin = db.session.get(Coin, coin_id)
             if coin and coin in user.favorite_coins:
                 user.favorite_coins.remove(coin)
 
@@ -222,7 +222,7 @@ def delete_user(user_id):
     if current_user_id != user_id:
         return jsonify({"error": "Unauthorized"}), 403
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
