@@ -5,6 +5,7 @@ from flask_cors import CORS
 from flask_socketio import SocketIO
 from backend.config import config
 from backend.app.models import db
+from backend.app.extensions import limiter
 from backend.app.routes.users import users_bp
 from backend.app.routes.coins import coins_bp
 from backend.app.routes.predictions import predictions_bp
@@ -35,6 +36,7 @@ def create_app(config_name='development'):
     start_coin_stream(socketio, app)
     register_emit_route(app)
     mail.init_app(app)
+    limiter.init_app(app)
 
     #with app.app_context():  # Run once to create the db tables
         #db.create_all()

@@ -8,6 +8,7 @@ from backend.app.utils.email_verification import generate_verification_token, co
 from backend.app.utils.email_verification import send_verification_email
 from backend.app.utils.password_reset import generate_password_reset_token, confirm_password_reset_token
 from backend.app.utils.email_verification import send_password_reset_email
+from backend.app.extensions import limiter
 
 
 logging.basicConfig(level=logging.INFO)
@@ -17,6 +18,7 @@ users_bp = Blueprint('users', __name__, url_prefix='/users')
 
 # Register a new user
 @users_bp.route('/add_user', methods=['POST'])
+@limiter.limit("5 per minute")
 def add_user():
     data = request.get_json()
     email = data.get('email')
@@ -57,9 +59,16 @@ def add_user():
         logging.error(f"Database error: {e}")
         return jsonify({"error": "Database error. Please try again."}), 500
 
-    token = generate_verification_token(email)
-    verify_url = f"http://localhost:5050/users/verify?token={token}"
-    send_verification_email(email, verify_url)
+    try:
+        token = generate_verification_token(email)
+        verify_url = f"http://localhost:5050/users/verify?token={token}"
+        send_verification_email(email, verify_url)
+    except Exception as mail_error:
+        logging.error(f"Failed to send verification email to {email}: {mail_error}")
+        # User is created successfully, mail failure is non-fatal
+        return jsonify({
+            "message": "Registration successful! We couldn't send the verification email right now — please use the resend option."
+        }), 201
 
     return jsonify({"message": "Registration successful! Please verify your email to activate your account."}), 201
 
@@ -86,8 +95,35 @@ def verify_email():
     return render_template("verified.html", message="Email verified successfully")
 
 
+@users_bp.route('/resend-verification', methods=['POST'])
+@limiter.limit("3 per minute")
+def resend_verification():
+    data = request.get_json()
+    email = data.get('email')
+
+    if not email:
+        return jsonify({"error": "Missing email"}), 400
+
+    user = User.query.filter_by(email=email).first()
+
+    # Always return the same message for security (don't reveal if email exists)
+    if not user or user.is_verified:
+        return jsonify({"message": "If that email exists and is unverified, a new link was sent."}), 200
+
+    try:
+        token = generate_verification_token(email)
+        verify_url = f"http://localhost:5050/users/verify?token={token}"
+        send_verification_email(email, verify_url)
+    except Exception as mail_error:
+        logging.error(f"Failed to resend verification email to {email}: {mail_error}")
+        return jsonify({"error": "Failed to send email. Please try again later."}), 500
+
+    return jsonify({"message": "If that email exists and is unverified, a new link was sent."}), 200
+
+
 # Login route - issue both access and refresh tokens
 @users_bp.route('/login', methods=['POST'])
+@limiter.limit("10 per minute")
 def login():
     data = request.get_json()
     email = data.get('email')
@@ -125,7 +161,7 @@ def get_user(user_id):
     if current_user_id != user_id:
         return jsonify({"error": "Unauthorized"}), 403
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
@@ -145,7 +181,7 @@ def update_user(user_id):
     if current_user_id != user_id:
         return jsonify({"error": "Unauthorized"}), 403
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
@@ -159,12 +195,12 @@ def update_user(user_id):
 
     try:
         for coin_id in add_coins:
-            coin = Coin.query.get(coin_id)
+            coin = db.session.get(Coin, coin_id)
             if coin and coin not in user.favorite_coins:
                 user.favorite_coins.append(coin)
 
         for coin_id in remove_coins:
-            coin = Coin.query.get(coin_id)
+            coin = db.session.get(Coin, coin_id)
             if coin and coin in user.favorite_coins:
                 user.favorite_coins.remove(coin)
 
@@ -190,7 +226,7 @@ def delete_user(user_id):
     if current_user_id != user_id:
         return jsonify({"error": "Unauthorized"}), 403
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
@@ -206,6 +242,7 @@ def delete_user(user_id):
 
 
 @users_bp.route('/request-password-reset', methods=['POST'])
+@limiter.limit("3 per minute")
 def request_password_reset():
     data = request.get_json()
     email = data.get('email')

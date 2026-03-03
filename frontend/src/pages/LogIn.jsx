@@ -12,10 +12,15 @@ export default function LogIn() {
   const [resetOpen, setResetOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetMessage, setResetMessage] = useState('');
+  const [resendOpen, setResendOpen] = useState(false);
+  const [resendEmail, setResendEmail] = useState('');
+  const [resendMessage, setResendMessage] = useState('');
+  const [showResendLink, setShowResendLink] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
+    setShowResendLink(false);
     try {
       const res = await axios.post('http://localhost:5050/users/login', {
         email,
@@ -32,6 +37,10 @@ export default function LogIn() {
 
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed');
+      // Show resend link if email not verified (403)
+      if (err.response?.status === 403) {
+        setShowResendLink(true);
+      }
     }
   };
 
@@ -52,6 +61,26 @@ export default function LogIn() {
 
     } catch (err) {
       setResetMessage('Something went wrong.');
+    }
+  };
+
+  const handleResend = async (e) => {
+    e.preventDefault();
+    setResendMessage('');
+    try {
+      const res = await axios.post('http://localhost:5050/users/resend-verification', {
+        email: resendEmail
+      });
+      setResendMessage(res.data.message);
+
+      setTimeout(() => {
+          setResendOpen(false);
+          setResendEmail('');
+          setResendMessage('');
+      }, 2000);
+
+    } catch (err) {
+      setResendMessage(err.response?.data?.error || 'Something went wrong.');
     }
   };
 
@@ -113,10 +142,15 @@ export default function LogIn() {
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </div>
             </div>
-            <div className="text-right text-sm">
-              <button type="button" className="text-blue-600 hover:underline" onClick={() => setResetOpen(true)}>
+            <div className="text-right text-sm space-y-1">
+              <button type="button" className="text-blue-600 hover:underline block" onClick={() => setResetOpen(true)}>
                 Forgot password?
               </button>
+              {showResendLink && (
+                <button type="button" className="text-blue-600 hover:underline block" onClick={() => setResendOpen(true)}>
+                  Resend verification email
+                </button>
+              )}
             </div>
             <button
               type="submit"
@@ -159,6 +193,36 @@ export default function LogIn() {
                 Cancel
               </button>
               {resetMessage && <p className="text-sm text-green-600 mt-2">{resetMessage}</p>}
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Resend Verification Modal */}
+      {resendOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-xl w-80 shadow-md text-center">
+            <h3 className="text-xl font-bold mb-4 text-gray-900">Resend Verification Email</h3>
+            <form onSubmit={handleResend} className="space-y-4">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={resendEmail}
+                onChange={(e) => setResendEmail(e.target.value)}
+                required
+                className="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-600 bg-white"
+              />
+              <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">
+                Resend Link
+              </button>
+              <button
+                type="button"
+                onClick={() => setResendOpen(false)}
+                className="text-sm text-gray-600 hover:underline mt-2"
+              >
+                Cancel
+              </button>
+              {resendMessage && <p className="text-sm text-green-600 mt-2">{resendMessage}</p>}
             </form>
           </div>
         </div>

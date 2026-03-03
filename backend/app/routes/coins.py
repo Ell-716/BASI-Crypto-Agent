@@ -74,7 +74,7 @@ def get_all_coins():
 
 @coins_bp.route('/coins/<int:coin_id>', methods=['GET'])
 def get_coin(coin_id):
-    coin = Coin.query.get(coin_id)
+    coin = db.session.get(Coin, coin_id)
     if not coin:
         return jsonify({"message": "Coin not found"}), 404
     return jsonify({
@@ -133,7 +133,7 @@ def get_history(coin_id):
 
 @coins_bp.route('coins/<int:coin_id>', methods=['PUT'])
 def update_coin(coin_id):
-    coin = Coin.query.get(coin_id)
+    coin = db.session.get(Coin, coin_id)
     if not coin:
         return jsonify({"message": "Coin not found"}), 404
 
@@ -151,7 +151,7 @@ def update_coin(coin_id):
 
 @coins_bp.route('/coins/<int:coin_id>', methods=['DELETE'])
 def delete_coin(coin_id):
-    coin = Coin.query.get(coin_id)
+    coin = db.session.get(Coin, coin_id)
     if not coin:
         return jsonify({"message": "Coin not found"}), 404
 
