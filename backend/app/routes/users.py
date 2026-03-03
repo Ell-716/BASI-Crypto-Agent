@@ -8,6 +8,7 @@ from backend.app.utils.email_verification import generate_verification_token, co
 from backend.app.utils.email_verification import send_verification_email
 from backend.app.utils.password_reset import generate_password_reset_token, confirm_password_reset_token
 from backend.app.utils.email_verification import send_password_reset_email
+from backend.app import limiter
 
 
 logging.basicConfig(level=logging.INFO)
@@ -17,6 +18,7 @@ users_bp = Blueprint('users', __name__, url_prefix='/users')
 
 # Register a new user
 @users_bp.route('/add_user', methods=['POST'])
+@limiter.limit("5 per minute")
 def add_user():
     data = request.get_json()
     email = data.get('email')
@@ -94,6 +96,7 @@ def verify_email():
 
 
 @users_bp.route('/resend-verification', methods=['POST'])
+@limiter.limit("3 per minute")
 def resend_verification():
     data = request.get_json()
     email = data.get('email')
@@ -120,6 +123,7 @@ def resend_verification():
 
 # Login route - issue both access and refresh tokens
 @users_bp.route('/login', methods=['POST'])
+@limiter.limit("10 per minute")
 def login():
     data = request.get_json()
     email = data.get('email')
@@ -238,6 +242,7 @@ def delete_user(user_id):
 
 
 @users_bp.route('/request-password-reset', methods=['POST'])
+@limiter.limit("3 per minute")
 def request_password_reset():
     data = request.get_json()
     email = data.get('email')

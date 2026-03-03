@@ -12,11 +12,14 @@ from backend.app.routes.dashboard_routes import dashboard_bp
 from backend.app.utils.socket_tasks import start_coin_stream, register_socket_handlers, register_emit_route
 from backend.app.routes.chart_routes import chart_bp
 from flask_mail import Mail
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 
 socketio = SocketIO(cors_allowed_origins="*", async_mode="gevent")
 jwt = JWTManager()
 mail = Mail()
+limiter = Limiter(key_func=get_remote_address, default_limits=[])
 
 
 def create_app(config_name='development'):
@@ -35,6 +38,7 @@ def create_app(config_name='development'):
     start_coin_stream(socketio, app)
     register_emit_route(app)
     mail.init_app(app)
+    limiter.init_app(app)
 
     #with app.app_context():  # Run once to create the db tables
         #db.create_all()

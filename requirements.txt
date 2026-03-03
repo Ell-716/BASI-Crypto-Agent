@@ -13,3 +13,4 @@ pandas_ta==0.3.14b0
 python-dotenv==1.0.1
 requests==2.32.4
 SQLAlchemy==2.0.37
+Flask-Limiter==4.1.1
