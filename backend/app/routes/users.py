@@ -93,6 +93,31 @@ def verify_email():
     return render_template("verified.html", message="Email verified successfully")
 
 
+@users_bp.route('/resend-verification', methods=['POST'])
+def resend_verification():
+    data = request.get_json()
+    email = data.get('email')
+
+    if not email:
+        return jsonify({"error": "Missing email"}), 400
+
+    user = User.query.filter_by(email=email).first()
+
+    # Always return the same message for security (don't reveal if email exists)
+    if not user or user.is_verified:
+        return jsonify({"message": "If that email exists and is unverified, a new link was sent."}), 200
+
+    try:
+        token = generate_verification_token(email)
+        verify_url = f"http://localhost:5050/users/verify?token={token}"
+        send_verification_email(email, verify_url)
+    except Exception as mail_error:
+        logging.error(f"Failed to resend verification email to {email}: {mail_error}")
+        return jsonify({"error": "Failed to send email. Please try again later."}), 500
+
+    return jsonify({"message": "If that email exists and is unverified, a new link was sent."}), 200
+
+
 # Login route - issue both access and refresh tokens
 @users_bp.route('/login', methods=['POST'])
 def login():
