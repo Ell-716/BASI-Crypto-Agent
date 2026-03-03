@@ -57,9 +57,16 @@ def add_user():
         logging.error(f"Database error: {e}")
         return jsonify({"error": "Database error. Please try again."}), 500
 
-    token = generate_verification_token(email)
-    verify_url = f"http://localhost:5050/users/verify?token={token}"
-    send_verification_email(email, verify_url)
+    try:
+        token = generate_verification_token(email)
+        verify_url = f"http://localhost:5050/users/verify?token={token}"
+        send_verification_email(email, verify_url)
+    except Exception as mail_error:
+        logging.error(f"Failed to send verification email to {email}: {mail_error}")
+        # User is created successfully, mail failure is non-fatal
+        return jsonify({
+            "message": "Registration successful! We couldn't send the verification email right now — please use the resend option."
+        }), 201
 
     return jsonify({"message": "Registration successful! Please verify your email to activate your account."}), 201
 
