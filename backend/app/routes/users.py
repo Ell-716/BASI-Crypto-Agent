@@ -8,7 +8,7 @@ from backend.app.utils.email_verification import generate_verification_token, co
 from backend.app.utils.email_verification import send_verification_email
 from backend.app.utils.password_reset import generate_password_reset_token, confirm_password_reset_token
 from backend.app.utils.email_verification import send_password_reset_email
-from backend.app import limiter
+from backend.app.extensions import limiter
 
 
 logging.basicConfig(level=logging.INFO)

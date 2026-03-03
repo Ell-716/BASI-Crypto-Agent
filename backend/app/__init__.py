@@ -5,6 +5,7 @@ from flask_cors import CORS
 from flask_socketio import SocketIO
 from backend.config import config
 from backend.app.models import db
+from backend.app.extensions import limiter
 from backend.app.routes.users import users_bp
 from backend.app.routes.coins import coins_bp
 from backend.app.routes.predictions import predictions_bp
@@ -12,14 +13,11 @@ from backend.app.routes.dashboard_routes import dashboard_bp
 from backend.app.utils.socket_tasks import start_coin_stream, register_socket_handlers, register_emit_route
 from backend.app.routes.chart_routes import chart_bp
 from flask_mail import Mail
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
 
 
 socketio = SocketIO(cors_allowed_origins="*", async_mode="gevent")
 jwt = JWTManager()
 mail = Mail()
-limiter = Limiter(key_func=get_remote_address, default_limits=[])
 
 
 def create_app(config_name='development'):
