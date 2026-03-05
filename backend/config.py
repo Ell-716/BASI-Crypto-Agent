@@ -34,6 +34,7 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.path.join(basedir, 'instance', 'crypto_agent_test.db')}"
+    RATELIMIT_ENABLED = False
 
 
 class ProductionConfig(Config):
