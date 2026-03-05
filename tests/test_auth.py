@@ -217,19 +217,3 @@ class TestTokenRefresh:
     def test_refresh_no_token(self, client):
         res = client.post('/users/refresh')
         assert res.status_code == 401
-
-
-class TestRateLimiting:
-    # Rate limiting is disabled in tests, so this test is skipped
-    @pytest.mark.skip(reason="Rate limiting is disabled in test environment")
-    def test_login_rate_limited(self, client):
-        for _ in range(10):
-            client.post('/users/login', json={
-                'email': 'test@example.com',
-                'password': 'wrong'
-            })
-        res = client.post('/users/login', json={
-            'email': 'test@example.com',
-            'password': 'wrong'
-        })
-        assert res.status_code == 429
