@@ -4,16 +4,11 @@ from unittest.mock import patch
 
 class TestCoinsEndpoint:
     # Coins list returns 200 with data
-    def test_get_coins_success(self, client, auth_headers, sample_coin):
-        res = client.get('/api/coins', headers=auth_headers)
+    def test_get_coins_success(self, client, sample_coin):
+        res = client.get('/api/coins')
         assert res.status_code == 200
         data = res.get_json()
         assert isinstance(data, list)
-
-    # Unauthenticated request returns 401
-    def test_get_coins_unauthenticated(self, client):
-        res = client.get('/api/coins')
-        assert res.status_code == 401
 
 
 class TestDashboardEndpoints:

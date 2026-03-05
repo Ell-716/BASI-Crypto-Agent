@@ -13,6 +13,7 @@ def app():
         'JWT_ACCESS_TOKEN_EXPIRES': False,  # disable expiry in tests
         'MAIL_SUPPRESS_SEND': True,         # suppress all emails
         'WTF_CSRF_ENABLED': False,
+        'RATELIMIT_ENABLED': False,         # disable rate limiting in tests
     })
     with app.app_context():
         _db.create_all()
