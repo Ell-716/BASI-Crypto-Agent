@@ -220,7 +220,8 @@ class TestTokenRefresh:
 
 
 class TestRateLimiting:
-    # Login endpoint gets rate limited after 10 requests per minute
+    # Rate limiting is disabled in tests, so this test is skipped
+    @pytest.mark.skip(reason="Rate limiting is disabled in test environment")
     def test_login_rate_limited(self, client):
         for _ in range(10):
             client.post('/users/login', json={

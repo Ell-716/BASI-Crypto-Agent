@@ -13,5 +13,8 @@ def get_prediction():
     if not coin:
         return jsonify({"error": "Coin parameter is required"}), 400
 
-    result = analyze_with_llm(coin, timeframe, report_type)
-    return jsonify(result)
+    try:
+        result = analyze_with_llm(coin, timeframe, report_type)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": f"Prediction failed: {str(e)}"}), 500
