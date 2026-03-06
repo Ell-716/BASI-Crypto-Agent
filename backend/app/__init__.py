@@ -3,6 +3,7 @@ import os
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from flask_socketio import SocketIO
+from flask_migrate import Migrate
 from backend.config import config
 from backend.app.models import db
 from backend.app.extensions import limiter
@@ -18,6 +19,7 @@ from flask_mail import Mail
 socketio = SocketIO(cors_allowed_origins="*", async_mode="gevent")
 jwt = JWTManager()
 mail = Mail()
+migrate = Migrate()
 
 
 def create_app(config_name='development'):
@@ -30,6 +32,7 @@ def create_app(config_name='development'):
     CORS(app, supports_credentials=True, resources={r"/*": {"origins": "*"}})
 
     db.init_app(app)
+    migrate.init_app(app, db)
     jwt.init_app(app)
     socketio.init_app(app)
     register_socket_handlers(socketio, app)
@@ -37,9 +40,6 @@ def create_app(config_name='development'):
     register_emit_route(app)
     mail.init_app(app)
     limiter.init_app(app)
-
-    #with app.app_context():  # Run once to create the db tables
-        #db.create_all()
 
     # Register Blueprints
     app.register_blueprint(users_bp)
