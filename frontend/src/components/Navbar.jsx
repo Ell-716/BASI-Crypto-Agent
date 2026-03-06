@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { jwtDecode } from 'jwt-decode';
 import { User, Search, Menu } from 'lucide-react';
+import api from '@/api/axios';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -29,14 +30,9 @@ const Navbar = () => {
   useEffect(() => {
     const fetchCoins = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/coins');
-        if (!response.ok) {
-          console.error('Failed to fetch coins for search');
-          return;
-        }
-        const data = await response.json();
+        const response = await api.get('/api/coins');
         // Map API response to the format expected by search
-        const mappedCoins = data.map(coin => ({
+        const mappedCoins = response.data.map(coin => ({
           coin_name: coin.name,
           coin_symbol: coin.symbol.toLowerCase()
         }));
