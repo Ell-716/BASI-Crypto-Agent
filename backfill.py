@@ -104,7 +104,7 @@ def seed_descriptions():
                 print(f"[Descriptions] ✅ Saved description for {coin_data['symbol']}")
 
                 # CoinGecko free tier allows ~30 req/min — be polite
-                time.sleep(2)
+                time.sleep(15)
 
             except Exception as e:
                 print(f"[Descriptions] Failed for {coin_data['symbol']}: {e}")
