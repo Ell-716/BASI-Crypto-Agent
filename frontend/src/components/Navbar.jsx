@@ -2,24 +2,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { jwtDecode } from 'jwt-decode';
 import { User, Search, Menu } from 'lucide-react';
-
-const TOP_10_COINS = [
-  { coin_name: "Bitcoin", coin_symbol: "btc" },
-  { coin_name: "Ethereum", coin_symbol: "eth" },
-  { coin_name: "Binance Coin", coin_symbol: "bnb" },
-  { coin_name: "XRP", coin_symbol: "xrp" },
-  { coin_name: "Solana", coin_symbol: "sol" },
-  { coin_name: "Cardano", coin_symbol: "ada" },
-  { coin_name: "Dogecoin", coin_symbol: "doge" },
-  { coin_name: "Avalanche", coin_symbol: "avax" },
-  { coin_name: "Polygon", coin_symbol: "matic" },
-  { coin_name: "Polkadot", coin_symbol: "dot" }
-];
+import api from '@/api/axios';
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [loggedIn, setLoggedIn] = useState(false);
-  const [coins] = useState(TOP_10_COINS);
+  const [coins, setCoins] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredCoins, setFilteredCoins] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -37,6 +25,24 @@ const Navbar = () => {
     } catch {
       setLoggedIn(false);
     }
+  }, []);
+
+  useEffect(() => {
+    const fetchCoins = async () => {
+      try {
+        const response = await api.get('/api/coins');
+        // Map API response to the format expected by search
+        const mappedCoins = response.data.map(coin => ({
+          coin_name: coin.name,
+          coin_symbol: coin.symbol.toLowerCase()
+        }));
+        setCoins(mappedCoins);
+      } catch (error) {
+        console.error('Error fetching coins:', error);
+      }
+    };
+
+    fetchCoins();
   }, []);
 
   const handleLogout = () => {

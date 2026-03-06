@@ -1,7 +1,8 @@
 import requests
 import time
 from backend.app.models import Coin, CoinSnapshot
-from backend.app.utils.coin_gecko import COINGECKO_API, COIN_SYMBOL_TO_ID
+from backend.app.utils.coin_gecko import COINGECKO_API
+from backend.app.constants import TOP_10_BINANCE_COINS, COIN_SYMBOL_TO_ID
 
 # Cache for CoinGecko market data
 _coingecko_cache = {
@@ -10,29 +11,6 @@ _coingecko_cache = {
 }
 
 BINANCE_BASE_URL = "https://api.binance.com"
-
-# Define the top 10 coins manually and use CoinGecko's CDN for images
-TOP_10_BINANCE_COINS = [
-    {"symbol": "BTCUSDT", "name": "Bitcoin",
-     "image": "https://assets.coingecko.com/coins/images/1/large/bitcoin.png"},
-    {"symbol": "ETHUSDT", "name": "Ethereum",
-     "image": "https://assets.coingecko.com/coins/images/279/large/ethereum.png"},
-    {"symbol": "BNBUSDT", "name": "BNB",
-     "image": "https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png"},
-    {"symbol": "SOLUSDT", "name": "Solana", "image": "https://assets.coingecko.com/coins/images/4128/large/solana.png"},
-    {"symbol": "XRPUSDT", "name": "XRP",
-     "image": "https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png"},
-    {"symbol": "ADAUSDT", "name": "Cardano",
-     "image": "https://assets.coingecko.com/coins/images/975/large/cardano.png"},
-    {"symbol": "AVAXUSDT", "name": "Avalanche",
-     "image": "https://assets.coingecko.com/coins/images/12559/large/coin-round-red.png"},
-    {"symbol": "DOGEUSDT", "name": "Dogecoin",
-     "image": "https://assets.coingecko.com/coins/images/5/large/dogecoin.png"},
-    {"symbol": "DOTUSDT", "name": "Polkadot",
-     "image": "https://assets.coingecko.com/coins/images/12171/large/polkadot.png"},
-    {"symbol": "LINKUSDT", "name": "Chainlink",
-     "image": "https://assets.coingecko.com/coins/images/877/large/chainlink-new-logo.png"},
-]
 
 
 def get_cached_coingecko_data():

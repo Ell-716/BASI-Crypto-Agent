@@ -1,20 +1,9 @@
 import requests
 from datetime import datetime, timezone
 from backend.app.models import db, Coin, CoinSnapshot
+from backend.app.constants import COIN_SYMBOL_TO_ID
 
 COINGECKO_API = "https://api.coingecko.com/api/v3/coins/markets"
-COIN_SYMBOL_TO_ID = {
-    "BTC": "bitcoin",
-    "ETH": "ethereum",
-    "BNB": "binancecoin",
-    "SOL": "solana",
-    "XRP": "ripple",
-    "ADA": "cardano",
-    "AVAX": "avalanche-2",
-    "DOGE": "dogecoin",
-    "DOT": "polkadot",
-    "LINK": "chainlink"
-}
 
 
 def update_coin_snapshots():
