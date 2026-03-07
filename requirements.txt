@@ -7,7 +7,7 @@ Flask-SocketIO==5.6.1
 Flask-SQLAlchemy==3.1.1
 groq==0.18.0
 matplotlib==3.10.1
-numpy==2.2.3
+numpy==2.2.6
 pandas==2.2.3
 pandas_ta==0.4.71b0
 python-dotenv==1.0.1
