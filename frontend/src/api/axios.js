@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5050',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5050',
 });
 
 // Add access token to all requests
@@ -25,7 +25,7 @@ api.interceptors.response.use(
 
       try {
         const refresh_token = localStorage.getItem('refresh_token');
-        const res = await axios.post('http://localhost:5050/users/refresh', {}, {
+        const res = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5050'}/users/refresh`, {}, {
           headers: {
             Authorization: `Bearer ${refresh_token}`,
           },

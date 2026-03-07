@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../api/axios';
 import { Eye, EyeOff } from 'lucide-react';
 
 export default function SignUp() {
@@ -45,7 +45,7 @@ export default function SignUp() {
     }
 
     try {
-      const res = await axios.post('http://localhost:5050/users/add_user', {
+      const res = await api.post('/users/add_user', {
         email: form.email,
         user_name: form.user_name,
         password: form.password

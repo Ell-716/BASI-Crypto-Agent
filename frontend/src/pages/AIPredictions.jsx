@@ -146,9 +146,9 @@ const AIPredictions = () => {
                         img: ({ alt, src }) => {
 
                             const chartUrls = {
-                                "chart-price": `http://localhost:5050/chart/price/${displayedPrediction._coin}?timeframe=${displayedPrediction._timeframe}`,
-                                "chart-macd-rsi": `http://localhost:5050/chart/macd-rsi/${displayedPrediction._coin}?timeframe=${displayedPrediction._timeframe}`,
-                                "chart-bollinger": `http://localhost:5050/chart/bollinger/${displayedPrediction._coin}?timeframe=${displayedPrediction._timeframe}`,
+                                "chart-price": `${import.meta.env.VITE_API_URL || 'http://localhost:5050'}/chart/price/${displayedPrediction._coin}?timeframe=${displayedPrediction._timeframe}`,
+                                "chart-macd-rsi": `${import.meta.env.VITE_API_URL || 'http://localhost:5050'}/chart/macd-rsi/${displayedPrediction._coin}?timeframe=${displayedPrediction._timeframe}`,
+                                "chart-bollinger": `${import.meta.env.VITE_API_URL || 'http://localhost:5050'}/chart/bollinger/${displayedPrediction._coin}?timeframe=${displayedPrediction._timeframe}`,
                             };
 
                             const chartUrl = chartUrls[src?.trim()];

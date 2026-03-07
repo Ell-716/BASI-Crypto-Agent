@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../api/axios';
 import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,7 +22,7 @@ export default function LogIn() {
     setError('');
     setShowResendLink(false);
     try {
-      const res = await axios.post('http://localhost:5050/users/login', {
+      const res = await api.post('/users/login', {
         email,
         password
       });
@@ -48,7 +48,7 @@ export default function LogIn() {
     e.preventDefault();
     setResetMessage('');
     try {
-      const res = await axios.post('http://localhost:5050/users/request-password-reset', {
+      const res = await api.post('/users/request-password-reset', {
         email: resetEmail
       });
       setResetMessage(res.data.message);
@@ -68,7 +68,7 @@ export default function LogIn() {
     e.preventDefault();
     setResendMessage('');
     try {
-      const res = await axios.post('http://localhost:5050/users/resend-verification', {
+      const res = await api.post('/users/resend-verification', {
         email: resendEmail
       });
       setResendMessage(res.data.message);

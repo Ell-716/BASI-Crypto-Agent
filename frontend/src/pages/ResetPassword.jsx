@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/axios';
 
 const checkPasswordStrength = (password) => ({
   length: password.length >= 8,
@@ -35,7 +35,7 @@ const ResetPassword = () => {
     }
 
     try {
-      const res = await axios.post('http://localhost:5050/users/reset-password', {
+      const res = await api.post('/users/reset-password', {
         token,
         new_password: newPassword
       });
