@@ -21,4 +21,4 @@ RUN mkdir -p backend/instance
 EXPOSE 5050
 
 # Run migrations then start the app
-CMD flask db upgrade && python app.py
+CMD ["sh", "-c", "flask db upgrade && python app.py"]
