@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+frontend/node_modules/
+frontend/dist/
+.env
+frontend/.env
+*.db
+.git/
+cron_log.txt

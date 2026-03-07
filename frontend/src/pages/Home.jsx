@@ -97,7 +97,7 @@ const Home = () => {
 
   // WebSocket for live updates
   useEffect(() => {
-    const socket = io("http://localhost:5050", {
+    const socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5050', {
       transports: ["websocket"],
       path: "/socket.io",
       forceNew: true,

@@ -1,0 +1,89 @@
+services:
+  # Flask backend — Docker-based web service
+  - type: web
+    name: basi-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: SECRET_KEY
+        sync: false
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_DEFAULT_SENDER
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: FLASK_APP
+        value: app.py
+
+  # React frontend — static site
+  - type: web
+    name: basi-frontend
+    runtime: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false
+      - key: VITE_SOCKET_URL
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  # Cron — historical data + technical indicators (every hour)
+  - type: cron
+    name: basi-cron-historical
+    runtime: python
+    schedule: "0 * * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python backend/cron_update.py
+    envVars:
+      - key: SECRET_KEY
+        sync: false
+      - key: JWT_SECRET_KEY
+        sync: false
+
+  # Cron — Fear & Greed Index (daily at 04:05)
+  - type: cron
+    name: basi-cron-fgi
+    runtime: python
+    schedule: "5 4 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python backend/cron_update_fgi.py
+    envVars:
+      - key: SECRET_KEY
+        sync: false
+      - key: JWT_SECRET_KEY
+        sync: false
+
+  # Cron — CoinGecko snapshots (daily at 02:00)
+  - type: cron
+    name: basi-cron-snapshot
+    runtime: python
+    schedule: "0 2 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python backend/cron_update_snapshot.py
+    envVars:
+      - key: SECRET_KEY
+        sync: false
+      - key: JWT_SECRET_KEY
+        sync: false
+
+  # Cron — top 24h volume (daily at 02:15)
+  - type: cron
+    name: basi-cron-top-volume
+    runtime: python
+    schedule: "15 2 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python backend/cron_update_top_volume.py
+    envVars:
+      - key: SECRET_KEY
+        sync: false
+      - key: JWT_SECRET_KEY
+        sync: false
