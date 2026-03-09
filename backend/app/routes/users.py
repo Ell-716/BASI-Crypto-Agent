@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, render_template
+from flask import Blueprint, request, jsonify, render_template, current_app
 from backend.app.models import db, User, Coin
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
@@ -61,7 +61,8 @@ def add_user():
 
     try:
         token = generate_verification_token(email)
-        verify_url = f"http://localhost:5050/users/verify?token={token}"
+        backend_url = current_app.config['BACKEND_URL']
+        verify_url = f"{backend_url}/users/verify?token={token}"
         send_verification_email(email, verify_url)
     except Exception as mail_error:
         logging.error(f"Failed to send verification email to {email}: {mail_error}")
@@ -112,7 +113,8 @@ def resend_verification():
 
     try:
         token = generate_verification_token(email)
-        verify_url = f"http://localhost:5050/users/verify?token={token}"
+        backend_url = current_app.config['BACKEND_URL']
+        verify_url = f"{backend_url}/users/verify?token={token}"
         send_verification_email(email, verify_url)
     except Exception as mail_error:
         logging.error(f"Failed to resend verification email to {email}: {mail_error}")
@@ -256,7 +258,8 @@ def request_password_reset():
         return jsonify({"message": "If that email exists, a reset link was sent."}), 200
 
     token = generate_password_reset_token(email)
-    reset_url = f"http://localhost:5173/reset-password?token={token}"
+    frontend_url = current_app.config['FRONTEND_URL']
+    reset_url = f"{frontend_url}/reset-password?token={token}"
 
     send_password_reset_email(email, reset_url)
 

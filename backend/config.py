@@ -15,6 +15,7 @@ class Config:
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     RESEND_API_KEY = os.getenv('RESEND_API_KEY')
+    BACKEND_URL = os.getenv('BACKEND_URL', 'http://localhost:5050')
     FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
 
     @staticmethod
