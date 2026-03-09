@@ -104,7 +104,7 @@ export default function SignUp() {
                 type="text"
                 placeholder="Username"
                 required
-                className="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full px-5 py-4 text-lg text-gray-900 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
               />
               {fieldErrors.user_name && <p className="text-red-600 text-sm mt-1">{fieldErrors.user_name}</p>}
             </div>
@@ -117,7 +117,7 @@ export default function SignUp() {
                 type="email"
                 placeholder="Email"
                 required
-                className="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full px-5 py-4 text-lg text-gray-900 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
               />
               {fieldErrors.email && <p className="text-red-600 text-sm mt-1">{fieldErrors.email}</p>}
             </div>
@@ -131,7 +131,7 @@ export default function SignUp() {
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Password"
                   required
-                  className="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl pr-12 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="w-full px-5 py-4 text-lg text-gray-900 border-2 border-gray-300 rounded-xl pr-12 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 />
                 <div
                   className="absolute inset-y-0 right-4 flex items-center cursor-pointer text-gray-500 hover:text-gray-700"
@@ -158,7 +158,7 @@ export default function SignUp() {
                 type="password"
                 placeholder="Confirm Password"
                 required
-                className="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full px-5 py-4 text-lg text-gray-900 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
               />
               {fieldErrors.confirmPassword && <p className="text-red-600 text-sm mt-1">{fieldErrors.confirmPassword}</p>}
             </div>
