@@ -1,5 +1,7 @@
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from flask import current_app
+import resend
+import os
 
 
 def generate_verification_token(email):
@@ -19,38 +21,34 @@ def confirm_verification_token(token, expiration=3600):
 
 
 def send_verification_email(email, verify_url):
-    from backend.app import mail
-    from flask_mail import Message
+    resend.api_key = current_app.config['RESEND_API_KEY']
 
-    msg = Message(
-        subject="Welcome to BASI - Verify your email",
-        recipients=[email],
-        body=(
-            "Hi there,\n\n"
-            "Thanks for signing up for BASI (Blockchain AI Smart Investor)!\n\n"
-            "Please confirm your email address by clicking the link below:\n\n"
-            f"{verify_url}\n\n"
-            "If you didn’t request this, just ignore this message.\n\n"
-            "Best,\n"
-            "The BASI Team"
+    resend.Emails.send({
+        "from": "BASI Crypto <onboarding@resend.dev>",
+        "to": email,
+        "subject": "Welcome to BASI - Verify your email",
+        "html": (
+            "<p>Hi there,</p>"
+            "<p>Thanks for signing up for BASI (Blockchain AI Smart Investor)!</p>"
+            f"<p>Please confirm your email address by clicking <a href='{verify_url}'>here</a>.</p>"
+            "<p>If you didn't request this, just ignore this message.</p>"
+            "<p>Best,<br>The BASI Team</p>"
         )
-    )
-    mail.send(msg)
+    })
 
 
 def send_password_reset_email(email, reset_url):
-    from backend.app import mail
-    from flask_mail import Message
+    resend.api_key = current_app.config['RESEND_API_KEY']
 
-    msg = Message(
-        subject="Reset your BASI password",
-        recipients=[email],
-        body=(
-            "Hi,\n\n"
-            "We received a request to reset your BASI account password.\n\n"
-            f"Click the link below to reset your password:\n\n{reset_url}\n\n"
-            "If you didn't request this, you can safely ignore this email.\n\n"
-            "Best,\nThe BASI Team"
+    resend.Emails.send({
+        "from": "BASI Crypto <onboarding@resend.dev>",
+        "to": email,
+        "subject": "Reset your BASI password",
+        "html": (
+            "<p>Hi,</p>"
+            "<p>We received a request to reset your BASI account password.</p>"
+            f"<p>Click <a href='{reset_url}'>here</a> to reset your password.</p>"
+            "<p>If you didn't request this, you can safely ignore this email.</p>"
+            "<p>Best,<br>The BASI Team</p>"
         )
-    )
-    mail.send(msg)
+    })
