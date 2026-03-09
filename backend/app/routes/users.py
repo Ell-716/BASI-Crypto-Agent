@@ -76,24 +76,25 @@ def add_user():
 
 @users_bp.route('/verify', methods=['GET'])
 def verify_email():
+    frontend_url = current_app.config['FRONTEND_URL']
     token = request.args.get('token')
     if not token:
-        return render_template("verified.html", message="Missing token")
+        return render_template("verified.html", message="Missing token", frontend_url=frontend_url)
 
     email = confirm_verification_token(token)
     if not email:
-        return render_template("verified.html", message="Invalid or expired token")
+        return render_template("verified.html", message="Invalid or expired token", frontend_url=frontend_url)
 
     user = User.query.filter_by(email=email).first()
     if not user:
-        return render_template("verified.html", message="User not found")
+        return render_template("verified.html", message="User not found", frontend_url=frontend_url)
 
     if user.is_verified:
-        return render_template("verified.html", message="Email already verified")
+        return render_template("verified.html", message="Email already verified", frontend_url=frontend_url)
 
     user.is_verified = True
     db.session.commit()
-    return render_template("verified.html", message="Email verified successfully")
+    return render_template("verified.html", message="Email verified successfully", frontend_url=frontend_url)
 
 
 @users_bp.route('/resend-verification', methods=['POST'])
