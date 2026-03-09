@@ -11,7 +11,6 @@ from backend.app.routes.users import users_bp
 from backend.app.routes.coins import coins_bp
 from backend.app.routes.predictions import predictions_bp
 from backend.app.routes.dashboard_routes import dashboard_bp
-from backend.app.routes.admin import admin_bp
 from backend.app.utils.socket_tasks import start_coin_stream, register_socket_handlers, register_emit_route
 from backend.app.routes.chart_routes import chart_bp
 
@@ -45,6 +44,5 @@ def create_app(config_name='development'):
     app.register_blueprint(predictions_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(chart_bp)
-    app.register_blueprint(admin_bp)
 
     return app
