@@ -1,6 +1,7 @@
 from backend.app import create_app
 from backend.app import socketio
 import os
+import time
 from datetime import datetime, timedelta, timezone
 
 config_name = os.getenv('FLASK_ENV', 'development')
@@ -21,6 +22,8 @@ with app.app_context():
             backfill_historical_data()
             seed_descriptions()
             print("[INIT] Backfill complete.")
+            # Wait to avoid CoinGecko rate limit (backfill calls seed_descriptions which hits CoinGecko)
+            time.sleep(2)
     except ProgrammingError:
         # Table doesn't exist yet - migrations need to run first
         print("[INIT] Database tables not yet created. Run migrations first.")

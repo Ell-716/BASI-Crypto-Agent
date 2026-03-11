@@ -1,4 +1,5 @@
 import requests
+import time
 from datetime import datetime, timezone
 from backend.app.models import db, Coin, CoinSnapshot
 from backend.app.constants import COIN_SYMBOL_TO_ID
@@ -9,8 +10,24 @@ COINGECKO_API = "https://api.coingecko.com/api/v3/coins/markets"
 def update_coin_snapshots():
     try:
         ids = ",".join(COIN_SYMBOL_TO_ID.values())
-        response = requests.get(COINGECKO_API, params={"vs_currency": "usd", "ids": ids}, timeout=10)
-        response.raise_for_status()
+
+        # Retry logic for rate limiting
+        max_retries = 1
+        for attempt in range(max_retries + 1):
+            response = requests.get(COINGECKO_API, params={"vs_currency": "usd", "ids": ids}, timeout=10)
+
+            if response.status_code == 429:
+                if attempt < max_retries:
+                    print("[Snapshot] Rate limited (429), waiting 10 seconds before retry...")
+                    time.sleep(10)
+                    continue
+                else:
+                    print("[Snapshot] Rate limited after retry, skipping update.")
+                    return
+
+            response.raise_for_status()
+            break
+
         data = response.json()
         now = datetime.now(timezone.utc)
 
