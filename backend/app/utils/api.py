@@ -33,6 +33,7 @@ def get_cached_coingecko_data():
 
 def fetch_coin_data(coin_id=None):
     coins = []
+    errors = []
 
     for coin in TOP_10_BINANCE_COINS:
         if coin_id and coin_id.lower() not in coin["name"].lower():
@@ -49,12 +50,21 @@ def fetch_coin_data(coin_id=None):
                 timeout=10
             )
             if res.status_code != 200:
-                return [], f"Binance API error {res.status_code}: {res.text}"
+                error_msg = f"Binance API error {res.status_code} for {symbol}"
+                print(f"[API] {error_msg}")
+                errors.append(error_msg)
+                continue  # Skip this coin but continue with others
             data = res.json()
         except requests.exceptions.RequestException as e:
-            return [], str(e)
+            error_msg = f"Request error for {symbol}: {str(e)}"
+            print(f"[API] {error_msg}")
+            errors.append(error_msg)
+            continue  # Skip this coin but continue with others
         except (ValueError, KeyError) as e:
-            return [], f"Invalid response for {symbol}: {e}"
+            error_msg = f"Invalid response for {symbol}: {e}"
+            print(f"[API] {error_msg}")
+            errors.append(error_msg)
+            continue  # Skip this coin but continue with others
 
         # Fetch snapshot from DB
         coin_obj = Coin.query.filter_by(coin_symbol=clean_symbol).first()
@@ -78,5 +88,9 @@ def fetch_coin_data(coin_id=None):
             "global_volume": snapshot.global_volume if snapshot else None,
             "market_cap": snapshot.market_cap if snapshot else None
         })
+
+    # Return what we have, even if some coins failed
+    if not coins and errors:
+        return [], f"All coins failed: {'; '.join(errors[:3])}"
 
     return coins, None

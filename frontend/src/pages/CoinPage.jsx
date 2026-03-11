@@ -60,7 +60,7 @@ function CoinPage() {
     };
   }, [symbol]);
 
-  if (!coinStatic || !liveCoin) return <div className="text-center mt-10">Loading...</div>;
+  if (!coinStatic) return <div className="text-center mt-10">Loading...</div>;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
@@ -77,32 +77,32 @@ function CoinPage() {
           </div>
           {/* Live Price */}
           <p className="text-5xl font-bold text-gray-900 dark:text-white mt-">
-            ${Number(liveCoin.current_price).toFixed(2).toLocaleString()}
+            {liveCoin?.current_price ? `$${Number(liveCoin.current_price).toFixed(2).toLocaleString()}` : '—'}
           </p>
 
           <div className="space-y-3">
             <div className="flex justify-between rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-3 bg-white dark:bg-gray-800">
               <span className="font-bold">Market Cap:</span>
               <span>
-                {liveCoin.market_cap ? `$${Number(liveCoin.market_cap).toLocaleString()}` : '—'}
+                {liveCoin?.market_cap ? `$${Number(liveCoin.market_cap).toLocaleString()}` : '—'}
               </span>
             </div>
             <div className="flex justify-between rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-3 bg-white dark:bg-gray-800">
               <span className="font-bold">24h Volume:</span>
               <span>
-                {liveCoin.global_volume ? `$${Number(liveCoin.global_volume).toLocaleString()}` : '—'}
+                {liveCoin?.global_volume ? `$${Number(liveCoin.global_volume).toLocaleString()}` : '—'}
               </span>
             </div>
             <div className="flex justify-between rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-3 bg-white dark:bg-gray-800">
               <span className="font-bold">24h High:</span>
               <span>
-                ${Number(liveCoin.high_24h).toFixed(2).toLocaleString()}
+                {liveCoin?.high_24h ? `$${Number(liveCoin.high_24h).toFixed(2).toLocaleString()}` : '—'}
               </span>
             </div>
             <div className="flex justify-between rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-3 bg-white dark:bg-gray-800">
               <span className="font-bold">24h Low:</span>
               <span>
-                ${Number(liveCoin.low_24h).toFixed(2).toLocaleString()}
+                {liveCoin?.low_24h ? `$${Number(liveCoin.low_24h).toFixed(2).toLocaleString()}` : '—'}
               </span>
             </div>
             {/* Sparkline inside same block */}
