@@ -10,7 +10,7 @@ _coingecko_cache = {
     "timestamp": 0
 }
 
-BINANCE_BASE_URL = "https://api.binance.us"
+BINANCE_BASE_URL = "https://data.binance.com"
 
 
 def get_cached_coingecko_data():
