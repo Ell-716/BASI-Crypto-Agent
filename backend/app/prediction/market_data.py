@@ -3,7 +3,7 @@ import pandas as pd
 from backend.app.prediction.charts import plot_price_chart, plot_macd_rsi, plot_bollinger_bands, aggregate_candles
 from backend.app.utils.symbols import normalize_symbol
 
-BINANCE_KLINES_URL = "https://api1.binance.com/api/v3/klines"
+BINANCE_KLINES_URL = "https://api.binance.us/api/v3/klines"
 
 
 def fetch_market_data(symbol, interval, limit=1000):

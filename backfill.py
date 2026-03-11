@@ -7,7 +7,7 @@ from backend.app.models import Coin, HistoricalData
 from backend.app.tasks import update_technical_indicators
 from backend.app.constants import COINS
 
-BINANCE_URL = "https://api1.binance.com/api/v3/klines"
+BINANCE_URL = "https://api.binance.us/api/v3/klines"
 
 def fetch_binance_ohlcv(symbol, interval="1h", limit=1440):
     url = f"{BINANCE_URL}?symbol={symbol}&interval={interval}&limit={limit}"
