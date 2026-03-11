@@ -17,8 +17,16 @@ def fetch_market_data(symbol, interval, limit=1000):
     }
     try:
         response = requests.get(BINANCE_KLINES_URL, params=params, timeout=10)
-        response.raise_for_status()
+
+        if response.status_code != 200:
+            print(f"[Chart] Binance API error {response.status_code} for {pair}: {response.text}")
+            return None
+
         data = response.json()
+
+        if not data or len(data) == 0:
+            print(f"[Chart] No data returned from Binance for {pair}")
+            return None
 
         df = pd.DataFrame(data, columns=[
             "timestamp", "Open", "High", "Low", "Close", "Volume",
@@ -30,7 +38,10 @@ def fetch_market_data(symbol, interval, limit=1000):
         df = df.astype(float)
         return df
     except requests.exceptions.RequestException as e:
-        print(f"Error fetching Binance data: {e}")
+        print(f"[Chart] Request error fetching {pair} data: {e}")
+        return None
+    except Exception as e:
+        print(f"[Chart] Error processing {pair} data: {e}")
         return None
 
 

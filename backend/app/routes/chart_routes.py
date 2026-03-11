@@ -17,12 +17,15 @@ def render_chart(fig):
 @chart_bp.route("/chart/price/<symbol>")
 def price_chart(symbol):
     timeframe = request.args.get("timeframe", "1d")
+    print(f"[Chart] Fetching price chart for {symbol} with timeframe {timeframe}")
     df_raw = fetch_market_data(symbol, timeframe)
     if df_raw is None or df_raw.empty:
+        print(f"[Chart] No market data available for {symbol}")
         return "No data available", 404
 
     df = aggregate_candles(df_raw, timeframe)
     if df is None or df.empty:
+        print(f"[Chart] Not enough candles after aggregation for {symbol}")
         return "Not enough candles", 404
 
     df = calculate_indicators(df)
@@ -33,12 +36,15 @@ def price_chart(symbol):
 @chart_bp.route("/chart/macd-rsi/<symbol>")
 def macd_rsi_chart(symbol):
     timeframe = request.args.get("timeframe", "1d")
+    print(f"[Chart] Fetching MACD/RSI chart for {symbol} with timeframe {timeframe}")
     df_raw = fetch_market_data(symbol, timeframe)
     if df_raw is None or df_raw.empty:
+        print(f"[Chart] No market data available for {symbol}")
         return "No data available", 404
 
     df = aggregate_candles(df_raw, timeframe)
     if df is None or df.empty:
+        print(f"[Chart] Not enough candles after aggregation for {symbol}")
         return "Not enough candles", 404
 
     df = calculate_indicators(df)
