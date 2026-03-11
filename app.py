@@ -33,12 +33,21 @@ with app.app_context():
         now = datetime.now(timezone.utc)
         stale_threshold = now - timedelta(hours=24)
 
+        # Helper to ensure timestamp is timezone-aware for comparison
+        def make_aware(dt):
+            if dt is None:
+                return None
+            if dt.tzinfo is None:
+                return dt.replace(tzinfo=timezone.utc)
+            return dt
+
         # 1. Check Historical Data freshness
         try:
             latest_historical = HistoricalData.query.order_by(desc(HistoricalData.timestamp)).first()
-            if not latest_historical or latest_historical.timestamp < stale_threshold:
+            latest_ts = make_aware(latest_historical.timestamp) if latest_historical else None
+            if not latest_historical or latest_ts < stale_threshold:
                 if latest_historical:
-                    print(f"[STARTUP] Historical data last updated: {latest_historical.timestamp} (stale)")
+                    print(f"[STARTUP] Historical data last updated: {latest_ts} (stale)")
                 else:
                     print("[STARTUP] Historical data table empty")
                 print("[STARTUP] Refreshing historical data...")
@@ -47,55 +56,58 @@ with app.app_context():
                 update_technical_indicators()
                 print("[STARTUP] Historical data refresh complete.")
             else:
-                print(f"[STARTUP] Historical data is fresh (last update: {latest_historical.timestamp})")
+                print(f"[STARTUP] Historical data is fresh (last update: {latest_ts})")
         except Exception as e:
             print(f"[STARTUP] Error checking/updating historical data: {e}")
 
         # 2. Check CoinSnapshot freshness
         try:
             latest_snapshot = CoinSnapshot.query.order_by(desc(CoinSnapshot.timestamp)).first()
-            if not latest_snapshot or latest_snapshot.timestamp < stale_threshold:
+            snapshot_ts = make_aware(latest_snapshot.timestamp) if latest_snapshot else None
+            if not latest_snapshot or snapshot_ts < stale_threshold:
                 if latest_snapshot:
-                    print(f"[STARTUP] CoinSnapshot last updated: {latest_snapshot.timestamp} (stale)")
+                    print(f"[STARTUP] CoinSnapshot last updated: {snapshot_ts} (stale)")
                 else:
                     print("[STARTUP] CoinSnapshot table empty, populating...")
                 from backend.app.utils.coin_gecko import update_coin_snapshots
                 update_coin_snapshots()
                 print("[STARTUP] Snapshot update complete.")
             else:
-                print(f"[STARTUP] CoinSnapshot is fresh (last update: {latest_snapshot.timestamp})")
+                print(f"[STARTUP] CoinSnapshot is fresh (last update: {snapshot_ts})")
         except Exception as e:
             print(f"[STARTUP] Error checking/updating coin snapshots: {e}")
 
         # 3. Check TopVolume freshness
         try:
             latest_volume = TopVolume24h.query.order_by(desc(TopVolume24h.timestamp)).first()
-            if not latest_volume or latest_volume.timestamp < stale_threshold:
+            volume_ts = make_aware(latest_volume.timestamp) if latest_volume else None
+            if not latest_volume or volume_ts < stale_threshold:
                 if latest_volume:
-                    print(f"[STARTUP] TopVolume last updated: {latest_volume.timestamp} (stale)")
+                    print(f"[STARTUP] TopVolume last updated: {volume_ts} (stale)")
                 else:
                     print("[STARTUP] TopVolume table empty, populating...")
                 from backend.app.dashboard.top_volume import update_top_volume_24h
                 update_top_volume_24h()
                 print("[STARTUP] Top volume update complete.")
             else:
-                print(f"[STARTUP] TopVolume is fresh (last update: {latest_volume.timestamp})")
+                print(f"[STARTUP] TopVolume is fresh (last update: {volume_ts})")
         except Exception as e:
             print(f"[STARTUP] Error checking/updating top volume: {e}")
 
         # 4. Check FearGreedIndex freshness
         try:
             latest_fgi = FearGreedIndex.query.order_by(desc(FearGreedIndex.timestamp)).first()
-            if not latest_fgi or latest_fgi.timestamp < stale_threshold:
+            fgi_ts = make_aware(latest_fgi.timestamp) if latest_fgi else None
+            if not latest_fgi or fgi_ts < stale_threshold:
                 if latest_fgi:
-                    print(f"[STARTUP] FearGreedIndex last updated: {latest_fgi.timestamp} (stale)")
+                    print(f"[STARTUP] FearGreedIndex last updated: {fgi_ts} (stale)")
                 else:
                     print("[STARTUP] FearGreedIndex table empty, populating...")
                 from backend.app.dashboard.fear_greed import fetch_fear_and_greed_index
                 fetch_fear_and_greed_index()
                 print("[STARTUP] FGI update complete.")
             else:
-                print(f"[STARTUP] FearGreedIndex is fresh (last update: {latest_fgi.timestamp})")
+                print(f"[STARTUP] FearGreedIndex is fresh (last update: {fgi_ts})")
         except Exception as e:
             print(f"[STARTUP] Error checking/updating fear & greed index: {e}")
 
