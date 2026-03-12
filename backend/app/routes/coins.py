@@ -61,7 +61,7 @@ def get_historical_data():
 
 @coins_bp.route('/coins', methods=['GET'])
 def get_all_coins():
-    coins = Coin.query.all()
+    coins = Coin.query.order_by(Coin.id.asc()).all()
     return jsonify([
         {
             'id': coin.id,

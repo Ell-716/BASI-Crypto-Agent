@@ -35,6 +35,7 @@ print("[STARTUP] Checking data freshness...")
 
 with app.app_context():
     now = datetime.now(timezone.utc)
+    historical_stale_threshold = now - timedelta(hours=6)
     stale_threshold = now - timedelta(hours=24)
 
     # Helper to ensure timestamp is timezone-aware for comparison
@@ -49,7 +50,7 @@ with app.app_context():
     try:
         latest_historical = HistoricalData.query.order_by(desc(HistoricalData.timestamp)).first()
         latest_ts = make_aware(latest_historical.timestamp) if latest_historical else None
-        if not latest_historical or latest_ts < stale_threshold:
+        if not latest_historical or latest_ts < historical_stale_threshold:
             if latest_historical:
                 print(f"[STARTUP] Historical data last updated: {latest_ts} (stale)")
             else:
