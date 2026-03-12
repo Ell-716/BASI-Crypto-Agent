@@ -95,8 +95,11 @@ const Home = () => {
       .catch((err) => console.error("Failed to load favorites:", err));
   }, [userId]);
 
-  // WebSocket for live updates
+  // WebSocket for live updates with REST fallback
   useEffect(() => {
+    let hasReceivedData = false;
+    let fallbackTimer = null;
+
     const socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5050', {
       transports: ["websocket"],
       path: "/socket.io",
@@ -106,10 +109,30 @@ const Home = () => {
 
     socket.on("connect", () => {
       socket.emit("request_coin_data");
+
+      // Set 5-second timeout for fallback to REST API
+      fallbackTimer = setTimeout(async () => {
+        if (!hasReceivedData) {
+          console.log("WebSocket timeout, falling back to REST API");
+          try {
+            const res = await api.get("/api/coins");
+            if (res.data && res.data.length > 0) {
+              setCoins(res.data);
+              console.log("Loaded coin data from REST API fallback");
+            }
+          } catch (err) {
+            console.error("REST fallback failed:", err);
+          }
+        }
+      }, 5000);
     });
 
     socket.off("coin_data");
     socket.on("coin_data", (data) => {
+      hasReceivedData = true;
+      if (fallbackTimer) {
+        clearTimeout(fallbackTimer);
+      }
       setCoins(data);
     });
 
@@ -118,6 +141,7 @@ const Home = () => {
     });
 
     return () => {
+      if (fallbackTimer) clearTimeout(fallbackTimer);
       if (socket.connected) socket.disconnect();
     };
   }, []);
