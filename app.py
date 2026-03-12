@@ -11,7 +11,7 @@ print(f"[INIT] Flask app initialized in {config_name} mode")
 
 # Automatic backfill check - runs on app initialization
 from backend.app.models import HistoricalData, CoinSnapshot, TopVolume24h, FearGreedIndex
-from sqlalchemy.exc import ProgrammingError
+from sqlalchemy.exc import ProgrammingError, OperationalError
 from sqlalchemy import desc
 
 with app.app_context():
@@ -25,9 +25,10 @@ with app.app_context():
             # Wait to avoid CoinGecko rate limit (backfill calls seed_descriptions which hits CoinGecko)
             print("[INIT] Waiting 5 seconds to avoid CoinGecko rate limit...")
             time.sleep(5)
-    except ProgrammingError:
+    except (ProgrammingError, OperationalError) as e:
         # Table doesn't exist yet - migrations need to run first
-        print("[INIT] Database tables not yet created. Run migrations first.")
+        print(f"[INIT] Database tables not yet created. Run 'flask db upgrade' first.")
+        print(f"[INIT] Error details: {type(e).__name__}")
 
 # Startup data refresh for cold starts (Render free tier)
 print("[STARTUP] Checking data freshness...")
@@ -129,8 +130,9 @@ with app.app_context():
 
         print("[STARTUP] All data checks complete. App ready.")
 
-    except ProgrammingError as e:
-        print(f"[STARTUP] Database tables not ready yet: {e}")
+    except (ProgrammingError, OperationalError) as e:
+        print(f"[STARTUP] Database tables not ready yet. Run 'flask db upgrade' first.")
+        print(f"[STARTUP] Error: {e}")
     except Exception as e:
         print(f"[STARTUP] Unexpected error during data refresh: {e}")
 
