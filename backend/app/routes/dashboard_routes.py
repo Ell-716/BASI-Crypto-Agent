@@ -41,6 +41,9 @@ def dashboard_top_volume():
         coin = get_top_coin_by_24h_volume()
         return jsonify(coin)
     except Exception as e:
+        print(f"[Dashboard] Top volume error: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 

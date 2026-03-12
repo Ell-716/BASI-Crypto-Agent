@@ -47,10 +47,13 @@ def update_top_volume_24h():
 
 
 def get_top_coin_by_24h_volume():
+    """Get the coin with highest 24h volume. Returns most recent data if today's not available."""
     now = datetime.now(timezone.utc)
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    # Make timezone-naive for DB comparison
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
     tomorrow_start = today_start + timedelta(days=1)
 
+    # Try to get today's data first
     result = (
         db.session.query(
             Coin.coin_name,
@@ -65,8 +68,23 @@ def get_top_coin_by_24h_volume():
         .first()
     )
 
+    # If no data for today, get the most recent entry
     if not result:
-        raise Exception("No top volume data found for today.")
+        print("[TopVolume] No data for today, fetching most recent entry")
+        result = (
+            db.session.query(
+                Coin.coin_name,
+                Coin.coin_symbol,
+                Coin.coin_image,
+                TopVolume24h.top_volume
+            )
+            .join(TopVolume24h, Coin.id == TopVolume24h.coin_id)
+            .order_by(desc(TopVolume24h.timestamp))
+            .first()
+        )
+
+    if not result:
+        raise Exception("No top volume data found.")
 
     return {
         "image": result.coin_image,
