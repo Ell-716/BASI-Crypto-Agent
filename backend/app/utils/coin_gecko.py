@@ -12,19 +12,23 @@ def update_coin_snapshots():
         ids = ",".join(COIN_SYMBOL_TO_ID.values())
 
         # Retry logic for rate limiting
-        max_retries = 2  # 3 total attempts
+        max_retries = 1  # 2 total attempts max
         for attempt in range(max_retries + 1):
             response = requests.get(COINGECKO_API, params={"vs_currency": "usd", "ids": ids}, timeout=10)
 
             if response.status_code == 429:
                 if attempt < max_retries:
-                    wait_time = 30
+                    wait_time = 60  # Wait full minute before retry
                     print(f"[Snapshot] Rate limited (429), attempt {attempt + 1}/{max_retries + 1}. Waiting {wait_time} seconds before retry...")
                     time.sleep(wait_time)
                     continue
                 else:
-                    print(f"[Snapshot] Rate limited after {max_retries + 1} attempts, skipping update.")
+                    print(f"[Snapshot] Rate limited after {max_retries + 1} attempts. CoinGecko snapshots will be skipped - dashboard will show Binance data only.")
                     return
+
+            if response.status_code != 200:
+                print(f"[Snapshot] API error {response.status_code}: {response.text}")
+                return
 
             response.raise_for_status()
             break

@@ -20,21 +20,34 @@ BINANCE_BASE_URL = "https://data.binance.com"
 
 
 def get_cached_coingecko_data():
+    """Get CoinGecko data with caching. Optional - dashboard works without it."""
     now = time.time()
-    if _coingecko_cache["data"] and now - _coingecko_cache["timestamp"] < 60:
+    # Cache for 10 minutes since CoinGecko is heavily rate limited
+    cache_duration = 600
+
+    if _coingecko_cache["data"] and now - _coingecko_cache["timestamp"] < cache_duration:
         return _coingecko_cache["data"]
 
     try:
         ids = ",".join(COIN_SYMBOL_TO_ID.values())
         res = requests.get(COINGECKO_API, params={"vs_currency": "usd", "ids": ids}, timeout=10)
-        res.raise_for_status()
+
+        if res.status_code == 429:
+            print(f"[CoinGecko] Rate limited, using stale cache if available")
+            return _coingecko_cache["data"] if _coingecko_cache["data"] else []
+
+        if res.status_code != 200:
+            print(f"[CoinGecko] API error {res.status_code}, using stale cache if available")
+            return _coingecko_cache["data"] if _coingecko_cache["data"] else []
+
         data = res.json()
         _coingecko_cache["data"] = data
         _coingecko_cache["timestamp"] = now
+        print(f"[CoinGecko] Cached {len(data)} coins")
         return data
     except Exception as e:
-        print(f"[CoinGecko] Error fetching market data: {e}")
-        return []
+        print(f"[CoinGecko] Error fetching market data: {e}, using stale cache if available")
+        return _coingecko_cache["data"] if _coingecko_cache["data"] else []
 
 
 def get_cached_binance_tickers():
