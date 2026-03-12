@@ -85,11 +85,11 @@ def update_technical_indicators():
             if df.empty:
                 continue
 
-            # Compute indicators safely
-            df['SMA_50'] = ta.sma(df['price'], length=50)
-            df['SMA_200'] = ta.sma(df['price'], length=200)
-            df['EMA_50'] = ta.ema(df['price'], length=50)
-            df['EMA_200'] = ta.ema(df['price'], length=200)
+            # Compute indicators safely with min_periods to avoid excessive NaN
+            df['SMA_50'] = df['price'].rolling(window=50, min_periods=1).mean()
+            df['SMA_200'] = df['price'].rolling(window=200, min_periods=1).mean()
+            df['EMA_50'] = df['price'].ewm(span=50, adjust=False, min_periods=1).mean()
+            df['EMA_200'] = df['price'].ewm(span=200, adjust=False, min_periods=1).mean()
             df['RSI'] = ta.rsi(df['price'], length=14)
             df['Volume_Change'] = df['volume'].diff()
 
