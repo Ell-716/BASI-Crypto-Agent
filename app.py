@@ -34,107 +34,108 @@ with app.app_context():
 print("[STARTUP] Checking data freshness...")
 
 with app.app_context():
+    now = datetime.now(timezone.utc)
+    stale_threshold = now - timedelta(hours=24)
+
+    # Helper to ensure timestamp is timezone-aware for comparison
+    def make_aware(dt):
+        if dt is None:
+            return None
+        if dt.tzinfo is None:
+            return dt.replace(tzinfo=timezone.utc)
+        return dt
+
+    # 1. Check Historical Data freshness
     try:
-        now = datetime.now(timezone.utc)
-        stale_threshold = now - timedelta(hours=24)
-
-        # Helper to ensure timestamp is timezone-aware for comparison
-        def make_aware(dt):
-            if dt is None:
-                return None
-            if dt.tzinfo is None:
-                return dt.replace(tzinfo=timezone.utc)
-            return dt
-
-        # 1. Check Historical Data freshness
-        try:
-            latest_historical = HistoricalData.query.order_by(desc(HistoricalData.timestamp)).first()
-            latest_ts = make_aware(latest_historical.timestamp) if latest_historical else None
-            if not latest_historical or latest_ts < stale_threshold:
-                if latest_historical:
-                    print(f"[STARTUP] Historical data last updated: {latest_ts} (stale)")
-                else:
-                    print("[STARTUP] Historical data table empty")
-                print("[STARTUP] Refreshing historical data...")
-                from backend.app.tasks import update_historical_data, update_technical_indicators
-                update_historical_data()
-                update_technical_indicators()
-                print("[STARTUP] Historical data refresh complete.")
+        latest_historical = HistoricalData.query.order_by(desc(HistoricalData.timestamp)).first()
+        latest_ts = make_aware(latest_historical.timestamp) if latest_historical else None
+        if not latest_historical or latest_ts < stale_threshold:
+            if latest_historical:
+                print(f"[STARTUP] Historical data last updated: {latest_ts} (stale)")
             else:
-                print(f"[STARTUP] Historical data is fresh (last update: {latest_ts})")
-        except Exception as e:
-            print(f"[STARTUP] Error checking/updating historical data: {e}")
-
-        # 2. Check CoinSnapshot freshness
-        try:
-            latest_snapshot = CoinSnapshot.query.order_by(desc(CoinSnapshot.timestamp)).first()
-            snapshot_ts = make_aware(latest_snapshot.timestamp) if latest_snapshot else None
-            if not latest_snapshot or snapshot_ts < stale_threshold:
-                if latest_snapshot:
-                    print(f"[STARTUP] CoinSnapshot last updated: {snapshot_ts} (stale)")
-                else:
-                    print("[STARTUP] CoinSnapshot table empty, populating...")
-                from backend.app.utils.coin_gecko import update_coin_snapshots
-                update_coin_snapshots()
-                print("[STARTUP] Snapshot update complete.")
-            else:
-                print(f"[STARTUP] CoinSnapshot is fresh (last update: {snapshot_ts})")
-        except Exception as e:
-            print(f"[STARTUP] Error checking/updating coin snapshots: {e}")
-
-        # 3. Check TopVolume freshness
-        try:
-            latest_volume = TopVolume24h.query.order_by(desc(TopVolume24h.timestamp)).first()
-            volume_ts = make_aware(latest_volume.timestamp) if latest_volume else None
-            if not latest_volume or volume_ts < stale_threshold:
-                if latest_volume:
-                    print(f"[STARTUP] TopVolume last updated: {volume_ts} (stale)")
-                else:
-                    print("[STARTUP] TopVolume table empty, populating...")
-                from backend.app.dashboard.top_volume import update_top_volume_24h
-                update_top_volume_24h()
-                print("[STARTUP] Top volume update complete.")
-            else:
-                print(f"[STARTUP] TopVolume is fresh (last update: {volume_ts})")
-        except Exception as e:
-            print(f"[STARTUP] Error checking/updating top volume: {e}")
-
-        # 4. Check FearGreedIndex freshness
-        try:
-            latest_fgi = FearGreedIndex.query.order_by(desc(FearGreedIndex.timestamp)).first()
-            fgi_ts = make_aware(latest_fgi.timestamp) if latest_fgi else None
-            if not latest_fgi or fgi_ts < stale_threshold:
-                if latest_fgi:
-                    print(f"[STARTUP] FearGreedIndex last updated: {fgi_ts} (stale)")
-                else:
-                    print("[STARTUP] FearGreedIndex table empty, populating...")
-                from backend.app.dashboard.fear_greed import fetch_fear_and_greed_index
-                fetch_fear_and_greed_index()
-                print("[STARTUP] FGI update complete.")
-            else:
-                print(f"[STARTUP] FearGreedIndex is fresh (last update: {fgi_ts})")
-        except Exception as e:
-            print(f"[STARTUP] Error checking/updating fear & greed index: {e}")
-
-        # 5. Populate Binance ticker cache for WebSocket
-        try:
-            print("[STARTUP] Populating Binance ticker cache...")
-            from backend.app.utils.api import get_cached_binance_tickers
-            tickers = get_cached_binance_tickers()
-            if tickers:
-                print(f"[STARTUP] Binance ticker cache populated with {len(tickers)} tickers")
-            else:
-                print("[STARTUP] Warning: Binance ticker cache is empty")
-        except Exception as e:
-            print(f"[STARTUP] Error populating Binance cache: {e}")
-
-        print("[STARTUP] All data checks complete. App ready.")
-
-    except (ProgrammingError, OperationalError) as e:
-        print(f"[STARTUP] Database tables not ready yet. Run 'flask db upgrade' first.")
-        print(f"[STARTUP] Error: {e}")
+                print("[STARTUP] Historical data table empty")
+            print("[STARTUP] Refreshing historical data...")
+            from backend.app.tasks import update_historical_data, update_technical_indicators
+            update_historical_data()
+            update_technical_indicators()
+            print("[STARTUP] Historical data refresh complete.")
+        else:
+            print(f"[STARTUP] Historical data is fresh (last update: {latest_ts})")
+    except (ProgrammingError, OperationalError):
+        print("[STARTUP] Tables not ready, skipping historical data check")
     except Exception as e:
-        print(f"[STARTUP] Unexpected error during data refresh: {e}")
+        print(f"[STARTUP] Error checking/updating historical data: {e}")
+
+    # 2. Check CoinSnapshot freshness
+    try:
+        latest_snapshot = CoinSnapshot.query.order_by(desc(CoinSnapshot.timestamp)).first()
+        snapshot_ts = make_aware(latest_snapshot.timestamp) if latest_snapshot else None
+        if not latest_snapshot or snapshot_ts < stale_threshold:
+            if latest_snapshot:
+                print(f"[STARTUP] CoinSnapshot last updated: {snapshot_ts} (stale)")
+            else:
+                print("[STARTUP] CoinSnapshot table empty, populating...")
+            from backend.app.utils.coin_gecko import update_coin_snapshots
+            update_coin_snapshots()
+            print("[STARTUP] Snapshot update complete.")
+        else:
+            print(f"[STARTUP] CoinSnapshot is fresh (last update: {snapshot_ts})")
+    except (ProgrammingError, OperationalError):
+        print("[STARTUP] Tables not ready, skipping coin snapshot check")
+    except Exception as e:
+        print(f"[STARTUP] Error checking/updating coin snapshots: {e}")
+
+    # 3. Check TopVolume freshness
+    try:
+        latest_volume = TopVolume24h.query.order_by(desc(TopVolume24h.timestamp)).first()
+        volume_ts = make_aware(latest_volume.timestamp) if latest_volume else None
+        if not latest_volume or volume_ts < stale_threshold:
+            if latest_volume:
+                print(f"[STARTUP] TopVolume last updated: {volume_ts} (stale)")
+            else:
+                print("[STARTUP] TopVolume table empty, populating...")
+            from backend.app.dashboard.top_volume import update_top_volume_24h
+            update_top_volume_24h()
+            print("[STARTUP] Top volume update complete.")
+        else:
+            print(f"[STARTUP] TopVolume is fresh (last update: {volume_ts})")
+    except (ProgrammingError, OperationalError):
+        print("[STARTUP] Tables not ready, skipping top volume check")
+    except Exception as e:
+        print(f"[STARTUP] Error checking/updating top volume: {e}")
+
+    # 4. Check FearGreedIndex freshness
+    try:
+        latest_fgi = FearGreedIndex.query.order_by(desc(FearGreedIndex.timestamp)).first()
+        fgi_ts = make_aware(latest_fgi.timestamp) if latest_fgi else None
+        if not latest_fgi or fgi_ts < stale_threshold:
+            if latest_fgi:
+                print(f"[STARTUP] FearGreedIndex last updated: {fgi_ts} (stale)")
+            else:
+                print("[STARTUP] FearGreedIndex table empty, populating...")
+            from backend.app.dashboard.fear_greed import fetch_fear_and_greed_index
+            fetch_fear_and_greed_index()
+            print("[STARTUP] FGI update complete.")
+        else:
+            print(f"[STARTUP] FearGreedIndex is fresh (last update: {fgi_ts})")
+    except (ProgrammingError, OperationalError):
+        print("[STARTUP] Tables not ready, skipping fear & greed index check")
+    except Exception as e:
+        print(f"[STARTUP] Error checking/updating fear & greed index: {e}")
+
+    # 5. Populate Binance ticker cache for WebSocket
+    try:
+        print("[STARTUP] Populating Binance ticker cache...")
+        from backend.app.utils.api import get_cached_binance_tickers
+        tickers = get_cached_binance_tickers()
+        if tickers:
+            print(f"[STARTUP] Binance ticker cache populated with {len(tickers)} tickers")
+        else:
+            print("[STARTUP] Warning: Binance ticker cache is empty")
+    except Exception as e:
+        print(f"[STARTUP] Error populating Binance cache: {e}")
+
+    print("[STARTUP] All data checks complete. App ready.")
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5050))
