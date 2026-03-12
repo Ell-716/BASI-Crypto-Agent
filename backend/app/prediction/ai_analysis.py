@@ -17,70 +17,47 @@ API_KEY = os.getenv('GROQ_API_KEY')
 
 
 def fetch_historical_data(coin_symbol, timeframe):
-    """Fetch data from DB first, fall back to Binance only if DB is empty"""
     raw_symbol = coin_symbol.upper()
     normalized_symbol = SYMBOL_MAP.get(raw_symbol, raw_symbol)
 
     from flask import current_app
 
-    with current_app.app_context():
-        coin = Coin.query.filter_by(coin_symbol=raw_symbol).first()
-
-        if not coin:
-            print(f"[Prediction] Coin {raw_symbol} not found in DB")
+    if timeframe == "1w":
+        interval = "1w"
+        binance_df = fetch_market_data(normalized_symbol, interval, limit=500)
+        if binance_df is None or binance_df.empty:
             return None
+        binance_df = binance_df.reset_index().rename(columns={"Date": "timestamp"})
+        binance_df.rename(columns={
+            "Open": "open",
+            "High": "high",
+            "Low": "low",
+            "Close": "close",
+            "Volume": "volume"
+        }, inplace=True)
+        df = resample_and_compute_indicators(binance_df, timeframe)
 
-        # Determine cutoff time based on timeframe
-        if timeframe == "1h":
-            cutoff_time = datetime.now(timezone.utc) - timedelta(hours=6)
-        elif timeframe == "1w":
-            cutoff_time = datetime.now(timezone.utc) - timedelta(weeks=12)  # 12 weeks for weekly
-        else:  # 1d
-            cutoff_time = datetime.now(timezone.utc) - timedelta(days=60)
+    else:
+        with current_app.app_context():
+            coin = Coin.query.filter_by(coin_symbol=raw_symbol).first()
 
-        # Try to fetch from DB first
-        historical_data = HistoricalData.query.filter(
-            HistoricalData.coin_id == coin.id,
-            HistoricalData.timestamp >= cutoff_time
-        ).order_by(HistoricalData.timestamp.asc()).all()
+            if not coin:
+                return None
 
-        if historical_data and len(historical_data) > 10:
-            # We have sufficient DB data, use it
-            print(f"[Prediction] Using {len(historical_data)} DB records for {raw_symbol}")
+            if timeframe == "1h":
+                cutoff_time = datetime.now(timezone.utc) - timedelta(hours=6)
+            else:
+                cutoff_time = datetime.now(timezone.utc) - timedelta(days=60)
+
+            historical_data = HistoricalData.query.filter(
+                HistoricalData.coin_id == coin.id,
+                HistoricalData.timestamp >= cutoff_time
+            ).order_by(HistoricalData.timestamp.asc()).all()
+
+            if not historical_data:
+                return None
+
             df = resample_and_compute_indicators(historical_data, timeframe)
-        else:
-            # DB is empty or insufficient, try Binance as fallback (may fail with 429)
-            print(f"[Prediction] Insufficient DB data for {raw_symbol}, trying Binance fallback")
-            try:
-                interval = "1w" if timeframe == "1w" else ("1h" if timeframe == "1h" else "1d")
-                binance_df = fetch_market_data(normalized_symbol, interval, limit=500)
-
-                if binance_df is None or binance_df.empty:
-                    print(f"[Prediction] Binance fetch failed for {raw_symbol}")
-                    # If we have ANY DB data, use it even if not ideal
-                    if historical_data:
-                        print(f"[Prediction] Falling back to {len(historical_data)} DB records")
-                        df = resample_and_compute_indicators(historical_data, timeframe)
-                    else:
-                        return None
-                else:
-                    binance_df = binance_df.reset_index().rename(columns={"Date": "timestamp"})
-                    binance_df.rename(columns={
-                        "Open": "open",
-                        "High": "high",
-                        "Low": "low",
-                        "Close": "close",
-                        "Volume": "volume"
-                    }, inplace=True)
-                    df = resample_and_compute_indicators(binance_df, timeframe)
-            except Exception as e:
-                print(f"[Prediction] Binance error for {raw_symbol}: {e}")
-                # If we have ANY DB data, use it even if not ideal
-                if historical_data:
-                    print(f"[Prediction] Falling back to {len(historical_data)} DB records")
-                    df = resample_and_compute_indicators(historical_data, timeframe)
-                else:
-                    return None
 
     if df is None or df.empty:
         return None
@@ -198,4 +175,3 @@ def analyze_with_llm(coin_symbol, timeframe, report_type="concise"):
         }
     except Exception as e:
         return {"error": f"LLM call failed: {str(e)}"}
-
