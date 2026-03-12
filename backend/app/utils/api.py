@@ -10,6 +10,12 @@ _coingecko_cache = {
     "timestamp": 0
 }
 
+# Cache for Binance ticker data
+_binance_cache = {
+    "data": None,
+    "timestamp": 0
+}
+
 BINANCE_BASE_URL = "https://data.binance.com"
 
 
@@ -31,9 +37,40 @@ def get_cached_coingecko_data():
         return []
 
 
+def get_cached_binance_tickers():
+    """Fetch all Binance tickers with caching to avoid rate limits"""
+    now = time.time()
+    # Cache for 60 seconds to reduce API calls
+    if _binance_cache["data"] and now - _binance_cache["timestamp"] < 60:
+        return _binance_cache["data"]
+
+    try:
+        # Single API call to get ALL tickers at once
+        res = requests.get(f"{BINANCE_BASE_URL}/api/v3/ticker/24hr", timeout=10)
+        if res.status_code != 200:
+            print(f"[Binance] API error {res.status_code}: {res.text}")
+            return []
+
+        data = res.json()
+        _binance_cache["data"] = data
+        _binance_cache["timestamp"] = now
+        print(f"[Binance] Cached {len(data)} tickers")
+        return data
+    except Exception as e:
+        print(f"[Binance] Error fetching tickers: {e}")
+        return []
+
+
 def fetch_coin_data(coin_id=None):
     coins = []
-    errors = []
+
+    # Get all tickers at once (cached)
+    all_tickers = get_cached_binance_tickers()
+    if not all_tickers:
+        return [], "Failed to fetch Binance tickers"
+
+    # Build a lookup map for fast access
+    ticker_map = {ticker["symbol"]: ticker for ticker in all_tickers}
 
     for coin in TOP_10_BINANCE_COINS:
         if coin_id and coin_id.lower() not in coin["name"].lower():
@@ -42,29 +79,11 @@ def fetch_coin_data(coin_id=None):
         symbol = coin["symbol"]
         clean_symbol = symbol.replace("USDT", "")
 
-        # Fetch Binance data
-        try:
-            res = requests.get(
-                f"{BINANCE_BASE_URL}/api/v3/ticker/24hr",
-                params={"symbol": symbol},
-                timeout=10
-            )
-            if res.status_code != 200:
-                error_msg = f"Binance API error {res.status_code} for {symbol}"
-                print(f"[API] {error_msg}")
-                errors.append(error_msg)
-                continue  # Skip this coin but continue with others
-            data = res.json()
-        except requests.exceptions.RequestException as e:
-            error_msg = f"Request error for {symbol}: {str(e)}"
-            print(f"[API] {error_msg}")
-            errors.append(error_msg)
-            continue  # Skip this coin but continue with others
-        except (ValueError, KeyError) as e:
-            error_msg = f"Invalid response for {symbol}: {e}"
-            print(f"[API] {error_msg}")
-            errors.append(error_msg)
-            continue  # Skip this coin but continue with others
+        # Get ticker data from cached response
+        ticker_data = ticker_map.get(symbol)
+        if not ticker_data:
+            print(f"[API] No ticker data for {symbol}")
+            continue
 
         # Fetch snapshot from DB
         coin_obj = Coin.query.filter_by(coin_symbol=clean_symbol).first()
@@ -81,16 +100,12 @@ def fetch_coin_data(coin_id=None):
             "symbol": clean_symbol,
             "name": coin["name"],
             "image": coin["image"],
-            "current_price": float(data.get("lastPrice", 0)),
-            "high_24h": float(data.get("highPrice", 0)),
-            "low_24h": float(data.get("lowPrice", 0)),
-            "total_volume": float(data.get("volume", 0)),
+            "current_price": float(ticker_data.get("lastPrice", 0)),
+            "high_24h": float(ticker_data.get("highPrice", 0)),
+            "low_24h": float(ticker_data.get("lowPrice", 0)),
+            "total_volume": float(ticker_data.get("volume", 0)),
             "global_volume": snapshot.global_volume if snapshot else None,
             "market_cap": snapshot.market_cap if snapshot else None
         })
-
-    # Return what we have, even if some coins failed
-    if not coins and errors:
-        return [], f"All coins failed: {'; '.join(errors[:3])}"
 
     return coins, None
