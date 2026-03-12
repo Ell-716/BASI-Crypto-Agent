@@ -40,16 +40,21 @@ def get_cached_coingecko_data():
 def get_cached_binance_tickers():
     """Fetch all Binance tickers with caching to avoid rate limits"""
     now = time.time()
-    # Cache for 60 seconds to reduce API calls
-    if _binance_cache["data"] and now - _binance_cache["timestamp"] < 60:
+    # Cache for 5 minutes to reduce API calls
+    cache_duration = 300  # 5 minutes
+
+    # Return cached data if fresh
+    if _binance_cache["data"] and now - _binance_cache["timestamp"] < cache_duration:
         return _binance_cache["data"]
 
+    # Cache is stale or empty - try ONE refresh, but don't block on failure
     try:
         # Single API call to get ALL tickers at once
         res = requests.get(f"{BINANCE_BASE_URL}/api/v3/ticker/24hr", timeout=10)
         if res.status_code != 200:
-            print(f"[Binance] API error {res.status_code}: {res.text}")
-            return []
+            print(f"[Binance] API error {res.status_code}, using stale cache if available")
+            # Return stale cache if we have it, better than nothing
+            return _binance_cache["data"] if _binance_cache["data"] else []
 
         data = res.json()
         _binance_cache["data"] = data
@@ -57,8 +62,9 @@ def get_cached_binance_tickers():
         print(f"[Binance] Cached {len(data)} tickers")
         return data
     except Exception as e:
-        print(f"[Binance] Error fetching tickers: {e}")
-        return []
+        print(f"[Binance] Error fetching tickers: {e}, using stale cache if available")
+        # Return stale cache if we have it
+        return _binance_cache["data"] if _binance_cache["data"] else []
 
 
 def fetch_coin_data(coin_id=None):

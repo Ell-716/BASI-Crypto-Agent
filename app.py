@@ -115,6 +115,18 @@ with app.app_context():
         except Exception as e:
             print(f"[STARTUP] Error checking/updating fear & greed index: {e}")
 
+        # 5. Populate Binance ticker cache for WebSocket
+        try:
+            print("[STARTUP] Populating Binance ticker cache...")
+            from backend.app.utils.api import get_cached_binance_tickers
+            tickers = get_cached_binance_tickers()
+            if tickers:
+                print(f"[STARTUP] Binance ticker cache populated with {len(tickers)} tickers")
+            else:
+                print("[STARTUP] Warning: Binance ticker cache is empty")
+        except Exception as e:
+            print(f"[STARTUP] Error populating Binance cache: {e}")
+
         print("[STARTUP] All data checks complete. App ready.")
 
     except ProgrammingError as e:
