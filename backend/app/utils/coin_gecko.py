@@ -12,17 +12,18 @@ def update_coin_snapshots():
         ids = ",".join(COIN_SYMBOL_TO_ID.values())
 
         # Retry logic for rate limiting
-        max_retries = 1
+        max_retries = 2  # 3 total attempts
         for attempt in range(max_retries + 1):
             response = requests.get(COINGECKO_API, params={"vs_currency": "usd", "ids": ids}, timeout=10)
 
             if response.status_code == 429:
                 if attempt < max_retries:
-                    print("[Snapshot] Rate limited (429), waiting 10 seconds before retry...")
-                    time.sleep(10)
+                    wait_time = 30
+                    print(f"[Snapshot] Rate limited (429), attempt {attempt + 1}/{max_retries + 1}. Waiting {wait_time} seconds before retry...")
+                    time.sleep(wait_time)
                     continue
                 else:
-                    print("[Snapshot] Rate limited after retry, skipping update.")
+                    print(f"[Snapshot] Rate limited after {max_retries + 1} attempts, skipping update.")
                     return
 
             response.raise_for_status()

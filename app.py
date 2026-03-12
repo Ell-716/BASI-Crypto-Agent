@@ -23,7 +23,8 @@ with app.app_context():
             seed_descriptions()
             print("[INIT] Backfill complete.")
             # Wait to avoid CoinGecko rate limit (backfill calls seed_descriptions which hits CoinGecko)
-            time.sleep(2)
+            print("[INIT] Waiting 5 seconds to avoid CoinGecko rate limit...")
+            time.sleep(5)
     except ProgrammingError:
         # Table doesn't exist yet - migrations need to run first
         print("[INIT] Database tables not yet created. Run migrations first.")
