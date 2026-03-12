@@ -125,25 +125,34 @@ def update_technical_indicators():
             if df.empty:
                 continue
 
-            latest_entry = df.iloc[-1]
+            # Save all calculated indicators, not just the latest
+            for timestamp, row in df.iterrows():
+                # Check if this timestamp already exists to avoid duplicates
+                existing = TechnicalIndicators.query.filter_by(
+                    coin_id=coin.id,
+                    timestamp=timestamp
+                ).first()
 
-            new_entry = TechnicalIndicators(
-                coin_id=coin.id,
-                SMA_50=latest_entry['SMA_50'],
-                SMA_200=latest_entry['SMA_200'],
-                EMA_50=latest_entry['EMA_50'],
-                EMA_200=latest_entry['EMA_200'],
-                RSI=latest_entry['RSI'],
-                MACD=latest_entry['MACD'],
-                MACD_Signal=latest_entry['MACD_Signal'],
-                Stoch_RSI_K=latest_entry['Stoch_RSI_K'],
-                Stoch_RSI_D=latest_entry['Stoch_RSI_D'],
-                BB_upper=latest_entry['BB_upper'],
-                BB_middle=latest_entry['BB_middle'],
-                BB_lower=latest_entry['BB_lower'],
-                Volume_Change=latest_entry['Volume_Change'],
-                timestamp=latest_entry.name
-            )
-            db.session.add(new_entry)
+                if existing:
+                    continue  # Skip if already exists
+
+                new_entry = TechnicalIndicators(
+                    coin_id=coin.id,
+                    SMA_50=row['SMA_50'],
+                    SMA_200=row['SMA_200'],
+                    EMA_50=row['EMA_50'],
+                    EMA_200=row['EMA_200'],
+                    RSI=row['RSI'],
+                    MACD=row['MACD'],
+                    MACD_Signal=row['MACD_Signal'],
+                    Stoch_RSI_K=row['Stoch_RSI_K'],
+                    Stoch_RSI_D=row['Stoch_RSI_D'],
+                    BB_upper=row['BB_upper'],
+                    BB_middle=row['BB_middle'],
+                    BB_lower=row['BB_lower'],
+                    Volume_Change=row['Volume_Change'],
+                    timestamp=timestamp
+                )
+                db.session.add(new_entry)
 
             db.session.commit()
