@@ -17,6 +17,7 @@ class Config:
     RESEND_API_KEY = os.getenv('RESEND_API_KEY')
     BACKEND_URL = os.getenv('BACKEND_URL', 'http://localhost:5050')
     FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+    BINANCE_BASE_URL = os.getenv('BINANCE_BASE_URL', 'https://api.binance.com')
 
     @staticmethod
     def init_app(app):

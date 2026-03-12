@@ -1,5 +1,6 @@
 import requests
 import time
+import os
 from backend.app.models import Coin, CoinSnapshot
 from backend.app.utils.coin_gecko import COINGECKO_API
 from backend.app.constants import TOP_10_BINANCE_COINS, COIN_SYMBOL_TO_ID
@@ -16,7 +17,7 @@ _binance_cache = {
     "timestamp": 0
 }
 
-BINANCE_BASE_URL = "https://data.binance.com"
+BINANCE_BASE_URL = os.environ.get('BINANCE_BASE_URL', 'https://api.binance.com')
 
 
 def get_cached_coingecko_data():

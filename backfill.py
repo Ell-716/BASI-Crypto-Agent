@@ -2,12 +2,14 @@ import requests
 import datetime
 import time
 import re
+import os
 from backend.app import create_app, db
 from backend.app.models import Coin, HistoricalData
 from backend.app.tasks import update_technical_indicators
 from backend.app.constants import COINS
 
-BINANCE_URL = "https://data.binance.com/api/v3/klines"
+BINANCE_BASE_URL = os.environ.get('BINANCE_BASE_URL', 'https://api.binance.com')
+BINANCE_URL = f"{BINANCE_BASE_URL}/api/v3/klines"
 
 def fetch_binance_ohlcv(symbol, interval="1h", limit=1440):
     url = f"{BINANCE_URL}?symbol={symbol}&interval={interval}&limit={limit}"
