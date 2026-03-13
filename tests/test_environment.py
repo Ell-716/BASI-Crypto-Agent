@@ -9,8 +9,7 @@ class TestEnvironmentConfig:
         required = [
             'SECRET_KEY',
             'JWT_SECRET_KEY',
-            'MAIL_USERNAME',
-            'MAIL_PASSWORD',
+            'RESEND_API_KEY',
             'GROQ_API_KEY',
         ]
         with app.app_context():
@@ -31,10 +30,6 @@ class TestEnvironmentConfig:
     # App starts in correct environment
     def test_app_is_in_testing_mode(self, app):
         assert app.config['TESTING'] is True
-
-    # Mail is suppressed in test environment
-    def test_mail_suppressed_in_tests(self, app):
-        assert app.config.get('MAIL_SUPPRESS_SEND') is True
 
     # JWT secret is not the default fallback value
     def test_jwt_secret_is_not_default(self, app):

@@ -11,9 +11,10 @@ def app():
         'TESTING': True,
         'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
         'JWT_ACCESS_TOKEN_EXPIRES': False,  # disable expiry in tests
-        'MAIL_SUPPRESS_SEND': True,         # suppress all emails
         'WTF_CSRF_ENABLED': False,
         'RATELIMIT_ENABLED': False,         # disable rate limiting in tests
+        'RESEND_API_KEY': 'test_resend_key',  # dummy key for tests
+        'GROQ_API_KEY': 'test_groq_key',      # dummy key for tests
     })
     with app.app_context():
         _db.create_all()

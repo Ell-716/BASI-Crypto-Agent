@@ -1,53 +1,154 @@
 # ₿A$I – Blockchain AI Smart Investor
 
-₿A$I is an AI-powered crypto assistant that monitors the market, analyzes technical indicators, and provides intelligent, explainable trading insights. Designed for accessibility, it offers real-time updates, charts, and predictions to help users make informed decisions.
+AI-powered cryptocurrency analysis platform with real-time market data, technical indicators, and Groq LLM predictions.
+
+[![GitHub Actions](https://github.com/Ell-716/BASI-Crypto-Agent/actions/workflows/test.yml/badge.svg)](https://github.com/Ell-716/BASI-Crypto-Agent/actions)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![React 18](https://img.shields.io/badge/react-18-blue.svg)](https://react.dev/)
 
 ---
 
-## 🚀 Features
+## 🌐 Live Demo
 
-- ✅ AI-powered predictions with natural language reasoning
-- ✅ Real-time WebSocket dashboard with live updates
-- ✅ Fear & Greed Index integration
-- ✅ Top 24h trading volume and sparkline charts
-- ✅ Coin detail pages with TradingView charts and coin info
-- ✅ Full user authentication (JWT + Bcrypt + Flask-Mail)
-- ✅ Mobile-responsive dark/light mode UI
+**[https://basi-frontend.onrender.com](https://basi-frontend.onrender.com)**
+
+> **Note:** Hosted on Render free tier. The app may take 1-2 minutes to wake up after inactivity. Data refreshes automatically on startup.
+
+> **Authentication Required:** The app requires authentication. You can create a free account to explore all features. You can delete your account at any time from the Account page.
 
 ---
 
-## 🧠 Tech Stack
+## 📐 Architecture
+
+```mermaid
+graph TB
+    User[User Browser] --> Frontend[React Frontend<br/>Render Static Site]
+    Frontend --> Backend[Flask Backend<br/>Render Docker]
+    Backend --> DB[(PostgreSQL<br/>Render)]
+    Backend --> Binance[Binance API<br/>Real-time Prices + OHLCV]
+    Backend --> CoinGecko[CoinGecko API<br/>Metadata + Market Cap]
+    Backend --> FearGreed[Alternative.me API<br/>Fear & Greed Index]
+    Backend --> Groq[Groq LLM<br/>llama-3.3-70b-versatile]
+    Backend -.WebSocket.-> Frontend
+```
+
+---
+
+## 🛠️ Tech Stack
 
 ### Backend
-- **Python**, **Flask**, **SQLAlchemy**
-- **Cron** for background tasks
-- **pandas-ta**, **Matplotlib**, **NumPy**, **Pandas**
-- **Groq LLM** (llama-3.3-70b model for predictions)
-- **WebSocket** via Flask-SocketIO
+- **Python 3.12+**, **Flask**, **SQLAlchemy**, **Flask-Migrate**
+- **Flask-SocketIO** (WebSocket for real-time updates)
+- **gevent** (async worker for Socket.IO)
+- **JWT** (Flask-JWT-Extended), **Bcrypt** (password hashing)
+- **Resend** (email verification & password reset)
+- **pandas-ta** (technical indicators), **Matplotlib** (chart generation)
+- **NumPy**, **Pandas** (data processing)
 
 ### Frontend
-- **React**, **Tailwind CSS**, **Vite**
-- **TradingView widget** for live charts
+- **React 18**, **Vite**, **Tailwind CSS**
+- **TradingView Lightweight Charts** (interactive price charts)
+- **Lucide React** (icon library)
+- **Axios** (HTTP client), **Socket.IO Client** (WebSocket)
 
 ### Database
-- **SQLite** (MVP) with future migration to **PostgreSQL**
+- **PostgreSQL** (production on Render)
+- **SQLite** (local development)
 
-### APIs
-- **Binance API** – hourly OHLCV historical data
-- **CoinGecko API** – coin metadata, market cap, volume
+### AI
+- **Groq LLM** (`llama-3.3-70b-versatile` model for AI predictions)
+
+### External APIs
+- **Binance API** – Real-time prices and OHLCV historical data
+- **CoinGecko API** – Coin metadata, market cap, global volume
 - **Alternative.me API** – Fear & Greed Index
 
-## ⚙️ Setup Instructions
+### DevOps
+- **Docker** (backend containerization)
+- **GitHub Actions** (CI/CD pipeline)
+- **Render** (hosting: Docker backend, static frontend, PostgreSQL)
 
-1. **Clone the repo**
+---
+
+## ✨ Features
+
+### Core Functionality
+- **AI Predictions** with natural language reasoning (Buy/Sell/Hold recommendations)
+- **Real-time WebSocket Dashboard** with live price updates every second
+- **Technical Indicators**: RSI, MACD, Bollinger Bands, Stochastic RSI, SMA, EMA
+- **Trading Charts** with candlesticks, support/resistance levels, volume overlay
+- **Fear & Greed Index** from Alternative.me (historical data + current value)
+- **Top 24h Volume** with sparkline charts showing price trends
+- **Coin Detail Pages** with TradingView charts and coin descriptions
+
+### User Features
+- **JWT Authentication** with email verification via Resend
+- **Favorite Coins** – Save and manage preferred cryptocurrencies per user
+- **Account Management** – Edit username, delete account
+- **Password Reset** via email with secure token-based flow
+- **Search Bar** for quick coin lookup in navbar
+- **Coin Page Dropdown** – Quick navigation to any coin from navbar
+
+### UI/UX
+- **Mobile-Responsive** design with dark/light mode support
+- **Subtle Background Animation** on auth pages (Ken Burns effect)
+- **Live Updates** via WebSocket with REST API fallback
+- **Loading States** and error handling throughout
+
+---
+
+## 🧠 How AI Prediction Works
+
+1. **Data Collection**
+   - Fetches OHLCV (Open, High, Low, Close, Volume) data from Binance API
+   - Retrieves Fear & Greed Index from Alternative.me
+   - Queries historical data from PostgreSQL database
+
+2. **Technical Analysis**
+   - Calculates indicators using `pandas-ta`:
+     - **Trend**: SMA (50, 200), EMA (50, 200)
+     - **Momentum**: RSI (14), MACD + Signal Line, Stochastic RSI (K%, D%)
+     - **Volatility**: Bollinger Bands (upper, middle, lower)
+   - Computes support and resistance levels from recent price windows
+
+3. **AI Prediction**
+   - Sends all indicators + market data to **Groq LLM** (`llama-3.3-70b-versatile`)
+   - Receives **Buy/Sell/Hold** recommendation with natural language explanation
+   - Two report modes:
+     - **Concise**: Quick recommendation (500 tokens)
+     - **Full**: Detailed analysis with reasoning (2500 tokens)
+
+4. **Visualization**
+   - Generates **Matplotlib charts**:
+     - Price chart with candlesticks + SMA/EMA overlays
+     - MACD/RSI chart with signal zones
+     - Bollinger Bands chart with price action
+   - Returns PNG images via Flask endpoints
+
+---
+
+## 📸 Screenshots
+
+*Screenshots coming soon*
+
+---
+
+## 🚀 Setup Instructions (Local Development)
+
+### Prerequisites
+- Python 3.12+ with pip
+- Node.js 18+ with npm
+- Git
+
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/Ell-716/BASI-Crypto-Agent.git
 cd BASI-Crypto-Agent
 ```
 
-2. **Backend Setup**
+### 2. Backend Setup
 ```bash
-# Create virtual environment (if not already present)
+# Create and activate virtual environment
 python3 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
@@ -56,37 +157,250 @@ pip install -r requirements.txt
 
 # Set up environment variables
 cp .env.example .env
-# Edit .env and add your actual API keys and credentials
-```
+# Edit .env and fill in your API keys (see Environment Variables section)
 
-3. **Start the Backend Server**
-```bash
+# Run database migrations
+flask db upgrade
+
+# Backfill historical data (required on first run)
+python backfill.py
+
+# Start the backend server
 python app.py
 ```
 
-4. **Frontend Setup**
+> **Important Notes:**
+> - **Never use `flask run`** — always use `python app.py` (Socket.IO requires gevent worker)
+> - **VPN must be off** when running locally (Binance API may block VPN traffic)
+> - Backend runs on `http://localhost:5050` by default
+
+### 3. Frontend Setup
 ```bash
+# In a separate terminal
 cd frontend
 npm install
 npm run dev
 ```
 
-5. **Set up Cron Jobs (Optional)**
+Frontend runs on `http://localhost:5173` by default.
+
+---
+
+## 🔐 Environment Variables
+
+Create a `.env` file in the project root with the following variables:
+
 ```bash
-# Example: Run every hour to update market data
-0 * * * * /path/to/BASI-Crypto-Agent/.venv/bin/python /path/to/BASI-Crypto-Agent/backend/cron_update.py
+# Flask & JWT Configuration
+SECRET_KEY=your-secret-key-here               # Flask secret key (generate with: python -c "import secrets; print(secrets.token_hex(32))")
+JWT_SECRET_KEY=your-jwt-secret-key-here       # JWT signing key (generate with same command)
+
+# API Keys
+GROQ_API_KEY=your-groq-api-key                # Get from: https://console.groq.com/
+RESEND_API_KEY=your-resend-api-key            # Get from: https://resend.com/
+
+# Database
+DATABASE_URL=sqlite:///crypto_agent_dev.db    # Local: SQLite, Production: PostgreSQL URL from Render
+
+# URLs
+FRONTEND_URL=http://localhost:5173            # Frontend URL (production: https://basi-frontend.onrender.com)
+BACKEND_URL=http://localhost:5050             # Backend URL (production: https://basi-backend.onrender.com)
+
+# External APIs
+BINANCE_BASE_URL=https://api.binance.com      # Production on Render: https://data-api.binance.vision
 ```
 
-## 📈 Future Roadmap
+### Getting API Keys
 
-- [ ] Deploy the app
-- [ ] Add future-style predictions & strategy layer
-- [ ] Migrate from SQLite to PostgreSQL
-- [ ] Switch from Flask to FastAPI
+- **Groq API**: Free tier available at [console.groq.com](https://console.groq.com/)
+- **Resend**: Free tier (100 emails/day) at [resend.com](https://resend.com/)
+- **Binance & CoinGecko**: No API key required for public endpoints
 
-## 📝 License
-This project is for educational/demo purposes. Not financial advice. 
+---
 
+## 🧪 Testing
 
+The project includes **40 pytest tests** covering:
+- Authentication flow (register, login, email verification, password reset)
+- AI prediction endpoints
+- Coin data retrieval
+- Environment configuration
+- Database models
 
+### Run Tests
+```bash
+# Activate virtual environment
+source .venv/bin/activate
 
+# Run all tests
+pytest
+
+# Run with coverage report
+pytest --cov=backend --cov-report=term-missing
+
+# Run specific test file
+pytest tests/test_auth.py
+```
+
+Tests use an in-memory SQLite database with mocked external API calls (Binance, CoinGecko, Groq).
+
+---
+
+## 🔄 CI/CD Pipeline
+
+### GitHub Actions
+- **Workflow**: `.github/workflows/test.yml`
+- **Triggers**: Every push to `main` and all pull requests
+- **Steps**:
+  1. Checkout code (`actions/checkout@v6`)
+  2. Set up Python 3.12 (`actions/setup-python@v6`)
+  3. Install dependencies
+  4. Run full test suite with pytest
+  5. Deploy to Render automatically on merge to `main`
+
+### Deployment
+- **Backend**: Deployed as Docker container on Render (auto-deploy from `main`)
+- **Frontend**: Deployed as static site on Render (auto-deploy from `main`)
+- **Database**: Managed PostgreSQL on Render
+
+---
+
+## 📡 API Endpoints
+
+### Authentication (`/users`)
+- `POST /users/add_user` – Register new user
+- `POST /users/login` – Login and receive JWT tokens
+- `GET /users/verify?token=<token>` – Verify email address
+- `POST /users/resend-verification` – Resend verification email
+- `POST /users/refresh` – Refresh access token
+- `POST /users/request-password-reset` – Request password reset link
+- `POST /users/reset-password` – Reset password with token
+
+### Coins (`/api/coins`)
+- `GET /api/coins` – List all supported coins (ordered by ID)
+- `GET /api/coins/<coin_id>` – Get coin by ID
+- `GET /api/coins/<coin_id>/history` – Get historical price data
+
+### Dashboard (`/api`)
+- `GET /api/fear-greed` – Current Fear & Greed Index
+- `GET /api/fear-greed-history` – Historical F&G data (30 days)
+- `GET /api/top-volume` – Top coins by 24h volume with sparklines
+- `GET /api/snapshot` – Market snapshot (global data)
+
+### Predictions (`/api`)
+- `GET /api/predict?coin=<symbol>&timeframe=<1h|1d|1w>&report_type=<concise|full>` – Get AI prediction
+  - Returns: JSON with analysis text, charts (base64 encoded)
+
+### Charts (`/chart`)
+- `GET /chart/price/<symbol>?timeframe=<1h|1d|1w>` – Price chart PNG
+- `GET /chart/macd-rsi/<symbol>?timeframe=<1h|1d|1w>` – MACD/RSI chart PNG
+- `GET /chart/bollinger/<symbol>?timeframe=<1h|1d|1w>` – Bollinger Bands chart PNG
+
+### User Management (`/users`)
+- `GET /users/<user_id>` – Get user profile (JWT required)
+- `PUT /users/<user_id>` – Update username and favorite coins (JWT required)
+- `DELETE /users/<user_id>` – Delete account (JWT required)
+
+### WebSocket Events (`/socket.io`)
+- `connect` – Client connects, receives initial coin data
+- `price_update` – Server emits live price updates every second
+- `disconnect` – Client disconnects
+
+---
+
+## 🚢 Deployment Notes
+
+### Render Configuration
+- **Backend**: Docker deployment
+  - Build command: `docker build -t basi-backend .`
+  - Start command: `python app.py`
+  - Port: 5050
+  - Environment: `BINANCE_BASE_URL=https://data-api.binance.vision`
+
+- **Frontend**: Static site
+  - Build command: `cd frontend && npm install && npm run build`
+  - Publish directory: `frontend/dist`
+
+- **Database**: PostgreSQL (Render managed service)
+
+### Render Free Tier Behavior
+- App **spins down after 15 minutes** of inactivity
+- **Cold start**: ~1-2 minute delay on first request after spin-down
+- **Data refresh**: Automatic on cold start if data is older than 6 hours
+  - Historical data: 6-hour staleness threshold
+  - CoinGecko snapshots: 24-hour staleness threshold
+  - Fear & Greed Index: 24-hour staleness threshold
+
+### Cron Jobs (For Always-On Hosting)
+The codebase includes cron scripts for production use:
+
+```bash
+# backend/cron_update.py - Update historical data & indicators
+# Run hourly: 0 * * * *
+
+# backend/app/dashboard/fear_greed.py - Update F&G index
+# Run daily: 0 0 * * *
+
+# backend/app/dashboard/top_volume.py - Update top volume
+# Run hourly: 0 * * * *
+```
+
+> **Note**: Cron jobs are **not needed on Render free tier** due to automatic data refresh on cold start. They are designed for paid hosting with always-on backends.
+
+---
+
+## ⚠️ Known Limitations
+
+### Free Tier Constraints
+- **Cold start delay**: 1-2 minutes after 15 min inactivity
+- **WebSocket intermittency**: May disconnect during periods of low activity
+- **Rate limiting**: Shared IP may be rate-limited by external APIs (Binance, CoinGecko)
+
+### Data Freshness
+- **1-hour predictions** require historical data less than 6 hours old
+- **Weekly predictions** always fetch fresh data from Binance (no DB dependency)
+
+### Email
+- Verification and password reset emails sent from shared Resend domain: `onboarding@resend.dev`
+- Custom domain requires paid Resend plan
+
+### Binance API Access
+- **VPN users**: Binance API blocks some VPN IPs (use `BINANCE_BASE_URL=https://data-api.binance.vision` workaround)
+- **Geo-restrictions**: Some regions may be blocked by Binance
+
+---
+
+## 🔮 Future Improvements
+
+- [ ] **Migrate to FastAPI** – Improve async performance and API documentation
+- [ ] **Portfolio Tracking** – Track holdings, profit/loss, realized gains
+- [ ] **Price Alerts** – Email/push notifications for price targets
+- [ ] **Strategy Layer** – Combine predictions with risk management (stop-loss, take-profit)
+- [ ] **Custom Domain** – Branded email sender via Resend
+- [ ] **Historical Backtesting** – Test AI predictions against past data
+- [ ] **Multi-LLM Support** – Compare predictions from different models (GPT-4, Claude, etc.)
+- [ ] **Mobile App** – React Native version with push notifications
+
+---
+
+## 📄 License
+
+This project is for **educational and demonstration purposes only**. It is **not financial advice**. Always do your own research before making investment decisions.
+
+**Disclaimer**: Cryptocurrency trading involves substantial risk of loss. Past performance is not indicative of future results.
+
+---
+
+## 👤 Author
+
+**Created with passion by Elena Bai**
+
+- GitHub: [@Ell-716](https://github.com/Ell-716)
+- Email: elenabai.2021@gmail.com
+
+---
+
+<div align="center">
+  <p><strong>Copyright © 2025-2026 Elena Bai. All rights reserved.</strong></p>
+  <p>⭐ If you find this project helpful, please give it a star on GitHub! ⭐</p>
+</div>
