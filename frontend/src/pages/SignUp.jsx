@@ -63,10 +63,21 @@ export default function SignUp() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-no-repeat bg-cover bg-center" style={{ backgroundImage: "url('/background.jpg')", backgroundPosition: 'center 50%' }}>
+    <div className="min-h-screen flex flex-col lg:flex-row relative overflow-hidden">
+      {/* Animated Background */}
+      <div
+        className="absolute inset-0 bg-no-repeat bg-cover bg-center"
+        style={{
+          backgroundImage: "url('/background.jpg')",
+          backgroundPosition: 'center 50%',
+          animation: 'kenBurns 18s ease-in-out infinite'
+        }}
+      />
 
-      {/* Mobile: Logo + Tagline */}
-      <div className="lg:hidden flex flex-col items-center pt-10 px-4 text-white">
+      {/* Content overlay */}
+      <div className="relative z-10 min-h-screen w-full flex flex-col lg:flex-row">
+          {/* Mobile: Logo + Tagline */}
+        <div className="lg:hidden flex flex-col items-center pt-10 px-4 text-white">
         <h1 className="text-7xl md:text-8xl font-extrabold text-white [text-shadow:_0_0_15px_rgb(59_130_246),_0_0_30px_rgb(59_130_246)]">
           ₿A$I
         </h1>
@@ -179,6 +190,18 @@ export default function SignUp() {
           </p>
         </div>
       </div>
+      </div>
+
+      <style>{`
+        @keyframes kenBurns {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.1);
+          }
+        }
+      `}</style>
     </div>
   );
 }
