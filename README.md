@@ -1,10 +1,6 @@
 # ₿A$I – Blockchain AI Smart Investor
 
-AI-powered cryptocurrency analysis platform with real-time market data, technical indicators, and Groq LLM predictions.
-
-[![GitHub Actions](https://github.com/Ell-716/BASI-Crypto-Agent/actions/workflows/test.yml/badge.svg)](https://github.com/Ell-716/BASI-Crypto-Agent/actions)
-[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![React 18](https://img.shields.io/badge/react-18-blue.svg)](https://react.dev/)
+AI-powered crypto assistant that monitors the market, analyzes technical indicators, and provides intelligent, explainable trading insights. Designed for accessibility, it offers real-time updates, charts, and predictions to help users make informed decisions.
 
 ---
 
@@ -127,12 +123,6 @@ graph TB
 
 ---
 
-## 📸 Screenshots
-
-*Screenshots coming soon*
-
----
-
 ## 🚀 Setup Instructions (Local Development)
 
 ### Prerequisites
@@ -143,7 +133,7 @@ graph TB
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/Ell-716/BASI-Crypto-Agent.git
-cd BASI-Crypto-Agent
+cd BASI-crypto-agent
 ```
 
 ### 2. Backend Setup
@@ -233,10 +223,7 @@ The project includes **40 pytest tests** covering:
 source .venv/bin/activate
 
 # Run all tests
-pytest
-
-# Run with coverage report
-pytest --cov=backend --cov-report=term-missing
+pytest -v
 
 # Run specific test file
 pytest tests/test_auth.py
@@ -338,11 +325,14 @@ The codebase includes cron scripts for production use:
 # backend/cron_update.py - Update historical data & indicators
 # Run hourly: 0 * * * *
 
-# backend/app/dashboard/fear_greed.py - Update F&G index
-# Run daily: 0 0 * * *
+# cron_update_fgi.py - Update Fear & Greed index
+# Run daily at 04:05: 5 4 * * *
 
-# backend/app/dashboard/top_volume.py - Update top volume
-# Run hourly: 0 * * * *
+# cron_update_top_volume.py - Update top volume
+# Run daily at 02:15: 15 2 * * * *
+
+# cron_update_snapshot.py - Update Market cap and Volume
+# Run daily at 02:00: 0 2 * * *
 ```
 
 > **Note**: Cron jobs are **not needed on Render free tier** due to automatic data refresh on cold start. They are designed for paid hosting with always-on backends.
