@@ -9,6 +9,16 @@ BINANCE_KLINES_URL = f"{BINANCE_BASE_URL}/api/v3/klines"
 
 
 def fetch_market_data(symbol, interval, limit=1000):
+    """Fetches OHLCV data from Binance API.
+
+    Args:
+        symbol: Cryptocurrency symbol.
+        interval: Kline interval (e.g., '1h', '1d', '1w').
+        limit: Number of data points to fetch (default: 1000).
+
+    Returns:
+        DataFrame with OHLCV data indexed by date, or None on error.
+    """
     pair = symbol.upper()
     if not pair.endswith("USDT"):
         pair += "USDT"
@@ -37,6 +47,7 @@ def fetch_market_data(symbol, interval, limit=1000):
 
 
 def calculate_indicators(df):
+    """Calculates technical indicators (SMA, MACD, RSI, Stochastic, Bollinger Bands)."""
 
     df["SMA_50"] = df["Close"].rolling(window=50, min_periods=1).mean()
     df["SMA_200"] = df["Close"].rolling(window=200, min_periods=1).mean()
@@ -73,6 +84,12 @@ def calculate_indicators(df):
 
 
 def generate_and_plot_charts(coin_symbol, timeframe=None):
+    """Fetches market data, calculates indicators, and generates charts.
+
+    Args:
+        coin_symbol: Cryptocurrency symbol.
+        timeframe: Time interval for charts ('1h', '1d', '1w').
+    """
     coin_symbol = normalize_symbol(coin_symbol)
     interval_map = {"1h": "1h", "1d": "1d", "1w": "1w"}
     interval = interval_map.get(timeframe)

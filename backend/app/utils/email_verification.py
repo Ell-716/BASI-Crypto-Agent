@@ -5,11 +5,22 @@ import os
 
 
 def generate_verification_token(email):
+    """Generate secure email verification token."""
     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     return serializer.dumps(email, salt='email-confirm')
 
 
 def confirm_verification_token(token, expiration=3600):
+    """
+    Verify email confirmation token.
+
+    Args:
+        token: Signed verification token
+        expiration: Token validity in seconds (default 1 hour)
+
+    Returns:
+        Email address if valid, None if expired/invalid
+    """
     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     try:
         email = serializer.loads(token, salt='email-confirm', max_age=expiration)
@@ -21,6 +32,7 @@ def confirm_verification_token(token, expiration=3600):
 
 
 def send_verification_email(email, verify_url):
+    """Send email verification link via Resend API."""
     resend.api_key = current_app.config['RESEND_API_KEY']
 
     resend.Emails.send({
@@ -38,6 +50,7 @@ def send_verification_email(email, verify_url):
 
 
 def send_password_reset_email(email, reset_url):
+    """Send password reset link via Resend API."""
     resend.api_key = current_app.config['RESEND_API_KEY']
 
     resend.Emails.send({

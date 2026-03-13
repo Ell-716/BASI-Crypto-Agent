@@ -21,6 +21,15 @@ migrate = Migrate()
 
 
 def create_app(config_name='development'):
+    """
+    Create and configure Flask application instance.
+
+    Args:
+        config_name: Environment config ('development', 'testing', 'production')
+
+    Returns:
+        Configured Flask app with all blueprints and extensions initialized
+    """
     app = Flask(
         __name__,
         instance_path=os.path.join(os.path.dirname(__file__), '..', 'instance'),

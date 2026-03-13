@@ -17,6 +17,16 @@ API_KEY = os.getenv('GROQ_API_KEY')
 
 
 def fetch_historical_data(coin_symbol, timeframe):
+    """Fetches and processes historical market data with technical indicators.
+
+    Args:
+        coin_symbol: Cryptocurrency symbol (e.g., 'BTC', 'ETH').
+        timeframe: Time interval ('1h', '1d', '1w').
+
+    Returns:
+        Dictionary containing market data, indicators, and investment recommendation,
+        or None if data unavailable.
+    """
     raw_symbol = coin_symbol.upper()
     normalized_symbol = SYMBOL_MAP.get(raw_symbol, raw_symbol)
 
@@ -152,6 +162,16 @@ def fetch_historical_data(coin_symbol, timeframe):
 
 
 def analyze_with_llm(coin_symbol, timeframe, report_type="concise"):
+    """Generates AI-powered market analysis using LLM based on historical data.
+
+    Args:
+        coin_symbol: Cryptocurrency symbol to analyze.
+        timeframe: Time interval for analysis ('1h', '1d', '1w').
+        report_type: Type of report ('concise' or 'full').
+
+    Returns:
+        Dictionary with coin symbol and analysis text, or error message.
+    """
     data = fetch_historical_data(coin_symbol, timeframe)
     if not data:
         return {"error": "No sufficient data available."}

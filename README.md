@@ -70,7 +70,7 @@ graph TB
 
 ### Core Functionality
 - **AI Predictions** with natural language reasoning (Buy/Sell/Hold recommendations)
-- **Real-time WebSocket Dashboard** with live price updates every second
+- **Real-time WebSocket Dashboard** with live price updates every minute
 - **Technical Indicators**: RSI, MACD, Bollinger Bands, Stochastic RSI, SMA, EMA
 - **Trading Charts** with candlesticks, support/resistance levels, volume overlay
 - **Fear & Greed Index** from Alternative.me (historical data + current value)
@@ -236,7 +236,7 @@ Tests use an in-memory SQLite database with mocked external API calls (Binance, 
 ## 🔄 CI/CD Pipeline
 
 ### GitHub Actions
-- **Workflow**: `.github/workflows/test.yml`
+- **Workflow**: `.github/workflows/ci.yml`
 - **Triggers**: Every push to `main` and all pull requests
 - **Steps**:
   1. Checkout code (`actions/checkout@v6`)
@@ -268,14 +268,15 @@ Tests use an in-memory SQLite database with mocked external API calls (Binance, 
 - `GET /api/coins/<coin_id>` – Get coin by ID
 - `GET /api/coins/<coin_id>/history` – Get historical price data
 
-### Dashboard (`/api`)
-- `GET /api/fear-greed` – Current Fear & Greed Index
-- `GET /api/fear-greed-history` – Historical F&G data (30 days)
-- `GET /api/top-volume` – Top coins by 24h volume with sparklines
-- `GET /api/snapshot` – Market snapshot (global data)
+### Dashboard (`/dashboard`)
+- `GET /dashboard/fear-greed` – Current Fear & Greed Index
+- `GET /dashboard/top-volume` – Top coins by 24h volume with sparklines
+- `GET /dashboard/sparkline/<symbol>` – Sparkline chart data for specific coin
+- `GET /dashboard/snapshot/<symbol>` – Market snapshot for specific coin
+- `GET /dashboard/coins` – Top 10 coins data
 
-### Predictions (`/api`)
-- `GET /api/predict?coin=<symbol>&timeframe=<1h|1d|1w>&report_type=<concise|full>` – Get AI prediction
+### Predictions
+- `GET /predict?coin=<symbol>&timeframe=<1h|1d|1w>&report_type=<concise|full>` – Get AI prediction
   - Returns: JSON with analysis text, charts (base64 encoded)
 
 ### Charts (`/chart`)
@@ -290,7 +291,8 @@ Tests use an in-memory SQLite database with mocked external API calls (Binance, 
 
 ### WebSocket Events (`/socket.io`)
 - `connect` – Client connects, receives initial coin data
-- `price_update` – Server emits live price updates every second
+- `coin_data` – Server emits live price updates every minute
+- `request_coin_data` – Client can request immediate data update
 - `disconnect` – Client disconnects
 
 ---

@@ -10,6 +10,7 @@ app = create_app()
 
 
 def update_historical_data():
+    """Fetches latest coin data from API and stores in database with 60-day rolling window."""
     with app.app_context():
         # Enforce rolling window mechanism
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=60)
@@ -66,6 +67,7 @@ def update_historical_data():
 
 
 def update_technical_indicators():
+    """Calculates and stores technical indicators for all coins based on historical data."""
     with app.app_context():
         # Rolling window cleanup
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=60)

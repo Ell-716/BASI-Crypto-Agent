@@ -8,6 +8,7 @@ socketio_instance_ref = None
 
 
 def start_coin_stream(socketio_instance, app):
+    """Start background task that emits live coin data every minute."""
     global socketio_instance_ref
     socketio_instance_ref = socketio_instance
 
@@ -24,6 +25,7 @@ def start_coin_stream(socketio_instance, app):
 
 
 def register_socket_handlers(socketio_instance, app):
+    """Register WebSocket event handlers for client connections."""
     @socketio_instance.on("connect", namespace="/")
     def handle_connect():
         print("[SOCKET] ⚡ Client connected")
@@ -36,6 +38,7 @@ def register_socket_handlers(socketio_instance, app):
 
 
 def emit_coin_data(socketio_instance):
+    """Emit current coin data to connected clients."""
     coins = prepare_coin_data()
     if coins:
         emit("coin_data", coins, namespace="/")
@@ -101,6 +104,7 @@ def prepare_coin_data():
     return coins
 
 def register_emit_route(app):
+    """Register internal REST endpoint to manually trigger WebSocket emit."""
     @app.route("/internal/emit-coin-data", methods=["POST"])
     def trigger_emit_coin_data():
         global socketio_instance_ref
