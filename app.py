@@ -10,7 +10,7 @@ app = create_app(config_name)
 print(f"[INIT] Flask app initialized in {config_name} mode")
 
 # Automatic backfill check - runs on app initialization
-from backend.app.models import HistoricalData, CoinSnapshot, TopVolume24h, FearGreedIndex, Coin
+from backend.app.models import HistoricalData, CoinSnapshot, TopVolume24h, FearGreedIndex
 from sqlalchemy.exc import ProgrammingError, OperationalError
 from sqlalchemy import desc
 
@@ -135,24 +135,6 @@ with app.app_context():
             print("[STARTUP] Warning: Binance ticker cache is empty")
     except Exception as e:
         print(f"[STARTUP] Error populating Binance cache: {e}")
-
-    # 6. Check for missing coin descriptions
-    try:
-        coins_without_descriptions = Coin.query.filter(
-            (Coin.description == None) | (Coin.description == '')
-        ).all()
-        if coins_without_descriptions:
-            print(f"[STARTUP] Found {len(coins_without_descriptions)} coins without descriptions")
-            print("[STARTUP] Running seed_descriptions()...")
-            from backfill import seed_descriptions
-            seed_descriptions()
-            print("[STARTUP] Coin descriptions populated.")
-        else:
-            print("[STARTUP] All coins have descriptions")
-    except (ProgrammingError, OperationalError):
-        print("[STARTUP] Tables not ready, skipping coin description check")
-    except Exception as e:
-        print(f"[STARTUP] Error checking/updating coin descriptions: {e}")
 
     print("[STARTUP] All data checks complete. App ready.")
 
