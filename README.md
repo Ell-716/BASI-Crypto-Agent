@@ -133,7 +133,7 @@ graph TB
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/Ell-716/BASI-Crypto-Agent.git
-cd BASI-crypto-agent
+cd BASI-Crypto-Agent
 ```
 
 ### 2. Backend Setup
