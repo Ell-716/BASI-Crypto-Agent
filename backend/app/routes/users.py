@@ -64,8 +64,9 @@ def add_user():
         backend_url = current_app.config['BACKEND_URL']
         verify_url = f"{backend_url}/users/verify?token={token}"
         send_verification_email(email, verify_url)
+        logging.info(f"Verification email sent to {email}")
     except Exception as mail_error:
-        logging.error(f"Failed to send verification email to {email}: {mail_error}")
+        logging.error(f"Failed to send verification email to {email}: {str(mail_error)[:100]}")
         # User is created successfully, mail failure is non-fatal
         return jsonify({
             "message": "Registration successful! We couldn't send the verification email right now — please use the resend option."
@@ -117,8 +118,9 @@ def resend_verification():
         backend_url = current_app.config['BACKEND_URL']
         verify_url = f"{backend_url}/users/verify?token={token}"
         send_verification_email(email, verify_url)
+        logging.info(f"Verification email resent to {email}")
     except Exception as mail_error:
-        logging.error(f"Failed to resend verification email to {email}: {mail_error}")
+        logging.error(f"Failed to resend verification email to {email}: {str(mail_error)[:100]}")
         return jsonify({"error": "Failed to send email. Please try again later."}), 500
 
     return jsonify({"message": "If that email exists and is unverified, a new link was sent."}), 200
@@ -258,11 +260,15 @@ def request_password_reset():
     if not user:
         return jsonify({"message": "If that email exists, a reset link was sent."}), 200
 
-    token = generate_password_reset_token(email)
-    frontend_url = current_app.config['FRONTEND_URL']
-    reset_url = f"{frontend_url}/reset-password?token={token}"
-
-    send_password_reset_email(email, reset_url)
+    try:
+        token = generate_password_reset_token(email)
+        frontend_url = current_app.config['FRONTEND_URL']
+        reset_url = f"{frontend_url}/reset-password?token={token}"
+        send_password_reset_email(email, reset_url)
+        logging.info(f"Password reset email sent to {email}")
+    except Exception as mail_error:
+        logging.error(f"Failed to send password reset email to {email}: {str(mail_error)[:100]}")
+        return jsonify({"error": "Failed to send email. Please try again later."}), 500
 
     return jsonify({"message": "If that email exists, a reset link was sent."}), 200
 
