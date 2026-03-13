@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { jwtDecode } from 'jwt-decode';
-import { User, Search, Menu } from 'lucide-react';
+import { User, Search, Menu, ChevronDown } from 'lucide-react';
 import api from '@/api/axios';
 
 const Navbar = () => {
@@ -11,7 +11,9 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredCoins, setFilteredCoins] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showCoinDropdown, setShowCoinDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const coinDropdownRef = useRef(null);
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
@@ -31,7 +33,7 @@ const Navbar = () => {
     const fetchCoins = async () => {
       try {
         const response = await api.get('/api/coins');
-        // Map API response to the format expected by search
+        // Map API response to the format expected by search and dropdown
         const mappedCoins = response.data.map(coin => ({
           coin_name: coin.name,
           coin_symbol: coin.symbol.toLowerCase()
@@ -43,6 +45,18 @@ const Navbar = () => {
     };
 
     fetchCoins();
+  }, []);
+
+  // Click outside to close coin dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (coinDropdownRef.current && !coinDropdownRef.current.contains(event.target)) {
+        setShowCoinDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleLogout = () => {
@@ -87,9 +101,36 @@ const Navbar = () => {
           </span>
 
           {/* Desktop Navigation - shows from md breakpoint */}
-          <nav className="hidden md:flex space-x-4 lg:space-x-6 xl:space-x-8">
+          <nav className="hidden md:flex space-x-4 lg:space-x-6 xl:space-x-8 items-center">
             <Link to="/" className="text-sm lg:text-base font-medium text-gray-800 dark:text-gray-100 hover:text-blue-600">Cryptocurrencies</Link>
             <Link to="/ai-predictions" className="text-sm lg:text-base font-medium text-gray-800 dark:text-gray-100 hover:text-blue-600">AI Predictions</Link>
+
+            {/* Coin Page Dropdown */}
+            <div className="relative" ref={coinDropdownRef}>
+              <button
+                onClick={() => setShowCoinDropdown(!showCoinDropdown)}
+                className="text-sm lg:text-base font-medium text-gray-800 dark:text-gray-100 hover:text-blue-600 flex items-center gap-1"
+              >
+                Coin Page
+                <ChevronDown className={`w-4 h-4 transition-transform ${showCoinDropdown ? 'rotate-180' : ''}`} />
+              </button>
+
+              {showCoinDropdown && coins.length > 0 && (
+                <div className="absolute top-full mt-1 left-0 w-48 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg z-50 py-1">
+                  {coins.map((coin) => (
+                    <Link
+                      key={coin.coin_symbol}
+                      to={`/coin/${coin.coin_symbol.toUpperCase()}`}
+                      onClick={() => setShowCoinDropdown(false)}
+                      className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-100 hover:bg-blue-50 dark:hover:bg-gray-700"
+                    >
+                      {coin.coin_name} ({coin.coin_symbol.toUpperCase()})
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <Link to="/about" className="text-sm lg:text-base font-medium text-gray-800 dark:text-gray-100 hover:text-blue-600">About</Link>
           </nav>
 
@@ -164,7 +205,7 @@ const Navbar = () => {
 
         {/* Mobile Menu - shows below md breakpoint */}
         {mobileMenuOpen && (
-          <div className="absolute top-12 sm:top-14 left-0 right-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-md md:hidden z-40">
+          <div className="absolute top-12 sm:top-14 left-0 right-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-md md:hidden z-40 max-h-[calc(100vh-3.5rem)] overflow-y-auto">
             <div className="px-4 py-2">
               <Link
                 to="/"
@@ -180,6 +221,35 @@ const Navbar = () => {
               >
                 AI Predictions
               </Link>
+
+              {/* Coin Page Dropdown in Mobile */}
+              <div className="py-2">
+                <button
+                  onClick={() => setShowCoinDropdown(!showCoinDropdown)}
+                  className="w-full flex items-center justify-between py-2 px-3 text-gray-800 dark:text-gray-100 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-md text-sm sm:text-base"
+                >
+                  Coin Page
+                  <ChevronDown className={`w-4 h-4 transition-transform ${showCoinDropdown ? 'rotate-180' : ''}`} />
+                </button>
+                {showCoinDropdown && coins.length > 0 && (
+                  <div className="mt-1 ml-4 space-y-1">
+                    {coins.map((coin) => (
+                      <Link
+                        key={coin.coin_symbol}
+                        to={`/coin/${coin.coin_symbol.toUpperCase()}`}
+                        onClick={() => {
+                          setShowCoinDropdown(false);
+                          setMobileMenuOpen(false);
+                        }}
+                        className="block py-2 px-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-md"
+                      >
+                        {coin.coin_name} ({coin.coin_symbol.toUpperCase()})
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <Link
                 to="/about"
                 className="block py-2 px-3 text-gray-800 dark:text-gray-100 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-md text-sm sm:text-base"
