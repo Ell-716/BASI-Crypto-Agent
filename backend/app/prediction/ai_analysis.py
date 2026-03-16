@@ -1,3 +1,10 @@
+"""
+AI-powered cryptocurrency market analysis using LLM.
+
+Provides functions to fetch historical data, calculate technical indicators,
+and generate market analysis using Groq's LLM API. Supports both concise and
+detailed analysis reports.
+"""
 from backend.app.models import HistoricalData, Coin
 from datetime import datetime, timezone, timedelta
 from backend.app.prediction.prompt_formatter import generate_prompt, FULL_PROMPT_TEMPLATE, CONCISE_PROMPT_TEMPLATE

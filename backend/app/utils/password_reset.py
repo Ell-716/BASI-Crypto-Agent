@@ -1,3 +1,9 @@
+"""
+Password reset token utilities.
+
+Handles generation and validation of time-limited password reset tokens
+for secure password recovery functionality.
+"""
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from flask import current_app
 

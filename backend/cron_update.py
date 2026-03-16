@@ -1,3 +1,10 @@
+"""
+Cron job script for updating historical data and technical indicators.
+
+Scheduled task that fetches latest cryptocurrency price data from APIs
+and calculates technical indicators for all tracked coins.
+Runs every hour via cron.
+"""
 import sys
 import os
 

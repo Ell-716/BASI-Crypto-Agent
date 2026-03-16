@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 
+// Password strength validation helper
 const checkPasswordStrength = (password) => ({
   length: password.length >= 8,
   upper: /[A-Z]/.test(password),
@@ -11,19 +12,23 @@ const checkPasswordStrength = (password) => ({
 });
 
 const ResetPassword = () => {
+  // Extract reset token from URL
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
 
+  // Password reset form state
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordChecks, setPasswordChecks] = useState({});
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // Update password strength checks in real-time
   useEffect(() => {
     setPasswordChecks(checkPasswordStrength(newPassword));
   }, [newPassword]);
 
+  // Handle password reset submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');

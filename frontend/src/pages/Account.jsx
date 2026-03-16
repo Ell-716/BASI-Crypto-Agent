@@ -6,15 +6,21 @@ import { useTheme } from '../context/ThemeContext';
 import { Link } from "react-router-dom";
 
 export default function Account() {
+  // User account state
   const [user, setUser] = useState(null);
   const [coins, setCoins] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [error, setError] = useState('');
+
+  // Username editing state
   const [editingUsername, setEditingUsername] = useState(false);
   const [newUsername, setNewUsername] = useState('');
+
+  // Delete confirmation modal state
   const [confirmOpen, setConfirmOpen] = useState(false);
   const { darkMode, setDarkMode } = useTheme();
 
+  // Extract user ID from JWT token
   const token = localStorage.getItem('access_token');
   let userId = null;
   if (token) {
@@ -26,6 +32,7 @@ export default function Account() {
     }
   }
 
+  // Delete user account and logout
   const handleDeleteAccount = async () => {
     try {
       await api.delete(`/users/${user.id}`);
@@ -38,6 +45,7 @@ export default function Account() {
     }
   };
 
+  // Toggle favorite status for a coin
   const toggleFavorite = async (symbol) => {
     const coin = coins.find(c => c.symbol === symbol);
     if (!coin || !userId) return;
@@ -53,11 +61,13 @@ export default function Account() {
     }
   };
 
+  // Apply dark mode setting
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
     localStorage.setItem('theme', darkMode ? 'dark' : 'light');
   }, [darkMode]);
 
+  // Fetch user data on mount
   useEffect(() => {
     if (!token || !userId) return;
 
@@ -73,6 +83,7 @@ export default function Account() {
       });
   }, []);
 
+  // WebSocket connection for real-time coin price updates
   useEffect(() => {
     const socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5050', {
       transports: ["websocket"],
@@ -97,11 +108,13 @@ export default function Account() {
       console.log("Disconnected from WebSocket");
     });
 
+    // Cleanup on unmount
     return () => {
       socket.disconnect();
     };
   }, []);
 
+  // Update username
   const handleUsernameUpdate = async () => {
     try {
       await api.put(`/users/${user.id}`, { user_name: newUsername });
@@ -114,12 +127,14 @@ export default function Account() {
 
   return (
     <main className="bg-white dark:bg-gray-900 min-h-screen px-6 sm:px-10 lg:px-16 xl:px-24 2xl:px-32 py-6 text-gray-800 dark:text-gray-100 max-w-[1600px] mx-auto">
+      {/* Account Information Section */}
       <h2 className="text-2xl font-semibold mb-4">Account Info</h2>
       <hr className="my-5 border-gray-300" />
       {error && <p className="text-red-600 text-sm mb-6">{error}</p>}
 
       {user ? (
         <>
+          {/* User details */}
           <div className="text-left space-y-4 mb-2">
             <p>
               <strong>Username: </strong>
@@ -137,6 +152,8 @@ export default function Account() {
               )}
             </p>
             <p><strong>Email:</strong> {user.email}</p>
+
+            {/* Dark mode toggle */}
             <div className="flex items-center gap-3 pt-2">
               <span className="font-medium"><strong>Mode:</strong></span>
               <label className="relative inline-flex items-center cursor-pointer">
@@ -148,6 +165,7 @@ export default function Account() {
             </div>
           </div>
 
+          {/* Account deletion button */}
           <div className="mt-8">
             <button onClick={() => setConfirmOpen(true)} className="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition">Delete account</button>
           </div>
@@ -156,6 +174,7 @@ export default function Account() {
 
       <hr className="my-5 border-gray-300" />
 
+      {/* Favorite Coins Section */}
       <h2 className="text-2xl font-semibold mb-4">Favorite Coins</h2>
       <div className="overflow-x-auto mt-4">
         <table className="min-w-full text-sm text-left">
@@ -206,6 +225,7 @@ export default function Account() {
         </table>
       </div>
 
+      {/* Delete confirmation modal */}
       {confirmOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl shadow-md w-80 text-center">

@@ -1,3 +1,10 @@
+"""
+External API integration for cryptocurrency market data.
+
+Handles data fetching from Binance and CoinGecko APIs with intelligent caching
+to reduce API calls and avoid rate limiting. Provides unified interface for
+retrieving real-time coin prices, market caps, and trading volumes.
+"""
 import requests
 import time
 import os
@@ -82,6 +89,41 @@ def get_cached_binance_tickers():
 
 
 def fetch_coin_data(coin_id=None):
+    """
+    Fetch real-time market data for tracked cryptocurrencies.
+
+    Retrieves current price, 24h high/low, and volume data from Binance API,
+    combined with market cap and global volume from database snapshots. Uses
+    cached Binance ticker data to minimize API calls and avoid rate limiting.
+
+    The function fetches data for all TOP_10_BINANCE_COINS or filters by coin_id
+    if provided. Each coin's data includes real-time Binance metrics merged with
+    periodically updated CoinGecko snapshot data (market cap, global volume).
+
+    Args:
+        coin_id (str, optional): Filter results by coin name (case-insensitive
+                                substring match). If None, returns all tracked coins.
+
+    Returns:
+        tuple: (coins, error) where:
+            - coins (list[dict]): List of coin data dictionaries with keys:
+                - symbol (str): Trading symbol without USDT (e.g., 'BTC')
+                - name (str): Full coin name (e.g., 'Bitcoin')
+                - image (str): URL to coin logo/icon
+                - current_price (float): Current price in USD
+                - high_24h (float): 24-hour high price
+                - low_24h (float): 24-hour low price
+                - total_volume (float): 24h trading volume from Binance
+                - global_volume (float or None): Global volume from snapshot
+                - market_cap (float or None): Market capitalization from snapshot
+            - error (str or None): Error message if Binance API fails, None on success
+
+    Example:
+        >>> coins, error = fetch_coin_data()
+        >>> if not error:
+        ...     for coin in coins:
+        ...         print(f"{coin['name']}: ${coin['current_price']}")
+    """
     coins = []
 
     # Get all tickers at once (cached)

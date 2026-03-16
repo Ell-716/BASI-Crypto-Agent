@@ -3,16 +3,20 @@ import api from '@/api/axios';
 import ReactMarkdown from "react-markdown";
 
 const AIPredictions = () => {
+  // Selected coin and available coins list
   const [coin, setCoin] = useState("");
   const [coinList, setCoinList] = useState([]);
+
+  // Prediction parameters
   const [timeframe, setTimeframe] = useState("1h");
   const [outputStyle, setOutputStyle] = useState("full");
+
+  // Prediction state
   const [loading, setLoading] = useState(false);
   const [prediction, setPrediction] = useState(null);
   const [displayedPrediction, setDisplayedPrediction] = useState(null);
 
-
-  // Fetch coin list
+  // Fetch available coins list on component mount
   useEffect(() => {
     api
       .get("/api/coins")
@@ -20,13 +24,14 @@ const AIPredictions = () => {
       .catch((err) => console.error("Error fetching coins:", err));
   }, []);
 
-  // Handle prediction button
+  // Generate AI prediction for selected coin
   const handlePrediction = async () => {
     if (!coin) return alert("Please select a coin.");
     setLoading(true);
     setPrediction(null);
 
     try {
+      // Request prediction from AI endpoint
       const res = await api.get("/predict", {
         params: {
           coin,
@@ -41,6 +46,7 @@ const AIPredictions = () => {
         _timeframe: timeframe,
       });
 
+      // Emit updated coin data via WebSocket
       await api.post("/internal/emit-coin-data");
 
     } catch (err) {
@@ -53,7 +59,7 @@ const AIPredictions = () => {
 
   return (
     <div className="p-6 max-w-5xl mx-auto text-gray-800 dark:text-gray-100">
-      {/* Explanation */}
+      {/* Page header with feature explanation and report types */}
       <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm text-center">
         <p className="text-lg text-gray-800 dark:text-gray-100 leading-relaxed">
           <strong className="text-blue-600 text-xl">Get AI-powered crypto predictions: buy, sell, or hold — in seconds.</strong><br />
@@ -65,9 +71,9 @@ const AIPredictions = () => {
         </ul>
       </div>
 
-      {/* Controls */}
+      {/* Control panel: coin selector, timeframe, and output style */}
       <div className="mt-10 flex flex-col md:flex-row gap-4 md:gap-0 justify-between items-center">
-        {/* Coin dropdown */}
+        {/* Coin selection dropdown */}
         <div className="flex-1">
           <select
             value={coin}
@@ -129,7 +135,7 @@ const AIPredictions = () => {
         </button>
       </div>
 
-      {/* Prediction Output */}
+      {/* AI Prediction output with markdown rendering and charts */}
       {displayedPrediction && (
         <div className="mt-8 bg-gray-50 dark:bg-gray-900 p-4 rounded-md border border-gray-200 dark:border-gray-700">
           {displayedPrediction.error ? (
@@ -141,10 +147,11 @@ const AIPredictions = () => {
               </h2>
               <div className="prose dark:prose-invert text-gray-800 dark:text-gray-100 max-w-none">
                   {console.log("RAW MARKDOWN:\n", displayedPrediction.analysis)}
+                {/* Render markdown analysis with custom image component for charts */}
                 <ReactMarkdown
                     components={{
                         img: ({ alt, src }) => {
-
+                            // Map chart placeholders to dynamic chart URLs
                             const chartUrls = {
                                 "chart-price": `${import.meta.env.VITE_API_URL || 'http://localhost:5050'}/chart/price/${displayedPrediction._coin}?timeframe=${displayedPrediction._timeframe}`,
                                 "chart-macd-rsi": `${import.meta.env.VITE_API_URL || 'http://localhost:5050'}/chart/macd-rsi/${displayedPrediction._coin}?timeframe=${displayedPrediction._timeframe}`,

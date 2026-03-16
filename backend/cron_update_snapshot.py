@@ -1,3 +1,10 @@
+"""
+Cron job script for updating cryptocurrency market cap and volume snapshots.
+
+Scheduled task that fetches market cap and trading volume data from CoinGecko API
+and stores snapshots in the database for dashboard display.
+Runs once a day via cron.
+"""
 import sys
 import os
 

@@ -1,8 +1,24 @@
+"""
+Helper functions for LLM-based cryptocurrency analysis.
+
+Provides data resampling and technical indicator computation functions
+specifically tailored for preparing market data for LLM analysis.
+"""
 import pandas as pd
 import numpy as np
 
 
 def resample_and_compute_indicators(data, timeframe):
+    """
+    Resample market data and compute technical indicators for LLM analysis.
+
+    Args:
+        data: Historical market data (DataFrame or list of database records)
+        timeframe: Target timeframe for resampling ('1h', '1d', '1w')
+
+    Returns:
+        DataFrame with resampled OHLCV data and computed technical indicators
+    """
     if isinstance(data, pd.DataFrame):
         df = data.copy()
         df["timestamp"] = pd.to_datetime(df["timestamp"])

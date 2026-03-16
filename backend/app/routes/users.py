@@ -1,3 +1,9 @@
+"""
+User management routes for authentication and account operations.
+
+Handles user registration, login, email verification, password reset,
+profile management, and favorite coins functionality.
+"""
 from flask import Blueprint, request, jsonify, render_template, current_app
 from backend.app.models import db, User, Coin
 from flask_bcrypt import Bcrypt
@@ -16,10 +22,18 @@ bcrypt = Bcrypt()
 users_bp = Blueprint('users', __name__, url_prefix='/users')
 
 
-# Register a new user
 @users_bp.route('/add_user', methods=['POST'])
 @limiter.limit("5 per minute")
 def add_user():
+    """
+    Register a new user account.
+
+    Validates password strength and username format, creates user account,
+    and sends verification email.
+
+    Returns:
+        JSON response with success/error message and HTTP status code
+    """
     data = request.get_json()
     email = data.get('email')
     user_name = data.get('user_name')
@@ -77,6 +91,20 @@ def add_user():
 
 @users_bp.route('/verify', methods=['GET'])
 def verify_email():
+    """
+    Verify user email address via token link.
+
+    Endpoint: GET /users/verify?token=<token>
+
+    Handles email verification by confirming the token and marking the user
+    as verified. Renders an HTML page with the verification result.
+
+    Query Parameters:
+        token (str): Email verification token from registration email
+
+    Returns:
+        Response: HTML page showing verification status message
+    """
     frontend_url = current_app.config['FRONTEND_URL']
     token = request.args.get('token')
     if not token:
@@ -101,6 +129,23 @@ def verify_email():
 @users_bp.route('/resend-verification', methods=['POST'])
 @limiter.limit("3 per minute")
 def resend_verification():
+    """
+    Resend email verification link to user.
+
+    Endpoint: POST /users/resend-verification
+
+    Generates a new verification token and sends it to the user's email.
+    Returns a generic message for security (doesn't reveal if email exists).
+    Rate limited to 3 requests per minute.
+
+    Request Body:
+        {
+            "email": str
+        }
+
+    Returns:
+        Response: JSON with message (200) or error (400, 500)
+    """
     data = request.get_json()
     email = data.get('email')
 
@@ -130,6 +175,26 @@ def resend_verification():
 @users_bp.route('/login', methods=['POST'])
 @limiter.limit("10 per minute")
 def login():
+    """
+    Authenticate user and issue JWT tokens.
+
+    Endpoint: POST /users/login
+
+    Validates credentials, checks email verification status, and issues both
+    access and refresh JWT tokens for authenticated sessions. Rate limited
+    to 10 requests per minute.
+
+    Request Body:
+        {
+            "email": str,
+            "password": str
+        }
+
+    Returns:
+        Response: JSON with access_token and refresh_token (200),
+                 bad request (400), invalid credentials (401),
+                 or unverified email (403)
+    """
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
@@ -153,6 +218,21 @@ def login():
 @users_bp.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh():
+    """
+    Refresh JWT access token using refresh token.
+
+    Endpoint: POST /users/refresh
+
+    Issues a new access token when the current one expires. Requires a valid
+    refresh token in the Authorization header. Used to maintain user sessions
+    without requiring re-login.
+
+    Headers:
+        Authorization: Bearer <refresh_token>
+
+    Returns:
+        Response: JSON with new access_token (200) or unauthorized error (401)
+    """
     current_user = get_jwt_identity()
     new_token = create_access_token(identity=current_user)
     return jsonify(access_token=new_token), 200
@@ -162,6 +242,24 @@ def refresh():
 @users_bp.route('/<int:user_id>', methods=['GET'])
 @jwt_required()
 def get_user(user_id):
+    """
+    Retrieve user profile information.
+
+    Endpoint: GET /users/<user_id>
+
+    Returns user details including email, username, and favorite coins list.
+    Users can only access their own profile (enforced via JWT identity check).
+
+    Args:
+        user_id (int): Database ID of the user
+
+    Headers:
+        Authorization: Bearer <access_token>
+
+    Returns:
+        Response: JSON with user details (200), unauthorized (403),
+                 or not found (404)
+    """
     current_user_id = int(get_jwt_identity())
     if current_user_id != user_id:
         return jsonify({"error": "Unauthorized"}), 403
@@ -182,6 +280,32 @@ def get_user(user_id):
 @users_bp.route('/<int:user_id>', methods=['PUT'])
 @jwt_required()
 def update_user(user_id):
+    """
+    Update user profile (username and favorite coins).
+
+    Endpoint: PUT /users/<user_id>
+
+    Allows users to change their username and manage their favorite coins list.
+    Supports adding and removing multiple coins in a single request. Users can
+    only update their own profile.
+
+    Args:
+        user_id (int): Database ID of the user
+
+    Headers:
+        Authorization: Bearer <access_token>
+
+    Request Body:
+        {
+            "user_name": str (optional),
+            "add_coins": [int] (optional, list of coin IDs to add),
+            "remove_coins": [int] (optional, list of coin IDs to remove)
+        }
+
+    Returns:
+        Response: JSON with updated profile (200), unauthorized (403),
+                 not found (404), or database error (500)
+    """
     current_user_id = int(get_jwt_identity())
     if current_user_id != user_id:
         return jsonify({"error": "Unauthorized"}), 403
@@ -227,6 +351,25 @@ def update_user(user_id):
 @users_bp.route('/<int:user_id>', methods=['DELETE'])
 @jwt_required()
 def delete_user(user_id):
+    """
+    Permanently delete user account.
+
+    Endpoint: DELETE /users/<user_id>
+
+    Removes the user account from the database. This is a destructive operation
+    that cannot be undone. Users can only delete their own account. Associated
+    data like favorite coins relationships are also removed.
+
+    Args:
+        user_id (int): Database ID of the user
+
+    Headers:
+        Authorization: Bearer <access_token>
+
+    Returns:
+        Response: JSON success message (200), unauthorized (403),
+                 not found (404), or database error (500)
+    """
     current_user_id = int(get_jwt_identity())
     if current_user_id != user_id:
         return jsonify({"error": "Unauthorized"}), 403
@@ -249,6 +392,24 @@ def delete_user(user_id):
 @users_bp.route('/request-password-reset', methods=['POST'])
 @limiter.limit("3 per minute")
 def request_password_reset():
+    """
+    Request password reset link via email.
+
+    Endpoint: POST /users/request-password-reset
+
+    Generates a password reset token and sends it to the user's email address.
+    Returns a generic message for security (doesn't reveal if email exists).
+    Rate limited to 3 requests per minute to prevent abuse.
+
+    Request Body:
+        {
+            "email": str
+        }
+
+    Returns:
+        Response: JSON with generic success message (200),
+                 bad request (400), or email error (500)
+    """
     data = request.get_json()
     email = data.get('email')
 
@@ -275,6 +436,25 @@ def request_password_reset():
 
 @users_bp.route('/reset-password', methods=['POST'])
 def reset_password():
+    """
+    Reset user password using token from email.
+
+    Endpoint: POST /users/reset-password
+
+    Validates the reset token and updates the user's password. Enforces
+    password strength requirements. This completes the password reset flow
+    initiated by request-password-reset.
+
+    Request Body:
+        {
+            "token": str,
+            "new_password": str
+        }
+
+    Returns:
+        Response: JSON success message (200), bad request for missing fields
+                 or weak password (400), not found if user doesn't exist (404)
+    """
     data = request.get_json()
     token = data.get('token')
     new_password = data.get('new_password')

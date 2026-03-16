@@ -1,3 +1,15 @@
+"""
+Chart generation for cryptocurrency technical analysis predictions.
+
+Creates matplotlib-based visualizations for AI prediction reports, including:
+- Candlestick charts with support/resistance levels
+- Price charts with moving averages (SMA 50, SMA 200)
+- Bollinger Bands overlays
+- MACD and Stochastic RSI indicator charts
+
+All charts use black background with color-coded candles and indicators
+optimized for AI analysis interpretation.
+"""
 from backend.app.utils.chart_helpers import aggregate_candles
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -5,6 +17,22 @@ import numpy as np
 
 
 def plot_base_candlestick_chart(df, coin_symbol, timeframe):
+    """
+    Create base candlestick chart with volume and support/resistance levels.
+
+    Generates a dual-panel chart with candlesticks and volume bars. Includes
+    support and resistance lines calculated from price extremes. This serves
+    as the foundation chart for overlays like SMA and Bollinger Bands.
+
+    Args:
+        df (pd.DataFrame): Price data with OHLCV columns
+        coin_symbol (str): Trading symbol (e.g., 'BTC')
+        timeframe (str): Aggregation period ('1h', '1d', or '1w')
+
+    Returns:
+        tuple: (fig, ax1, ax2) matplotlib figure and axes objects, or (None, None, None)
+               if insufficient data. ax1 is price chart, ax2 is volume chart.
+    """
     df = aggregate_candles(df, timeframe)
     if df is None or df.empty:
         print("Not enough data available for the selected timeframe.")
@@ -78,6 +106,21 @@ def plot_base_candlestick_chart(df, coin_symbol, timeframe):
 
 
 def plot_price_chart(df, coin_symbol, timeframe=None):
+    """
+    Generate price candlestick chart with SMA 50 and SMA 200 overlays.
+
+    Creates a complete trading chart showing candlesticks, volume, support/resistance,
+    and moving averages. Used in AI predictions to analyze trend direction and
+    momentum. SMA crossovers are key signals for buy/sell recommendations.
+
+    Args:
+        df (pd.DataFrame): Price data with OHLCV and pre-calculated SMA_50, SMA_200
+        coin_symbol (str): Trading symbol for chart title
+        timeframe (str, optional): Candle aggregation period ('1h', '1d', '1w')
+
+    Returns:
+        matplotlib.figure.Figure: Complete chart figure, or None if insufficient data
+    """
     fig, ax1, ax2 = plot_base_candlestick_chart(df, coin_symbol, timeframe)
     if fig is None:
         return
@@ -96,6 +139,23 @@ def plot_price_chart(df, coin_symbol, timeframe=None):
 
 
 def plot_bollinger_bands(df, coin_symbol, timeframe=None, window=20, num_std=2):
+    """
+    Create price chart with Bollinger Bands overlay for volatility analysis.
+
+    Plots candlesticks with Bollinger Bands calculated using a simple moving average
+    (middle band) and standard deviation bands above/below. Used in AI predictions
+    to identify overbought/oversold conditions and volatility breakouts.
+
+    Args:
+        df (pd.DataFrame): Price data with OHLCV columns
+        coin_symbol (str): Trading symbol for chart title
+        timeframe (str, optional): Candle aggregation period ('1h', '1d', '1w')
+        window (int, optional): SMA period for middle band. Default 20.
+        num_std (int, optional): Number of standard deviations for bands. Default 2.
+
+    Returns:
+        matplotlib.figure.Figure: Chart with Bollinger Bands, or None if insufficient data
+    """
     fig, ax1, ax2 = plot_base_candlestick_chart(df, coin_symbol, timeframe)
     if fig is None:
         return
@@ -122,6 +182,25 @@ def plot_bollinger_bands(df, coin_symbol, timeframe=None, window=20, num_std=2):
 
 
 def plot_macd_rsi(df, timeframe):
+    """
+    Generate dual-panel chart showing MACD and Stochastic RSI indicators.
+
+    Creates a specialized technical indicator chart with:
+    - Top panel: MACD line, signal line, and histogram (12, 26, 9 settings)
+    - Bottom panel: Stochastic RSI with %K and %D lines (14, 3, 3 settings)
+
+    Used in AI predictions to identify momentum shifts, divergences, and
+    overbought/oversold conditions. Both indicators are smoothed for cleaner signals.
+
+    Args:
+        df (pd.DataFrame): Price data with pre-calculated MACD_Line, Signal_Line,
+                          MACD_Histogram, Stoch_K, and Stoch_D columns
+        timeframe (str): Candle aggregation period ('1h', '1d', '1w')
+
+    Returns:
+        matplotlib.figure.Figure: Indicator chart figure, or None if insufficient data
+                                 or missing required columns
+    """
     df = aggregate_candles(df, timeframe)
     if df is None or df.empty:
         print("Not enough data available for the selected timeframe.")

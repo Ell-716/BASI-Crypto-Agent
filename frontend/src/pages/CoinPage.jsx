@@ -7,10 +7,14 @@ import SparklineChart from "@/components/SparklineChart";
 
 function CoinPage() {
   const { symbol } = useParams();
+  // Static data from database (description, image, etc.)
   const [coinStatic, setCoinStatic] = useState(null);
+  // Live price data from WebSocket
   const [liveCoin, setLiveCoin] = useState(null);
+  // Sparkline chart data
   const [sparklineData, setSparklineData] = useState([]);
 
+  // Fetch static coin data from API
   useEffect(() => {
     async function fetchCoinStaticData() {
       try {
@@ -23,6 +27,7 @@ function CoinPage() {
     fetchCoinStaticData();
   }, [symbol]);
 
+  // Fetch sparkline chart data
   useEffect(() => {
     if (symbol) {
         api.get(`/dashboard/sparkline/${symbol}`)
@@ -31,6 +36,7 @@ function CoinPage() {
         }
     }, [symbol]);
 
+  // WebSocket connection for real-time price updates
   useEffect(() => {
     const socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5050', {
       transports: ["websocket"],
@@ -46,6 +52,7 @@ function CoinPage() {
       socket.emit("request_coin_data");
     });
 
+    // Filter incoming data for this specific coin
     socket.on("coin_data", (data) => {
       const match = data.find((c) => c.symbol === symbol);
       if (match) {
@@ -58,17 +65,19 @@ function CoinPage() {
       console.log("Disconnected from WebSocket");
     });
 
+    // Cleanup on unmount
     return () => {
       socket.disconnect();
     };
   }, [symbol]);
 
+  // Show loading while fetching static data
   if (!coinStatic) return <div className="text-center mt-10">Loading...</div>;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
       <div className="flex flex-col lg:flex-row justify-between gap-10">
-        {/* Left: Coin Info */}
+        {/* Left column: Coin information and stats */}
         <div className="lg:w-[30%] space-y-6">
           <div className="flex items-center gap-2">
             <img src={coinStatic.image} alt={coinStatic.coin_name} className="w-10 h-10 object-contain" />
@@ -78,11 +87,13 @@ function CoinPage() {
                 <span className="text-gray-500 dark:text-gray-400">Price</span>
             </div>
           </div>
-          {/* Live Price */}
+
+          {/* Current live price from WebSocket */}
           <p className="text-5xl font-bold text-gray-900 dark:text-white mt-">
             {liveCoin?.current_price ? `$${Number(liveCoin.current_price).toFixed(2).toLocaleString()}` : '—'}
           </p>
 
+          {/* Market statistics */}
           <div className="space-y-3">
             <div className="flex justify-between rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-3 bg-white dark:bg-gray-800">
               <span className="font-bold">Market Cap:</span>
@@ -108,7 +119,8 @@ function CoinPage() {
                 {liveCoin?.low_24h ? `$${Number(liveCoin.low_24h).toFixed(2).toLocaleString()}` : '—'}
               </span>
             </div>
-            {/* Sparkline inside same block */}
+
+            {/* 7-day price sparkline */}
             {sparklineData.length > 0 && (
               <div className="flex justify-between rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-3 bg-white dark:bg-gray-800">
                 <SparklineChart data={sparklineData} />
@@ -117,7 +129,7 @@ function CoinPage() {
           </div>
         </div>
 
-        {/* Right: Chart */}
+        {/* Right column: TradingView chart */}
         <div className="lg:w-[65%]">
           <TradingViewWidget symbol={coinStatic.symbol} />
           <div className="text-left text-xs mt-2">
@@ -126,7 +138,7 @@ function CoinPage() {
         </div>
       </div>
 
-      {/* About Section */}
+      {/* Coin description section */}
       <div className="mt-10 rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-3 bg-white dark:bg-gray-800">
         <h2 className="text-2xl font-bold text-blue-600 mb-4">About {coinStatic.coin_name}</h2>
         <p className="text-gray-900 dark:text-white mt-">{coinStatic.description}</p>

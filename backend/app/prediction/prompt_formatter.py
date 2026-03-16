@@ -1,3 +1,10 @@
+"""
+LLM prompt templates for cryptocurrency market analysis.
+
+Defines prompt templates for generating concise and detailed market analysis
+reports. Includes data formatting functions to prepare market data for LLM input.
+"""
+
 # Concise Report Template
 CONCISE_PROMPT_TEMPLATE = """
 Role: Cryptocurrency Market Analyst

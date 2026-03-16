@@ -1,7 +1,23 @@
+"""
+Helper functions for chart data aggregation and candle resampling.
+
+Provides utilities to aggregate OHLCV data across different timeframes
+while preserving technical indicator columns.
+"""
 import pandas as pd
 
 
 def aggregate_candles(df, timeframe):
+    """
+    Aggregate candlestick data to specified timeframe.
+
+    Args:
+        df: DataFrame with OHLCV data and optional indicator columns
+        timeframe: Target timeframe ('1h', '1d', '1w')
+
+    Returns:
+        DataFrame with aggregated OHLCV data and preserved indicators
+    """
     df.index = pd.to_datetime(df.index)
     df = df.sort_index()
 

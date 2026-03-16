@@ -1,3 +1,9 @@
+"""
+Top 24h trading volume tracker for cryptocurrency dashboard.
+
+Calculates and stores the coin with highest 24-hour trading volume based on
+historical data. Implements a 2-day rolling window for data cleanup.
+"""
 from backend.app import db
 from backend.app.models import HistoricalData, Coin
 from sqlalchemy import desc
@@ -6,6 +12,24 @@ from backend.app.models import TopVolume24h
 
 
 def update_top_volume_24h():
+    """
+    Calculate and store 24-hour trading volume for all coins.
+
+    Computes the total quote volume (price * volume) for each coin over the past
+    24 hours using historical data. Implements a 2-day rolling window by deleting
+    entries older than 2 days to prevent unbounded database growth.
+
+    The function:
+    1. Removes TopVolume24h entries older than 2 days
+    2. For each coin, sums (price * volume) from all historical entries in the last 24h
+    3. Stores the calculated volume with current timestamp in TopVolume24h table
+    4. Logs cleanup and storage statistics
+
+    This data is used by the dashboard to display the coin with highest trading activity.
+
+    Returns:
+        None: Results are stored in the database and logged to console.
+    """
     now = datetime.now(timezone.utc)
     cutoff = now - timedelta(days=2)
     volume_window = now - timedelta(hours=24)

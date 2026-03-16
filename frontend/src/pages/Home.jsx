@@ -7,6 +7,7 @@ import { jwtDecode } from 'jwt-decode';
 import { Link } from "react-router-dom";
 
 const Home = () => {
+  // State for dashboard widgets
   const [topVolume, setTopVolume] = useState(null);
   const [fearGreed, setFearGreed] = useState(null);
   const [coins, setCoins] = useState([]);
@@ -14,6 +15,7 @@ const Home = () => {
   const [sparklineData, setSparklineData] = useState([]);
   const [snapshot, setSnapshot] = useState(null);
 
+  // Extract user ID from JWT token
   const token = localStorage.getItem('access_token');
   let userId = null;
   if (token) {
@@ -25,8 +27,10 @@ const Home = () => {
     }
   }
 
+  // Find live price data for top volume coin
   const topCoinData = coins.find((coin) => coin.symbol === topVolume?.symbol);
 
+  // Toggle favorite status for a coin
   const toggleFavorite = async (symbol) => {
     const coin = coins.find(c => c.symbol === symbol);
     if (!coin || !userId) {
@@ -38,6 +42,7 @@ const Home = () => {
     const isFavorite = favorites.includes(symbol);
     console.log("Toggle favorite:", { symbol, isFavorite, coinId });
 
+    // Build request payload
     const payload = isFavorite
       ? { remove_coins: [coinId] }
       : { add_coins: [coinId] };
@@ -54,7 +59,7 @@ const Home = () => {
     }
   };
 
-  // Fetch fear & greed and top volume once
+  // Fetch static dashboard data once on mount
   useEffect(() => {
     const fetchStaticData = async () => {
       try {
@@ -71,6 +76,7 @@ const Home = () => {
     fetchStaticData();
   }, []);
 
+  // Fetch sparkline data when top volume coin changes
   useEffect(() => {
     if (topVolume?.symbol) {
       api.get(`/dashboard/sparkline/${topVolume.symbol}`)
@@ -79,6 +85,7 @@ const Home = () => {
     }
   }, [topVolume]);
 
+  // Fetch market snapshot when top volume coin changes
   useEffect(() => {
     if (topVolume?.symbol) {
       api.get(`/dashboard/snapshot/${topVolume.symbol}`)
@@ -87,7 +94,7 @@ const Home = () => {
     }
   }, [topVolume]);
 
-  // Fetch user favorites
+  // Load user's favorite coins
   useEffect(() => {
     if (!userId) return;
     api.get(`/users/${userId}`)
@@ -95,11 +102,12 @@ const Home = () => {
       .catch((err) => console.error("Failed to load favorites:", err));
   }, [userId]);
 
-  // WebSocket for live updates with REST fallback
+  // WebSocket connection for real-time coin price updates
   useEffect(() => {
     let hasReceivedData = false;
     let fallbackTimer = null;
 
+    // Initialize WebSocket connection
     const socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5050', {
       transports: ["websocket"],
       path: "/socket.io",
@@ -113,7 +121,7 @@ const Home = () => {
       console.log("WebSocket connected");
       socket.emit("request_coin_data");
 
-      // Set 5-second timeout for fallback to REST API
+      // Fallback to REST API if WebSocket doesn't respond
       fallbackTimer = setTimeout(async () => {
         if (!hasReceivedData) {
           console.log("WebSocket timeout, falling back to REST API");
@@ -130,6 +138,7 @@ const Home = () => {
       }, 5000);
     });
 
+    // Handle incoming coin data from WebSocket
     socket.on("coin_data", (data) => {
       hasReceivedData = true;
       if (fallbackTimer) {
@@ -143,6 +152,7 @@ const Home = () => {
       console.log("Disconnected from WebSocket");
     });
 
+    // Cleanup on unmount
     return () => {
       if (fallbackTimer) clearTimeout(fallbackTimer);
       socket.disconnect();
@@ -151,7 +161,9 @@ const Home = () => {
 
   return (
     <main className="bg-white dark:bg-gray-900 min-h-screen px-6 sm:px-10 lg:px-16 xl:px-24 2xl:px-32 py-6 text-gray-800 dark:text-gray-100 max-w-[1600px] mx-auto">
+      {/* Dashboard widgets - Top Volume & Fear/Greed */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        {/* Top 24h Volume Widget */}
         <div className="rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-4 bg-white dark:bg-gray-800">
           <h2 className="text-xl font-semibold text-center mb-4">Highest 24h trading volume</h2>
           {topVolume && (
@@ -176,6 +188,7 @@ const Home = () => {
           )}
         </div>
 
+        {/* Fear & Greed Index Widget */}
         <div className="rounded-md border border-gray-200 dark:border-gray-700 shadow-sm p-4 bg-white dark:bg-gray-800">
           <h2 className="text-xl font-semibold text-center mb-4">Fear & Greed Index</h2>
           {fearGreed ? (
@@ -184,12 +197,13 @@ const Home = () => {
         </div>
       </div>
 
+      {/* Cryptocurrency Table */}
       <div className="overflow-x-auto mt-4">
         <table className="min-w-full text-sm text-left">
           <thead className="border-y border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
             <tr>
-              <th className="px-2 py-3 font-bold text-black dark:text-white w-8"></th>
-              <th className="px-4 py-3 font-bold text-black dark:text-white w-8">#</th>
+              <th className="px-2 py-3 font-bold text-black dark:text-white w-8"></th> {/* Favorite star */}
+              <th className="px-4 py-3 font-bold text-black dark:text-white w-8">#</th> {/* Rank */}
               <th className="px-4 py-3 font-bold text-black dark:text-white min-w-[180px]">Coin</th>
               <th className="px-4 py-3 font-bold text-black dark:text-white text-right min-w-[120px]">Price</th>
               <th className="hidden sm:table-cell px-4 py-3 font-bold text-black dark:text-white text-right min-w-[120px]">24h High</th>

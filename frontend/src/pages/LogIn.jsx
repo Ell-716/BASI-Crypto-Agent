@@ -4,19 +4,25 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function LogIn() {
+  // Login form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // Password reset modal state
   const [resetOpen, setResetOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetMessage, setResetMessage] = useState('');
+
+  // Email verification resend modal state
   const [resendOpen, setResendOpen] = useState(false);
   const [resendEmail, setResendEmail] = useState('');
   const [resendMessage, setResendMessage] = useState('');
   const [showResendLink, setShowResendLink] = useState(false);
 
+  // Handle login form submission
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
@@ -27,6 +33,7 @@ export default function LogIn() {
         password
       });
 
+      // Store tokens and redirect on success
       if (res.status === 200 && res.data.access_token) {
         localStorage.setItem('access_token', res.data.access_token);
         localStorage.setItem('refresh_token', res.data.refresh_token);
@@ -44,6 +51,7 @@ export default function LogIn() {
     }
   };
 
+  // Handle password reset request
   const handleReset = async (e) => {
     e.preventDefault();
     setResetMessage('');
@@ -64,6 +72,7 @@ export default function LogIn() {
     }
   };
 
+  // Handle resend verification email request
   const handleResend = async (e) => {
     e.preventDefault();
     setResendMessage('');
@@ -118,7 +127,7 @@ export default function LogIn() {
         </p>
       </div>
 
-      {/* Right Column */}
+      {/* Right Column: Login form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 lg:p-16">
         <div className="w-full max-w-md bg-white bg-opacity-90 border-2 border-blue-600 rounded-3xl p-6 sm:p-10 shadow-xl">
           <h2 className="text-2xl sm:text-3xl font-bold text-center text-blue-600 mb-6 sm:mb-8">
@@ -128,6 +137,7 @@ export default function LogIn() {
           {error && <p className="text-red-600 text-sm mb-4 text-center">{error}</p>}
           {success && <p className="text-green-600 text-sm mb-4 text-center">{success}</p>}
 
+          {/* Login form with email and password */}
           <form onSubmit={handleLogin} className="space-y-6">
             <input
               type="email"

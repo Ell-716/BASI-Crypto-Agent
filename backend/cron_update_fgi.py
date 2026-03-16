@@ -1,3 +1,10 @@
+"""
+Cron job script for updating the Crypto Fear & Greed Index.
+
+Scheduled task that fetches the latest Fear & Greed Index from Alternative.me API
+and stores it in the database for dashboard display.
+Runs once a day via cron.
+"""
 import sys
 import os
 

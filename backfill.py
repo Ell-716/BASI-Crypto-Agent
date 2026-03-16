@@ -1,3 +1,10 @@
+"""
+Initial database backfill script for historical cryptocurrency data.
+
+Fetches historical OHLCV data from Binance for all configured coins and
+populates the database. Also fetches coin descriptions from CoinGecko.
+Run once during initial setup or to rebuild historical data.
+"""
 import requests
 import datetime
 import time
@@ -12,12 +19,33 @@ BINANCE_BASE_URL = os.environ.get('BINANCE_BASE_URL', 'https://api.binance.com')
 BINANCE_URL = f"{BINANCE_BASE_URL}/api/v3/klines"
 
 def fetch_binance_ohlcv(symbol, interval="1h", limit=1440):
+    """
+    Fetch OHLCV candlestick data from Binance API.
+
+    Args:
+        symbol: Trading pair symbol (e.g., 'BTCUSDT')
+        interval: Candlestick interval (default: '1h')
+        limit: Number of candlesticks to fetch (default: 1440)
+
+    Returns:
+        list: Raw Binance kline data
+
+    Raises:
+        requests.HTTPError: If API request fails
+    """
     url = f"{BINANCE_URL}?symbol={symbol}&interval={interval}&limit={limit}"
     response = requests.get(url, timeout=10)
     response.raise_for_status()
     return response.json()
 
 def backfill_historical_data():
+    """
+    Backfill historical data for all configured coins from Binance.
+
+    Fetches 60 days of hourly OHLCV data, creates coin records if needed,
+    and populates HistoricalData table. Also updates technical indicators
+    after data import.
+    """
     app = create_app()
     with app.app_context():
         for coin in COINS:

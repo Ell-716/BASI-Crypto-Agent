@@ -1,3 +1,9 @@
+"""
+CoinGecko API integration for cryptocurrency market data.
+
+Fetches market cap and trading volume data from CoinGecko API and stores
+snapshots in the database. Implements retry logic for rate limit handling.
+"""
 import requests
 import time
 from datetime import datetime, timezone
@@ -8,6 +14,13 @@ COINGECKO_API = "https://api.coingecko.com/api/v3/coins/markets"
 
 
 def update_coin_snapshots():
+    """
+    Fetch and update cryptocurrency market snapshots from CoinGecko.
+
+    Retrieves market cap and trading volume for all configured coins.
+    Implements retry logic with backoff for rate limit handling (429 errors).
+    Replaces all existing snapshots with fresh data on successful fetch.
+    """
     try:
         ids = ",".join(COIN_SYMBOL_TO_ID.values())
 

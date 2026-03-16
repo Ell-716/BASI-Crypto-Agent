@@ -1,3 +1,10 @@
+"""
+WebSocket tasks for real-time cryptocurrency data streaming.
+
+Manages WebSocket connections and emits live coin data updates every minute
+to connected clients. Handles client connections, data requests, and background
+data emission tasks.
+"""
 from flask_socketio import emit
 from backend.app.utils.api import get_cached_binance_tickers, get_cached_coingecko_data
 from backend.app.models import Coin, CoinSnapshot

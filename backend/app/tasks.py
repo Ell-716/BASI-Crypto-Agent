@@ -1,3 +1,10 @@
+"""
+Background tasks for updating historical data and technical indicators.
+
+Provides functions to fetch cryptocurrency data from external APIs and calculate
+technical indicators (SMA, EMA, RSI, MACD, Bollinger Bands, etc.) for analysis.
+Implements a 60-day rolling window to manage database size.
+"""
 from backend.app import create_app, db
 from backend.app.models import HistoricalData, TechnicalIndicators, Coin
 from backend.app.utils.api import fetch_coin_data

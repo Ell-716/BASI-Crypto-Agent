@@ -1,3 +1,9 @@
+"""
+Flask extensions module.
+
+Initializes and configures Flask extensions used across the application.
+Currently configures Flask-Limiter for rate limiting API endpoints.
+"""
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 

@@ -3,6 +3,7 @@ import api from '../api/axios';
 import { Eye, EyeOff } from 'lucide-react';
 
 export default function SignUp() {
+  // Registration form state
   const [form, setForm] = useState({
     user_name: '',
     email: '',
@@ -18,9 +19,11 @@ export default function SignUp() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // Validation helpers
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const isValidUsername = (name) => /^[a-zA-Z0-9_]{3,}$/.test(name);
 
+  // Real-time password strength checks
   const passwordChecks = {
     length: form.password.length >= 8,
     upper: /[A-Z]/.test(form.password),
@@ -29,12 +32,14 @@ export default function SignUp() {
     special: /[@#$%^&*!]/.test(form.password)
   };
 
+  // Handle registration form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
     setFieldErrors({});
 
+    // Client-side validation
     const errors = {};
     if (!isValidEmail(form.email.trim())) errors.email = 'Please enter a valid email address.';
     if (!isValidUsername(form.user_name.trim())) errors.user_name = 'Username must be at least 3 characters. Letters, numbers, and underscores only.';
@@ -106,6 +111,7 @@ export default function SignUp() {
           {error && <p className="text-red-600 text-sm mb-4 text-center">{error}</p>}
           {success && <p className="text-green-600 text-sm mb-4 text-center">{success}</p>}
 
+          {/* Registration form with validation and password strength checks */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <input

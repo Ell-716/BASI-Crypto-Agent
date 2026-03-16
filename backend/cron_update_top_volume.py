@@ -1,3 +1,10 @@
+"""
+Cron job script for updating the top 24h trading volume tracker.
+
+Scheduled task that calculates which cryptocurrency has the highest 24-hour
+trading volume and stores the result in the database for dashboard display.
+Runs once a day via cron.
+"""
 import sys
 import os
 

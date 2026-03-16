@@ -1,3 +1,11 @@
+"""
+Main Flask application entry point.
+
+Initializes the Flask app with WebSocket support, runs automatic backfill
+if database is empty, and performs startup data freshness checks to ensure
+all dashboard data is current. Designed for deployment on platforms like
+Render with cold-start resilience.
+"""
 from backend.app import create_app
 from backend.app import socketio
 import os

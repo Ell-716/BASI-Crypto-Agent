@@ -1,3 +1,9 @@
+"""
+Email verification utilities for user account confirmation.
+
+Handles generation and validation of email verification tokens,
+and sends verification emails using Resend API.
+"""
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from flask import current_app
 import resend
