@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from backend.app.utils.api import fetch_coin_data
 from backend.app.models import db, Coin, HistoricalData, CoinSnapshot
 from datetime import datetime, timezone, timedelta
+import os
 
 coins_bp = Blueprint('coins', __name__, url_prefix='/api')
 
@@ -185,3 +186,23 @@ def get_coin_by_symbol(symbol):
         "global_volume": snapshot.global_volume if snapshot else None,
         "description": coin.description
     })
+
+
+@coins_bp.route('/admin/seed-descriptions', methods=['POST'])
+def admin_seed_descriptions():
+    """
+    Temporary admin endpoint to populate missing coin descriptions.
+    Remove this endpoint after all descriptions are populated.
+    """
+    # Check admin secret
+    admin_secret = os.environ.get('ADMIN_SECRET')
+    if not admin_secret:
+        return jsonify({"error": "Admin endpoint not configured"}), 500
+
+    provided_secret = request.headers.get('X-Admin-Secret')
+    if not provided_secret or provided_secret != admin_secret:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    from backfill import seed_descriptions
+    seed_descriptions()
+    return jsonify({"status": "done"}), 200
