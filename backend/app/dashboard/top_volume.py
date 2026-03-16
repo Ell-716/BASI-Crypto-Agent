@@ -68,9 +68,9 @@ def get_top_coin_by_24h_volume():
         .first()
     )
 
-    # If no data for today, get the most recent entry
+    # If no data for today, get the coin with highest volume from available data
     if not result:
-        print("[TopVolume] No data for today, fetching most recent entry")
+        print("[TopVolume] No data for today, fetching highest volume entry")
         result = (
             db.session.query(
                 Coin.coin_name,
@@ -79,7 +79,7 @@ def get_top_coin_by_24h_volume():
                 TopVolume24h.top_volume
             )
             .join(TopVolume24h, Coin.id == TopVolume24h.coin_id)
-            .order_by(desc(TopVolume24h.timestamp))
+            .order_by(desc(TopVolume24h.top_volume))
             .first()
         )
 
