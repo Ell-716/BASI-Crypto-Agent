@@ -54,8 +54,8 @@ def get_cached_coingecko_data():
 def get_cached_binance_tickers():
     """Fetch all Binance tickers with caching to avoid rate limits"""
     now = time.time()
-    # Cache for 5 minutes to reduce API calls
-    cache_duration = 300  # 5 minutes
+    # Cache for 1 minute to match WebSocket emission frequency
+    cache_duration = 60  # 1 minute
 
     # Return cached data if fresh
     if _binance_cache["data"] and now - _binance_cache["timestamp"] < cache_duration:

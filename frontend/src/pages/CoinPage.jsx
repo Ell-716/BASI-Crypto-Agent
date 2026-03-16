@@ -36,18 +36,21 @@ function CoinPage() {
       transports: ["websocket"],
       path: "/socket.io",
       forceNew: true,
-      reconnection: false
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5
     });
 
     socket.on("connect", () => {
+      console.log("WebSocket connected");
       socket.emit("request_coin_data");
     });
 
-    socket.off("coin_data");
     socket.on("coin_data", (data) => {
       const match = data.find((c) => c.symbol === symbol);
       if (match) {
         setLiveCoin(match);
+        console.log("Updated live coin data for", symbol);
       }
     });
 
@@ -56,7 +59,7 @@ function CoinPage() {
     });
 
     return () => {
-      if (socket.connected) socket.disconnect();
+      socket.disconnect();
     };
   }, [symbol]);
 

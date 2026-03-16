@@ -104,10 +104,13 @@ const Home = () => {
       transports: ["websocket"],
       path: "/socket.io",
       forceNew: true,
-      reconnection: false
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5
     });
 
     socket.on("connect", () => {
+      console.log("WebSocket connected");
       socket.emit("request_coin_data");
 
       // Set 5-second timeout for fallback to REST API
@@ -127,13 +130,13 @@ const Home = () => {
       }, 5000);
     });
 
-    socket.off("coin_data");
     socket.on("coin_data", (data) => {
       hasReceivedData = true;
       if (fallbackTimer) {
         clearTimeout(fallbackTimer);
       }
       setCoins(data);
+      console.log("Received coin data update:", data.length, "coins");
     });
 
     socket.on("disconnect", () => {
@@ -142,7 +145,7 @@ const Home = () => {
 
     return () => {
       if (fallbackTimer) clearTimeout(fallbackTimer);
-      if (socket.connected) socket.disconnect();
+      socket.disconnect();
     };
   }, []);
 
