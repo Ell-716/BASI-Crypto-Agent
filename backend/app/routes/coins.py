@@ -188,12 +188,13 @@ def get_coin_by_symbol(symbol):
     })
 
 
-@coins_bp.route('/admin/seed-descriptions', methods=['POST'])
-def admin_seed_descriptions():
+@coins_bp.route('/admin/set-description', methods=['POST'])
+def admin_set_description():
     """
-    Temporary admin endpoint to populate missing coin descriptions.
-    Accepts optional 'symbol' parameter to process one coin at a time.
-    Usage: POST /admin/seed-descriptions?symbol=SOL
+    Temporary admin endpoint to manually set a coin description.
+    Accepts JSON body with 'symbol' and 'description' fields.
+    Usage: POST /admin/set-description
+           Body: {"symbol": "SOL", "description": "Solana is a high-performance..."}
     Remove this endpoint after all descriptions are populated.
     """
     # Check admin secret
@@ -205,53 +206,25 @@ def admin_seed_descriptions():
     if not provided_secret or provided_secret != admin_secret:
         return jsonify({"error": "Unauthorized"}), 401
 
-    # Get optional coin symbol parameter
-    coin_symbol = request.args.get('symbol')
+    # Get JSON data
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No JSON data provided"}), 400
 
-    if coin_symbol:
-        # Process single coin
-        import requests
-        import re
-        from backend.app.constants import COINS
+    symbol = data.get('symbol')
+    description = data.get('description')
 
-        coin_symbol = coin_symbol.upper()
-        coin_data = next((c for c in COINS if c["symbol"] == coin_symbol), None)
+    if not symbol or not description:
+        return jsonify({"error": "Both 'symbol' and 'description' fields are required"}), 400
 
-        if not coin_data:
-            return jsonify({"error": f"Coin {coin_symbol} not found in COINS list"}), 404
+    # Find the coin in database
+    symbol = symbol.upper()
+    coin_obj = Coin.query.filter_by(coin_symbol=symbol).first()
+    if not coin_obj:
+        return jsonify({"error": f"Coin {symbol} not found in database"}), 404
 
-        coin_obj = Coin.query.filter_by(coin_symbol=coin_symbol).first()
-        if not coin_obj:
-            return jsonify({"error": f"Coin {coin_symbol} not found in database"}), 404
+    # Update description
+    coin_obj.description = description
+    db.session.commit()
 
-        if coin_obj.description:
-            return jsonify({"status": "skipped", "message": f"{coin_symbol} already has a description"}), 200
-
-        try:
-            url = f"https://api.coingecko.com/api/v3/coins/{coin_data['coingecko_id']}"
-            res = requests.get(url, params={"localization": "false"}, timeout=10)
-            res.raise_for_status()
-            data = res.json()
-
-            raw_description = data.get("description", {}).get("en", "")
-            if not raw_description:
-                return jsonify({"error": f"No description found for {coin_symbol}"}), 404
-
-            # Strip HTML tags
-            clean = re.sub(r'<[^>]+>', '', raw_description)
-            clean = re.sub(r'\s+', ' ', clean).strip()
-
-            coin_obj.description = clean
-            db.session.commit()
-
-            return jsonify({"status": "success", "message": f"Description saved for {coin_symbol}"}), 200
-
-        except requests.exceptions.HTTPError as e:
-            return jsonify({"error": f"CoinGecko API error: {str(e)}"}), 503
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
-    else:
-        # Process all coins (original behavior)
-        from backfill import seed_descriptions
-        seed_descriptions()
-        return jsonify({"status": "done"}), 200
+    return jsonify({"status": "success", "message": f"Description set for {symbol}"}), 200
