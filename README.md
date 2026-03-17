@@ -8,7 +8,7 @@ AI-powered crypto assistant that monitors the market, analyzes technical indicat
 
 **[https://basi-frontend.onrender.com](https://basi-frontend.onrender.com)**
 
-> **Note:** Hosted on Render free tier. The app may take 2-3 minutes to wake up after inactivity. Data refreshes automatically on startup.
+> **Note:** Hosted on Render free tier. The app may take 1-2 minutes to wake up after inactivity. Data refreshes automatically on startup.
 
 > **Authentication Required:** The app requires authentication. You can create a free account to explore all features. You can delete your account at any time from the Account page.
 
