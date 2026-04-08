@@ -6,7 +6,7 @@ AI-powered crypto assistant that monitors the market, analyzes technical indicat
 
 ## 🌐 Live Demo
 
-**[https://basi-frontend.onrender.com](https://basi-frontend.onrender.com)**
+**[https://app.basiai.org](https://app.basiai.org)**
 
 > **Note:** Hosted on Render free tier. The app may take 1-2 minutes to wake up after inactivity. Data refreshes automatically on startup.
 
@@ -193,8 +193,8 @@ RESEND_API_KEY=your-resend-api-key            # Get from: https://resend.com/
 DATABASE_URL=sqlite:///crypto_agent_dev.db    # Local: SQLite, Production: PostgreSQL URL from Render
 
 # URLs
-FRONTEND_URL=http://localhost:5173            # Frontend URL (production: https://basi-frontend.onrender.com)
-BACKEND_URL=http://localhost:5050             # Backend URL (production: https://basi-backend.onrender.com)
+FRONTEND_URL=http://localhost:5173            # Frontend URL (production: https://app.basiai.org)
+BACKEND_URL=http://localhost:5050             # Backend URL (production: https://api.basiai.org)
 
 # External APIs
 BINANCE_BASE_URL=https://api.binance.com      # Production on Render: https://data-api.binance.vision
@@ -353,8 +353,7 @@ The codebase includes cron scripts for production use:
 - **Weekly predictions** always fetch fresh data from Binance (no DB dependency)
 
 ### Email
-- Verification and password reset emails sent from shared Resend domain: `onboarding@resend.dev`
-- Custom domain requires paid Resend plan
+- Verification and password reset emails sent from custom domain: `noreply@basiai.org`
 
 ### Binance API Access
 - **VPN users**: Binance API blocks some VPN IPs (use `BINANCE_BASE_URL=https://data-api.binance.vision` workaround)
@@ -368,7 +367,6 @@ The codebase includes cron scripts for production use:
 - [ ] **Portfolio Tracking** – Track holdings, profit/loss, realized gains
 - [ ] **Price Alerts** – Email/push notifications for price targets
 - [ ] **Strategy Layer** – Combine predictions with risk management (stop-loss, take-profit)
-- [ ] **Custom Domain** – Branded email sender via Resend
 - [ ] **Historical Backtesting** – Test AI predictions against past data
 - [ ] **Multi-LLM Support** – Compare predictions from different models (GPT-4, Claude, etc.)
 - [ ] **Mobile App** – React Native version with push notifications
