@@ -42,7 +42,7 @@ def send_verification_email(email, verify_url):
     resend.api_key = current_app.config['RESEND_API_KEY']
 
     resend.Emails.send({
-        "from": "BASI Crypto <onboarding@resend.dev>",
+        "from": "BASI Crypto <noreply@basiai.org>",
         "to": email,
         "subject": "Welcome to BASI - Verify your email",
         "html": (
@@ -60,7 +60,7 @@ def send_password_reset_email(email, reset_url):
     resend.api_key = current_app.config['RESEND_API_KEY']
 
     resend.Emails.send({
-        "from": "BASI Crypto <onboarding@resend.dev>",
+        "from": "BASI Crypto <noreply@basiai.org>",
         "to": email,
         "subject": "Reset your BASI password",
         "html": (
