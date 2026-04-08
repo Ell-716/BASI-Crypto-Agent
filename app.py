@@ -63,8 +63,9 @@ with app.app_context():
                 print(f"[STARTUP] Historical data last updated: {latest_ts} (stale)")
             else:
                 print("[STARTUP] Historical data table empty")
-            print("[STARTUP] Refreshing historical data...")
-            from backend.app.tasks import update_historical_data, update_technical_indicators
+            print("[STARTUP] Refreshing historical data (backfilling recent klines)...")
+            from backend.app.tasks import backfill_recent_klines, update_historical_data, update_technical_indicators
+            backfill_recent_klines()
             update_historical_data()
             update_technical_indicators()
             print("[STARTUP] Historical data refresh complete.")

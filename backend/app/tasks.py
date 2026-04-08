@@ -8,12 +8,73 @@ Implements a 60-day rolling window to manage database size.
 from backend.app import create_app, db
 from backend.app.models import HistoricalData, TechnicalIndicators, Coin
 from backend.app.utils.api import fetch_coin_data
+from backend.app.constants import COINS
 from datetime import datetime, timezone, timedelta
+import os
+import requests
 import pandas as pd
 import pandas_ta as ta
 
+BINANCE_BASE_URL = os.environ.get('BINANCE_BASE_URL', 'https://api.binance.com')
+
 # Create Flask app instance for context management
 app = create_app()
+
+
+def backfill_recent_klines(days=8):
+    """
+    Backfill missing hourly price data for the last N days using Binance klines.
+
+    Called on cold start when historical data is stale (e.g. after Render free-tier
+    sleep). Fetches recent 1h candles and inserts any hours not already in the DB,
+    ensuring the 7-day sparkline always has enough data points.
+    Duplicate hours are skipped via the coin_id + timestamp uniqueness check.
+    """
+    with app.app_context():
+        limit = days * 24  # hourly candles to request
+
+        for coin in COINS:
+            binance_symbol = coin["binance_symbol"]
+            clean_symbol = coin["symbol"]
+
+            coin_obj = Coin.query.filter_by(coin_symbol=clean_symbol).first()
+            if not coin_obj:
+                print(f"[BackfillRecent] Coin not found in DB: {clean_symbol}, skipping")
+                continue
+
+            try:
+                url = f"{BINANCE_BASE_URL}/api/v3/klines"
+                params = {"symbol": binance_symbol, "interval": "1h", "limit": limit}
+                response = requests.get(url, params=params, timeout=15)
+                response.raise_for_status()
+                klines = response.json()
+            except Exception as e:
+                print(f"[BackfillRecent] Failed to fetch klines for {binance_symbol}: {e}")
+                continue
+
+            new_count = 0
+            for entry in klines:
+                # Store as naive UTC to match the rest of the DB
+                ts = datetime.fromtimestamp(entry[0] / 1000.0, tz=timezone.utc).replace(tzinfo=None)
+
+                existing = HistoricalData.query.filter_by(
+                    coin_id=coin_obj.id, timestamp=ts
+                ).first()
+                if existing:
+                    continue
+
+                db.session.add(HistoricalData(
+                    coin_id=coin_obj.id,
+                    price=float(entry[4]),   # close price of that hourly candle
+                    high=float(entry[2]),
+                    low=float(entry[3]),
+                    volume=float(entry[5]),
+                    timestamp=ts
+                ))
+                new_count += 1
+
+            db.session.commit()
+            print(f"[BackfillRecent] {clean_symbol}: inserted {new_count} missing hourly candles")
 
 
 def update_historical_data():

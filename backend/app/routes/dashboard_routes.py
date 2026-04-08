@@ -100,7 +100,9 @@ def get_sparkline_data(symbol):
                  or server error (500)
     """
     try:
-        since = datetime.now(timezone.utc) - timedelta(days=7)
+        # Use naive UTC to match how timestamps are stored in the DB (avoids
+        # timezone-aware vs naive mismatch in PostgreSQL comparisons)
+        since = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=7)
 
         coin = Coin.query.filter_by(coin_symbol=symbol).first()
         if not coin:
