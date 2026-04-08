@@ -375,9 +375,9 @@ The codebase includes cron scripts for production use:
 
 ## 📄 License
 
-This project is for **educational and demonstration purposes only**. It is **not financial advice**. Always do your own research before making investment decisions.
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
-**Disclaimer**: Cryptocurrency trading involves substantial risk of loss. Past performance is not indicative of future results.
+> **Disclaimer**: This project is for **educational and demonstration purposes only**. It is **not financial advice**. Cryptocurrency trading involves substantial risk of loss. Always do your own research before making investment decisions.
 
 ---
 
