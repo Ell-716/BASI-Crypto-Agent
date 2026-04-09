@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { jwtDecode } from 'jwt-decode';
 import { User, Search, Menu, ChevronDown } from 'lucide-react';
@@ -6,6 +6,7 @@ import api from '@/api/axios';
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [loggedIn, setLoggedIn] = useState(false);
   const [coins, setCoins] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -46,6 +47,12 @@ const Navbar = () => {
 
     fetchCoins();
   }, []);
+
+  // Close menus on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setShowCoinDropdown(false);
+  }, [location.pathname]);
 
   // Click outside to close coin dropdown
   useEffect(() => {
@@ -121,6 +128,7 @@ const Navbar = () => {
                     <Link
                       key={coin.coin_symbol}
                       to={`/coin/${coin.coin_symbol.toUpperCase()}`}
+                      onMouseDown={(e) => e.stopPropagation()}
                       onClick={() => setShowCoinDropdown(false)}
                       className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-100 hover:bg-blue-50 dark:hover:bg-gray-700"
                     >
@@ -159,7 +167,7 @@ const Navbar = () => {
                 placeholder={window.innerWidth < 768 ? "Search..." : "Search..."}
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="h-8 sm:h-9 w-24 sm:w-32 md:w-40 lg:w-48 xl:w-56 pl-8 pr-2 rounded-md border border-gray-300 dark:border-gray-600 text-xs sm:text-sm bg-white dark:bg-gray-800 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                className="h-8 sm:h-9 w-24 sm:w-32 md:w-40 lg:w-48 xl:w-56 pl-8 pr-2 rounded-md border border-gray-300 dark:border-gray-600 text-xs sm:text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-600"
               />
 
               {/* Search dropdown */}
@@ -169,7 +177,7 @@ const Navbar = () => {
                     <div
                       key={coin.coin_symbol}
                       onClick={() => handleSelectCoin(coin.coin_symbol)}
-                      className="px-3 py-1.5 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 text-xs sm:text-sm"
+                      className="px-3 py-1.5 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 text-xs sm:text-sm text-gray-800 dark:text-gray-100"
                     >
                       {coin.coin_name} ({coin.coin_symbol.toUpperCase()})
                     </div>
@@ -236,12 +244,9 @@ const Navbar = () => {
                     {coins.map((coin) => (
                       <button
                         key={coin.coin_symbol}
-                        onClick={() => {
-                          setShowCoinDropdown(false);
-                          setMobileMenuOpen(false);
-                          navigate(`/coin/${coin.coin_symbol.toUpperCase()}`);
-                        }}
-                        className="block w-full text-left py-2 px-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-md"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={() => navigate(`/coin/${coin.coin_symbol.toUpperCase()}`)}
+                        className="block w-full text-left py-2 px-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-md bg-transparent"
                       >
                         {coin.coin_name} ({coin.coin_symbol.toUpperCase()})
                       </button>
