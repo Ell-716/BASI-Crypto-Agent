@@ -234,17 +234,17 @@ const Navbar = () => {
                 {showCoinDropdown && coins.length > 0 && (
                   <div className="mt-1 ml-4 space-y-1">
                     {coins.map((coin) => (
-                      <Link
+                      <button
                         key={coin.coin_symbol}
-                        to={`/coin/${coin.coin_symbol.toUpperCase()}`}
                         onClick={() => {
                           setShowCoinDropdown(false);
                           setMobileMenuOpen(false);
+                          navigate(`/coin/${coin.coin_symbol.toUpperCase()}`);
                         }}
-                        className="block py-2 px-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-md"
+                        className="block w-full text-left py-2 px-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-md"
                       >
                         {coin.coin_name} ({coin.coin_symbol.toUpperCase()})
-                      </Link>
+                      </button>
                     ))}
                   </div>
                 )}
