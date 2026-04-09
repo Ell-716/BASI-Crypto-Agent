@@ -203,9 +203,9 @@ const Home = () => {
           <thead className="border-y border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
             <tr>
               <th className="px-2 py-3 font-bold text-black dark:text-white w-8"></th> {/* Favorite star */}
-              <th className="px-4 py-3 font-bold text-black dark:text-white w-8">#</th> {/* Rank */}
-              <th className="px-4 py-3 font-bold text-black dark:text-white min-w-[180px]">Coin</th>
-              <th className="px-4 py-3 font-bold text-black dark:text-white text-right min-w-[120px]">Price</th>
+              <th className="px-2 py-3 font-bold text-black dark:text-white w-8">#</th> {/* Rank */}
+              <th className="px-2 sm:px-4 py-3 font-bold text-black dark:text-white">Coin</th>
+              <th className="px-2 sm:px-4 py-3 font-bold text-black dark:text-white text-right">Price</th>
               <th className="hidden sm:table-cell px-4 py-3 font-bold text-black dark:text-white text-right min-w-[120px]">24h High</th>
               <th className="hidden sm:table-cell px-4 py-3 font-bold text-black dark:text-white text-right min-w-[120px]">24h Low</th>
               <th className="hidden md:table-cell px-4 py-3 font-bold text-black dark:text-white text-right min-w-[150px]">24h Volume</th>
@@ -225,9 +225,9 @@ const Home = () => {
                   </button>
                 </td>
                 <td className="px-2 py-4 w-8">{index + 1}</td>
-                <td className="px-4 py-4 min-w-[180px]">
+                <td className="px-2 sm:px-4 py-4">
                   <div className="flex items-center gap-2 h-full">
-                    <img src={coin.image} alt={coin.name} className="w-6 h-6" />
+                    <img src={coin.image} alt={coin.name} className="w-6 h-6 shrink-0" />
                     <div className="flex flex-col sm:flex-row sm:gap-1 sm:items-center h-full">
                       <Link to={`/coin/${coin.symbol}`}>
                         <span className="font-semibold">{coin.name}</span>
@@ -236,7 +236,7 @@ const Home = () => {
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-4 text-right min-w-[120px]">
+                <td className="px-2 sm:px-4 py-4 text-right whitespace-nowrap">
                   ${parseFloat(coin.current_price).toLocaleString()}
                 </td>
                 <td className="hidden sm:table-cell px-4 py-4 text-right min-w-[120px]">${parseFloat(coin.high_24h).toLocaleString()}</td>

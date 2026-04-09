@@ -223,7 +223,7 @@ const Navbar = () => {
               </Link>
 
               {/* Coin Page Dropdown in Mobile */}
-              <div className="py-2">
+              <div>
                 <button
                   onClick={() => setShowCoinDropdown(!showCoinDropdown)}
                   className="w-full flex items-center justify-between py-2 px-3 text-gray-800 dark:text-gray-100 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-md text-sm sm:text-base"
