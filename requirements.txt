@@ -12,14 +12,14 @@ matplotlib==3.10.1
 numpy==2.2.6
 pandas==2.3.2
 pandas_ta==0.4.71b0
-python-dotenv==1.0.1
+python-dotenv==1.1.0
 requests==2.33.1
 SQLAlchemy==2.0.37
 Flask-Limiter==4.1.1
 freezegun==1.5.5
-pytest==9.0.2
+pytest==9.0.3
 pytest-flask==1.3.0
 alembic==1.18.4
 Flask-Migrate==4.1.0
-Mako==1.3.10
+Mako==1.3.11
 psycopg2-binary==2.9.10
