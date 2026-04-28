@@ -12,7 +12,7 @@ matplotlib==3.10.1
 numpy==2.2.6
 pandas==2.3.2
 pandas_ta==0.4.71b0
-python-dotenv==1.1.0
+python-dotenv==1.2.2
 requests==2.33.1
 SQLAlchemy==2.0.37
 Flask-Limiter==4.1.1
