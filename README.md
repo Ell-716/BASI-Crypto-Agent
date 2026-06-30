@@ -24,7 +24,7 @@ graph TB
     Backend --> Binance[Binance API<br/>Real-time Prices + OHLCV]
     Backend --> CoinGecko[CoinGecko API<br/>Metadata + Market Cap]
     Backend --> FearGreed[Alternative.me API<br/>Fear & Greed Index]
-    Backend --> Groq[Groq LLM<br/>llama-3.3-70b-versatile]
+    Backend --> Groq[Groq LLM<br/>openai/gpt-oss-120b]
     Backend -.WebSocket.-> Frontend
 ```
 
@@ -52,7 +52,7 @@ graph TB
 - **SQLite** (local development)
 
 ### AI
-- **Groq LLM** (`llama-3.3-70b-versatile` model for AI predictions)
+- **Groq LLM** (`openai/gpt-oss-120b` model for AI predictions)
 
 ### External APIs
 - **Binance API** – Real-time prices and OHLCV historical data
@@ -108,7 +108,7 @@ graph TB
    - Computes support and resistance levels from recent price windows
 
 3. **AI Prediction**
-   - Sends all indicators + market data to **Groq LLM** (`llama-3.3-70b-versatile`)
+   - Sends all indicators + market data to **Groq LLM** (`openai/gpt-oss-120b`)
    - Receives **Buy/Sell/Hold** recommendation with natural language explanation
    - Two report modes:
      - **Concise**: Quick recommendation (500 tokens)

@@ -21,6 +21,7 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 load_dotenv()
 API_KEY = os.getenv('GROQ_API_KEY')
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 
 
 def fetch_historical_data(coin_symbol, timeframe):
@@ -188,7 +189,7 @@ def analyze_with_llm(coin_symbol, timeframe, report_type="concise"):
     try:
         client = Groq(api_key=API_KEY)
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model=GROQ_MODEL,
             messages=[
                 {"role": "system", "content": FULL_PROMPT_TEMPLATE if report_type == "full" else CONCISE_PROMPT_TEMPLATE},
                 {"role": "user", "content": prompt}
