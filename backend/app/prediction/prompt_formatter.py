@@ -21,7 +21,6 @@ Display all charts!
 ### **📌 Recommendation**
 {investment_recommendation} 
  
-Include the chart below. 
 ![Chart Price](chart-price)
 
 ### **📊 Key Highlights**
@@ -30,7 +29,6 @@ Include the chart below.
 - **Resistance Levels:** {derived_observations[resistance_levels]}  
 - **Volatility:** {derived_observations[volatility]}
 
-Include the chart below. 
 ![Chart MACD/RSI](chart-macd-rsi)
 """
 
@@ -44,11 +42,17 @@ Provide an in-depth, structured analysis, ensuring step-by-step insights into ma
 Do not introduce yourself. Begin the response directly with the report content.
 Display all charts!
 
+STRICT OUTPUT RULES:
+- Follow the EXACT structure below. Do not add any extra sections.
+- Do not add "Observation:" labels to any section.
+- Do not add a "Summary", "Overall Assessment", or "Conclusion" section at the end.
+- Each section should have 2-3 sentence analysis paragraph, not bullet-point lists of explanations.
+- Do not repeat indicator values in the recommendation section — only give the recommendation with a brief 2-3 sentence explanation there.
+
 ### **{coin}/USDT**  
 - **Current Price:** ${latest_data[close]:,.2f}  
 - **Market Sentiment:** {derived_observations[trend]}
 
-Include the chart below. 
 ![Chart Price](chart-price)
 
 ### **📌 Recommendation**
@@ -70,7 +74,6 @@ Conversely, if it is below, it signals **bearish momentum**.
 
 If the price approaches **support**, it may **bounce back up**. If it nears **resistance**, it could **face rejection**.
 
-Include the chart below. 
 ![Chart MACD/RSI](chart-macd-rsi)
 
 ### **📊 Momentum Indicators**
@@ -81,7 +84,7 @@ Include the chart below.
 
 If RSI is **above 70**, the market is **overbought**, and a **pullback is likely**.
 If **below 30**, the market is **oversold**, indicating a potential **upward reversal**.
-Include the chart below. 
+
 ![Chart Bollinger](chart-bollinger)
 
 ### **🌐 Volatility & Market Condition**
