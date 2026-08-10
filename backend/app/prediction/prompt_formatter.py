@@ -46,7 +46,7 @@ STRICT OUTPUT RULES:
 - Follow the EXACT structure below. Do not add any extra sections.
 - Do not add "Observation:" labels to any section.
 - Do not add a "Summary", "Overall Assessment", or "Conclusion" section at the end.
-- Each section should have 2-3 sentence analysis paragraph, not bullet-point lists of explanations.
+- Each section should have all indicators data as a list and 2-3 sentence analysis paragraph, not bullet-point lists of explanations.
 - Do not repeat indicator values in the recommendation section — only give the recommendation with a brief 2-3 sentence explanation there.
 
 ### **{coin}/USDT**  
